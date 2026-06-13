@@ -1,0 +1,159 @@
+from sqlalchemy.orm import Session
+
+from app.database.database import SessionLocal
+from app.database.user_model import User
+
+
+def save_user_group(
+    telegram_id: int,
+    group_name: str,
+):
+
+    db: Session = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    if user:
+
+        user.group_name = group_name
+
+    else:
+
+        user = User(
+            telegram_id=telegram_id,
+            group_name=group_name,
+            schedule_updates=True,
+            tomorrow_notifications=False,
+        )
+
+        db.add(user)
+
+    db.commit()
+
+    db.close()
+
+
+def get_user_group(
+    telegram_id: int,
+) -> str | None:
+
+    db: Session = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    db.close()
+
+    if not user:
+        return None
+
+    return user.group_name
+
+def get_user(
+    telegram_id: int,
+):
+
+    db: Session = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    db.close()
+
+    return user
+
+def toggle_schedule_updates(
+    telegram_id: int,
+):
+
+    db: Session = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    if user:
+
+        user.schedule_updates = (
+            not user.schedule_updates
+        )
+
+        db.commit()
+
+    db.close()
+
+def toggle_tomorrow_notifications(
+    telegram_id: int,
+):
+
+    db: Session = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    if user:
+
+        user.tomorrow_notifications = (
+            not user.tomorrow_notifications
+        )
+
+        db.commit()
+
+    db.close()
+
+def get_users_for_schedule_updates():
+
+    db: Session = SessionLocal()
+
+    users = (
+        db.query(User)
+        .filter(
+            User.schedule_updates == True
+        )
+        .all()
+    )
+
+    db.close()
+
+    return users
+
+def get_users_for_tomorrow_notifications():
+
+    db: Session = SessionLocal()
+
+    users = (
+        db.query(User)
+        .filter(
+            User.tomorrow_notifications == True
+        )
+        .all()
+    )
+
+    db.close()
+
+    return users

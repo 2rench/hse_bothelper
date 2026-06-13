@@ -1,0 +1,93 @@
+from collections import defaultdict
+
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
+
+from app.services.schedule_service import (
+    get_lessons_by_date,
+    get_current_study_date,
+)
+
+from app.services.schedule_service import (
+    get_week_lessons,
+)
+
+from app.database.user_repository import (
+    get_user_group,
+)
+
+from app.bot.keyboards.group_years import (
+    get_years_keyboard,
+)
+
+from app.bot.services.formatter import (
+    format_lessons,
+)
+
+router = Router()
+
+
+@router.message(Command("week"))
+async def week_handler(message: Message):
+
+    group = get_user_group(
+        message.from_user.id
+    )
+
+    if group is None:
+
+        await message.answer(
+            "Сначала выберите группу",
+            reply_markup=get_years_keyboard(),
+        )
+
+        return
+
+    lessons = get_week_lessons(
+        group
+    )
+
+    if not lessons:
+
+        await message.answer(
+            "Для вашей группы нет расписания"
+        )
+
+        return
+
+    if not lessons:
+
+        await message.answer(
+            "Пары не найдены 😄"
+        )
+
+        return
+
+    grouped = defaultdict(list)
+
+    for lesson in lessons:
+
+        grouped[
+            (lesson.day, lesson.date)
+        ].append(lesson)
+
+    text = (
+        f"📚 Расписание недели\n"
+        f"Группа: {group}\n\n"
+    )
+
+    for (day, date), day_lessons in grouped.items():
+
+        text += (
+            f"━━━━━━━━━━━━\n"
+            f"📅 {day} ({date})\n\n"
+        )
+
+        text += format_lessons(
+            day_lessons
+        )
+
+        text += "\n"
+
+    await message.answer(text)

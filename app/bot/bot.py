@@ -1,0 +1,71 @@
+from aiogram import Bot, Dispatcher
+
+from aiogram.client.default import (
+    DefaultBotProperties,
+)
+
+from aiogram.enums import ParseMode
+
+from dotenv import load_dotenv
+
+import asyncio
+import os
+
+from app.bot.handlers.group_select import router as group_router
+
+from app.services.scheduler import (
+    schedule_loop,
+)
+
+from app.bot.handlers import start, today, week, tomorrow, sessions
+
+from app.bot.handlers.notifications import (
+    router as notifications_router
+)
+
+from app.bot.handlers.open_notification_day import (
+    router as open_day_router
+)
+
+from app.bot.handlers.open_notification_schedule import (
+    router as notification_open_router
+)
+
+from app.bot.handlers.session_view import router as session_view_router
+load_dotenv()
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+async def main():
+
+    bot = Bot(
+        token=BOT_TOKEN,
+
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.HTML,
+        ),
+    )
+
+    dp = Dispatcher()
+
+    dp.include_router(group_router)
+    dp.include_router(tomorrow.router)
+    dp.include_router(start.router)
+    dp.include_router(today.router)
+    dp.include_router(week.router)
+    dp.include_router(sessions.router)
+    dp.include_router(session_view_router)
+    dp.include_router(notifications_router)
+    dp.include_router(notification_open_router)
+    dp.include_router(open_day_router)
+
+    print("Bot started")
+    asyncio.create_task(
+        schedule_loop(bot)
+    )
+
+    await dp.start_polling(bot)
+
+if __name__ == '__main__':
+
+    asyncio.run(main())
