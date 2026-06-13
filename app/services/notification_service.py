@@ -6,11 +6,6 @@ from app.bot.keyboards.update_notification import (
     get_update_keyboard,
 )
 
-from app.database.sent_notification_repository import (
-    was_sent,
-    mark_sent,
-)
-
 async def send_update_notifications(
     bot,
     updates,
