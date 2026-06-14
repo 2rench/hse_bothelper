@@ -90,4 +90,23 @@ async def week_handler(message: Message):
 
         text += "\n"
 
-    await message.answer(text)
+    msg = await message.answer(text)
+
+    try:
+
+        await message.bot.unpin_all_chat_messages(
+            message.chat.id
+        )
+
+    except:
+        pass
+
+    try:
+
+        await message.bot.pin_chat_message(
+            chat_id=message.chat.id,
+            message_id=msg.message_id,
+        )
+
+    except:
+        pass

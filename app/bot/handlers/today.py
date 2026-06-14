@@ -58,8 +58,8 @@ async def today_handler(message: Message):
     )
 
     text = (
-        f"📚 Расписание на {current_date}\n\n"
-        f"🧭 Группа: {group}\n"
+        f"📚 Расписание на {current_date}\n"
+        f"🧭 Группа: {group}\n\n"
     )
 
     text += format_lessons(

@@ -1,0 +1,54 @@
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.filters import Command
+
+from app.database.user_repository import (
+    get_user,
+)
+
+from app.bot.keyboards.menu import (
+    get_main_menu,
+)
+
+router = Router()
+
+
+@router.message(Command("start"))
+async def start_handler(
+    message: Message,
+):
+
+    user = get_user(
+        message.from_user.id
+    )
+
+    group = (
+        user.group_name
+        if user
+        else "не выбрана"
+    )
+
+    updates = (
+        "🟢 ВКЛ"
+        if user and user.schedule_updates
+        else "🔴 ВЫКЛ"
+    )
+
+    tomorrow = (
+        "🟢 ВКЛ"
+        if user and user.tomorrow_notifications
+        else "🔴 ВЫКЛ"
+    )
+
+    text = (
+        "🎓 HSE Bot\n\n"
+        f"👤 ID: {message.from_user.id}\n"
+        f"📚 Группа: {group}\n\n"
+        f"🔔 Изменения: {updates}\n"
+        f"🌙 Напоминания: {tomorrow}"
+    )
+
+    await message.answer(
+        text,
+        reply_markup=get_main_menu(),
+    )

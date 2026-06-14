@@ -10,16 +10,26 @@ def get_menu_keyboard():
         keyboard=[
             [
                 KeyboardButton(
-                    text="/today"
+                    text="📅 Сегодня"
                 ),
-
                 KeyboardButton(
-                    text="/tomorrow"
+                    text="📆 Завтра"
                 ),
             ],
             [
                 KeyboardButton(
-                    text="/week"
+                    text="🗓 Неделя"
+                ),
+                KeyboardButton(
+                    text="🎓 Сессия"
+                ),
+            ],
+            [
+                KeyboardButton(
+                    text="⚙️ Уведомления"
+                ),
+                KeyboardButton(
+                    text="💬 Поддержка"
                 ),
             ],
         ],

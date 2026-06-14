@@ -16,6 +16,8 @@ router = Router()
 async def start_handler(message: Message):
 
     await message.answer(
-        "Выбери год поступления:",
-        reply_markup=get_years_keyboard(),
+        f"🎓 HSE Bot\n\n"
+        f"👤 ID: {message.from_user.id}\n"
+        f"📚 Группа: {group}",
+        reply_markup=get_menu_keyboard(),
     )

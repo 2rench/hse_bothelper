@@ -40,7 +40,7 @@ async def tomorrow_handler(
     if group is None:
 
         await message.answer(
-            "Сначала выберите группу",
+            "🔫 Выбери группу, чтобы посмотреть",
             reply_markup=get_years_keyboard(),
         )
 
@@ -67,9 +67,7 @@ async def tomorrow_handler(
         return
 
     text = (
-        f"👀 Расписание на завтра\n"
-        f"🧭 Группа: {group}\n"
-        f"📅 Дата: {tomorrow_date}\n\n"
+        f"👀 На завтра — {tomorrow_date}\n\n"
     )
 
     text += format_lessons(
