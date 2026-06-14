@@ -1,3 +1,5 @@
+import asyncio
+
 from app.database.user_repository import (
     get_users_for_schedule_updates,
 )
@@ -46,6 +48,7 @@ async def send_update_notifications(
                         update["is_session"],
                     ),
                 )
+                await asyncio.sleep(0.05)
 
             except Exception as e:
 
