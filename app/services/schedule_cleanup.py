@@ -10,6 +10,32 @@ def delete_schedule(
     schedule_name: str,
 ) -> int:
 
+    schedule_name = schedule_name.lower()
+
+    if "базовое" in schedule_name:
+
+        return (
+            db.query(Lesson)
+            .filter(
+                Lesson.schedule_type == "base"
+            )
+            .delete(
+                synchronize_session=False
+            )
+        )
+
+    if "сессия" in schedule_name:
+
+        return (
+            db.query(Lesson)
+            .filter(
+                Lesson.schedule_name == schedule_name
+            )
+            .delete(
+                synchronize_session=False
+            )
+        )
+
     base_name = re.sub(
         r"\s+с изм\..*$",
         "",
