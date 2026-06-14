@@ -2,9 +2,9 @@ from collections import defaultdict
 
 
 def emoji(lesson_count):
-    if len(lesson_count) == 1:
+    if lesson_count == 1:
         EMOJI_LESSONS_DAY = '😋'
-    elif len(lesson_count) > 1 and len(lesson_count) <= 3:
+    elif lesson_count > 1 and lesson_count <= 3:
         EMOJI_LESSONS_DAY = '😐'
     else:
         EMOJI_LESSONS_DAY = '😵‍💫'

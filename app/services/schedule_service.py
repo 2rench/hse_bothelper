@@ -52,7 +52,6 @@ def get_lessons_by_date(
     return base
 
 
-
 def get_week_lessons(
     group: str,
 ) -> list[Lesson]:
@@ -63,7 +62,6 @@ def get_week_lessons(
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
-
             Lesson.schedule_type.in_(
                 ["changes", "base"]
             )
@@ -97,10 +95,18 @@ def get_week_lessons(
 
     for lesson in lessons:
 
-        lesson_date = datetime.strptime(
-            lesson.date,
-            "%d.%m.%Y"
-        )
+        if not lesson.date:
+            continue
+
+        try:
+
+            lesson_date = datetime.strptime(
+                lesson.date,
+                "%d.%m.%Y"
+            )
+
+        except ValueError:
+            continue
 
         if not (
             week_start
@@ -121,8 +127,9 @@ def get_week_lessons(
     for date, day_lessons in grouped.items():
 
         changes = [
-            l for l in day_lessons
-            if l.schedule_type == "changes"
+            lesson
+            for lesson in day_lessons
+            if lesson.schedule_type == "changes"
         ]
 
         if changes:
@@ -135,18 +142,25 @@ def get_week_lessons(
 
             result.extend(
                 [
-                    l for l in day_lessons
-                    if l.schedule_type == "base"
+                    lesson
+                    for lesson in day_lessons
+                    if lesson.schedule_type == "base"
                 ]
             )
 
     result.sort(
-        key=lambda x: (
+        key=lambda lesson: (
             datetime.strptime(
-                x.date,
+                lesson.date,
                 "%d.%m.%Y"
             ),
-            int(x.lesson_number),
+            int(
+                lesson.lesson_number
+            )
+            if str(
+                lesson.lesson_number
+            ).isdigit()
+            else 999
         )
     )
 
@@ -178,6 +192,7 @@ def get_tomorrow_study_date(
         "%d.%m.%Y"
     )
 
+
 def get_current_study_date(
     group: str,
 ) -> str | None:
@@ -188,11 +203,8 @@ def get_current_study_date(
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
-
-            not_(
-                Lesson.schedule_name.like(
-                    "СЕССИЯ%"
-                )
+            Lesson.schedule_type.in_(
+                ["changes", "base"]
             ),
         )
         .all()
@@ -209,6 +221,9 @@ def get_current_study_date(
 
     for lesson in lessons:
 
+        if not lesson.date:
+            continue
+
         try:
 
             lesson_date = datetime.strptime(
@@ -220,7 +235,7 @@ def get_current_study_date(
                 lesson_date
             )
 
-        except:
+        except ValueError:
             continue
 
     if not parsed_dates:
@@ -257,11 +272,9 @@ def get_week_lessons_by_number(
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
-
             Lesson.schedule_name.like(
                 f"%неделя №{week}%"
             ),
-
             not_(
                 Lesson.schedule_name.like(
                     "СЕССИЯ%"
