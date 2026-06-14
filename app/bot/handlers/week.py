@@ -38,7 +38,7 @@ async def week_handler(message: Message):
     if group is None:
 
         await message.answer(
-            "Сначала выберите группу",
+            "🔫 Выбери группу, чтобы посмотреть",
             reply_markup=get_years_keyboard(),
         )
 
@@ -51,7 +51,7 @@ async def week_handler(message: Message):
     if not lessons:
 
         await message.answer(
-            "Для вашей группы нет расписания"
+            "🤪 Расписание для твоей группы не найдено"
         )
 
         return
@@ -59,7 +59,7 @@ async def week_handler(message: Message):
     if not lessons:
 
         await message.answer(
-            "Пары не найдены 😄"
+            "На чиле, без пар 🤩"
         )
 
         return
@@ -74,14 +74,14 @@ async def week_handler(message: Message):
 
     text = (
         f"📚 Расписание недели\n"
-        f"Группа: {group}\n\n"
+        f"🧭 Группа: {group}\n\n"
     )
 
     for (day, date), day_lessons in grouped.items():
 
         text += (
             f"━━━━━━━━━━━━\n"
-            f"📅 {day} ({date})\n\n"
+            f"📅 {day} — {date}\n\n"
         )
 
         text += format_lessons(

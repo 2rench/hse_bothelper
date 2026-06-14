@@ -1,6 +1,9 @@
-from sqlalchemy import String
-from sqlalchemy import Integer
-from sqlalchemy import Boolean
+from sqlalchemy import (
+    String,
+    Integer,
+    Boolean,
+    Column,
+)
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -69,4 +72,9 @@ class Lesson(Base):
     is_online: Mapped[bool] = mapped_column(
         Boolean,
         default=False,
+    )
+
+    schedule_type: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
     )

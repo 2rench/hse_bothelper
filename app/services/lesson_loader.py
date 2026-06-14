@@ -38,6 +38,9 @@ def load_lessons(
             schedule_name=normalize_schedule_name(
                 item.get("schedule_name")
             ),
+            schedule_type=item.get(
+                "schedule_type"
+            ),
         )
 
         objects.append(

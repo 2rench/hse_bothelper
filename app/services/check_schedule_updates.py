@@ -46,11 +46,20 @@ def check_updates():
         db: Session = SessionLocal()
         name = item["name"].lower()
 
-        if (
-            "неделя" not in name
-            and
-            "сессия" not in name
-        ):
+        if "сессия" in name:
+
+            schedule_type = "session"
+
+        elif "неделя" in name:
+
+            schedule_type = "changes"
+
+        elif "базовое" in name:
+
+            schedule_type = "base"
+
+        else:
+
             db.close()
             continue
         content = download_file(
@@ -87,7 +96,8 @@ def check_updates():
             db.close()
 
             import_schedule(
-                str(saved_path)
+                str(saved_path),
+                schedule_type
             )
 
             Path(saved_path).unlink(
@@ -150,7 +160,8 @@ def check_updates():
                 )
 
                 success = import_schedule(
-                    str(saved_path)
+                    str(saved_path),
+                    schedule_type
                 )
 
                 if not success:

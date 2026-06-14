@@ -67,18 +67,18 @@ async def send_tomorrow_notifications(
         if is_session:
 
             text = (
-                "🎓 Напоминание\n\n"
-                f"Завтра сессия\n"
+                "🛎️ Напоминание\n\n"
+                f"🥶 Завтра сессия\n"
                 f"{tomorrow}"
             )
 
         else:
 
             text = (
-                "📚 Напоминание\n\n"
-                f"Завтра пары\n"
+                "🛎️ Напоминание\n\n"
+                f"🫣 Завтра пары\n"
                 f"{tomorrow}\n"
-                f"Количество: {len(lessons)}"
+                f"😑 Количество: {len(lessons)}"
             )
 
         try:

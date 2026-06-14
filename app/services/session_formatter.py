@@ -38,9 +38,9 @@ def format_session_schedule(
                 text += f"{lesson.teacher}\n"
 
             if lesson.room:
-                text += f"Аудитория: {lesson.room}"
+                text += f"💥 Аудитория: {lesson.room}"
                 if lesson.building:
-                    text += f" [{lesson.building}]"
+                    text += f"🏫 Корпус: {lesson.building}"
                 text += "\n"
 
             if lesson.is_online:

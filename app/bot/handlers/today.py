@@ -34,7 +34,7 @@ async def today_handler(message: Message):
     if group is None:
 
         await message.answer(
-            "Сначала выберите группу",
+            "🔫 Выбери группу, чтобы посмотреть",
             reply_markup=get_years_keyboard(),
         )
 
@@ -47,7 +47,7 @@ async def today_handler(message: Message):
     if not current_date:
 
         await message.answer(
-            "Для вашей группы нет расписания"
+            "🔦 Не вижу расписания, отдыхаем"
         )
 
         return
@@ -58,9 +58,8 @@ async def today_handler(message: Message):
     )
 
     text = (
-        f"📚 Расписание\n"
-        f"Группа: {group}\n"
-        f"Дата: {current_date}\n\n"
+        f"📚 Расписание на {current_date}\n\n"
+        f"🧭 Группа: {group}\n"
     )
 
     text += format_lessons(

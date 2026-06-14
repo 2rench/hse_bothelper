@@ -13,6 +13,7 @@ from app.services.lesson_loader import (
 
 def import_schedule(
     file_path: str,
+    schedule_type: str,
 ):
 
     schedule_name = Path(
@@ -24,6 +25,7 @@ def import_schedule(
         lessons = parse_excel(
             file_path=file_path,
             schedule_name=schedule_name,
+            schedule_type=schedule_type,
         )
 
     except xlrd.biffh.XLRDError:

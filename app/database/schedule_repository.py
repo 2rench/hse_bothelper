@@ -1,5 +1,9 @@
 import re
 
+from sqlalchemy.orm import Session
+
+from app.database.database import SessionLocal
+from app.database.models import Lesson
 from app.database.database import (
     SessionLocal,
 )
@@ -52,3 +56,38 @@ def get_all_sessions():
     )
 
     return result
+
+
+def get_lessons_for_date(
+    group: str,
+    date: str,
+):
+    db: Session = SessionLocal()
+
+    changes = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            Lesson.date == date,
+            Lesson.schedule_type == "changes",
+        )
+        .all()
+    )
+
+    if changes:
+        db.close()
+        return changes
+
+    base = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            Lesson.date == date,
+            Lesson.schedule_type == "base",
+        )
+        .all()
+    )
+
+    db.close()
+
+    return base

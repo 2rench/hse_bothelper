@@ -12,24 +12,34 @@ def get_lessons_by_date(
     group: str,
     date: str,
 ) -> list[Lesson]:
-    """
-    Возвращает пары группы
-    на конкретную дату.
-    """
 
     db: Session = SessionLocal()
 
-    lessons = (
+    changes = (
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
             Lesson.date == date,
+            Lesson.schedule_type == "changes",
+        )
+        .order_by(
+            Lesson.lesson_number
+        )
+        .all()
+    )
 
-            not_(
-                Lesson.schedule_name.like(
-                    "СЕССИЯ%"
-                )
-            ),
+    if changes:
+
+        db.close()
+
+        return changes
+
+    base = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            Lesson.date == date,
+            Lesson.schedule_type == "base",
         )
         .order_by(
             Lesson.lesson_number
@@ -39,7 +49,8 @@ def get_lessons_by_date(
 
     db.close()
 
-    return lessons
+    return base
+
 
 
 def get_week_lessons(
@@ -53,11 +64,9 @@ def get_week_lessons(
         .filter(
             Lesson.group_name == group,
 
-            not_(
-                Lesson.schedule_name.like(
-                    "СЕССИЯ%"
-                )
-            ),
+            Lesson.schedule_type.in_(
+                ["changes", "base"]
+            )
         )
         .all()
     )
@@ -67,35 +76,8 @@ def get_week_lessons(
     if not lessons:
         return []
 
-    unique = {}
-
-    for lesson in lessons:
-
-        key = (
-            lesson.date,
-            lesson.lesson_number,
-            lesson.subject,
-            lesson.teacher,
-            lesson.room,
-        )
-
-        unique[key] = lesson
-
-    lessons = list(unique.values())
-
-    lessons.sort(
-        key=lambda x: (
-            datetime.strptime(
-                x.date,
-                "%d.%m.%Y"
-            ),
-            int(x.lesson_number),
-        )
-    )
-
     today = datetime.now()
 
-    # ПОНЕДЕЛЬНИК текущей недели
     week_start = today - timedelta(
         days=today.weekday()
     )
@@ -107,12 +89,11 @@ def get_week_lessons(
         microsecond=0,
     )
 
-    # ВОСКРЕСЕНЬЕ
     week_end = week_start + timedelta(
         days=6
     )
 
-    filtered = []
+    grouped = {}
 
     for lesson in lessons:
 
@@ -121,17 +102,56 @@ def get_week_lessons(
             "%d.%m.%Y"
         )
 
-        if (
+        if not (
             week_start
             <= lesson_date
             <= week_end
         ):
+            continue
 
-            filtered.append(
-                lesson
+        grouped.setdefault(
+            lesson.date,
+            []
+        ).append(
+            lesson
+        )
+
+    result = []
+
+    for date, day_lessons in grouped.items():
+
+        changes = [
+            l for l in day_lessons
+            if l.schedule_type == "changes"
+        ]
+
+        if changes:
+
+            result.extend(
+                changes
             )
 
-    return filtered
+        else:
+
+            result.extend(
+                [
+                    l for l in day_lessons
+                    if l.schedule_type == "base"
+                ]
+            )
+
+    result.sort(
+        key=lambda x: (
+            datetime.strptime(
+                x.date,
+                "%d.%m.%Y"
+            ),
+            int(x.lesson_number),
+        )
+    )
+
+    return result
+
 
 def get_tomorrow_study_date(
     group: str,

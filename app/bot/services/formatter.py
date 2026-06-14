@@ -1,6 +1,16 @@
 from collections import defaultdict
 
 
+def emoji(lesson_count):
+    if len(lesson_count) == 1:
+        EMOJI_LESSONS_DAY = '😋'
+    elif len(lesson_count) > 1 and len(lesson_count) <= 3:
+        EMOJI_LESSONS_DAY = '😐'
+    else:
+        EMOJI_LESSONS_DAY = '😵‍💫'
+
+    return EMOJI_LESSONS_DAY
+
 def format_lessons(
     lessons,
     title: str | None = None,
@@ -14,7 +24,7 @@ def format_lessons(
 
     if not lessons:
 
-        return "Пар нет 😄"
+        return "На чиле, без пар 🤩"
 
     text = ""
 
@@ -40,8 +50,8 @@ def format_lessons(
 
             text += (
                 f"━━━━━━━━━━━━\n"
-                f"📅 {day} ({date})\n"
-                f"📚 Пар: {len(day_lessons)}\n\n"
+                f"📅 {day} — {date}\n"
+                f"{emoji(len(lessons))} Пар: {len(day_lessons)}\n\n"
             )
 
             text += _format_day_lessons(
@@ -54,7 +64,7 @@ def format_lessons(
 
     # Для /today
     text += (
-        f"📚 Пар: {len(lessons)}\n\n"
+        f"{emoji(len(lessons))} Пар: {len(lessons)}\n\n"
     )
 
     text += _format_day_lessons(
@@ -76,30 +86,34 @@ def _format_day_lessons(lessons):
     for lesson in lessons:
 
         text += (
-            f"<b>{lesson.lesson_number}</b> "
+            f"☄️<b>№{lesson.lesson_number} пара</b> — "
             f"{lesson.lesson_time}\n"
         )
+        if lesson.lesson_type == 'Семинар':
+            EMOJI_FOR_LESSON_TYPE = '🙄'
+        else:
+            EMOJI_FOR_LESSON_TYPE = '😴'
 
-        text += f"{lesson.subject}\n"
-        text += f"{lesson.lesson_type}\n"
+        text += f"🎾 Предмет: {lesson.subject}\n"
+        text += f"{EMOJI_FOR_LESSON_TYPE} {lesson.lesson_type}\n"
 
         if lesson.teacher:
 
             text += (
-                f"{lesson.teacher}\n"
+                f"🙂 Преподаватель: {lesson.teacher}\n"
             )
 
         if lesson.room:
 
             text += (
-                f"Аудитория: "
-                f"{lesson.room}"
+                f"⭐ Аудитория: "
+                f"{lesson.room} \n"
             )
 
             if lesson.building:
 
                 text += (
-                    f" [{lesson.building}]"
+                    f"🏫 Корпус: {lesson.building}"
                 )
 
             text += "\n"

@@ -118,6 +118,7 @@ def create_lesson_record(
     lesson_info,
     lesson_type,
     schedule_name,
+    schedule_type,
 ):
 
 
@@ -139,12 +140,14 @@ def create_lesson_record(
         "is_online": lesson_info["is_online"],
         "lesson_type": lesson_type,
         "schedule_name": schedule_name,
+        "schedule_type": schedule_type,
     }
 
 
 def parse_excel(
     file_path: str,
     schedule_name: str,
+    schedule_type: str,
 ) -> list[dict]:
 
 
@@ -282,6 +285,7 @@ def parse_excel(
                             lesson_info,
                             lesson_type,
                             schedule_name,
+                            schedule_type,
                         )
                     )
 
@@ -346,6 +350,7 @@ def parse_excel(
                             lesson_info,
                             lesson_type,
                             schedule_name,
+                            schedule_type,
                         )
                     )
 

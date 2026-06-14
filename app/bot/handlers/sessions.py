@@ -25,7 +25,7 @@ async def sessions_handler(
     if not sessions:
 
         await message.answer(
-            "Сессии не найдены"
+            "🥳 Сессии не найдены"
         )
 
         return

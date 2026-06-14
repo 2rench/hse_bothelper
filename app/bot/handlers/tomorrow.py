@@ -61,15 +61,15 @@ async def tomorrow_handler(
     if not lessons:
 
         await message.answer(
-            f"Завтра ({tomorrow_date}) пар нет 😄"
+            f"Завтра ({tomorrow_date}) без пар 🙏🙏🙏"
         )
 
         return
 
     text = (
-        f"📚 Расписание на завтра\n"
-        f"Группа: {group}\n"
-        f"Дата: {tomorrow_date}\n\n"
+        f"👀 Расписание на завтра\n"
+        f"🧭 Группа: {group}\n"
+        f"📅 Дата: {tomorrow_date}\n\n"
     )
 
     text += format_lessons(
