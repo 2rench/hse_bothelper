@@ -67,3 +67,12 @@ async def today_handler(message: Message):
     )
 
     await message.answer(text)
+    @router.message(
+        lambda m: m.text == "📅 Сегодня"
+    )
+    async def today_button(
+        message: Message,
+    ):
+        await today_handler(
+            message
+        )

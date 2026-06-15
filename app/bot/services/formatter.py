@@ -51,7 +51,7 @@ def format_lessons(
             text += (
                 f"━━━━━━━━━━━━\n"
                 f"📅 {day} — {date}\n"
-                f"━━━━━━━━━━━━\n"
+                f"━━━━━━━━━━━━"
                 f"{emoji(len(lessons))} Пар: {len(day_lessons)}\n\n"
             )
 
@@ -87,6 +87,7 @@ def _format_day_lessons(lessons):
     for lesson in lessons:
 
         text += (
+            f"➖➖➖➖➖➖➖➖"
             f"☄️<b>№{lesson.lesson_number} пара</b> — "
             f"<b>{lesson.lesson_time}</b>\n\n"
         )
@@ -96,12 +97,12 @@ def _format_day_lessons(lessons):
             EMOJI_FOR_LESSON_TYPE = '😴'
 
         text += f"🎾 <b>Предмет:</b> {lesson.subject}\n\n"
-        text += f"{EMOJI_FOR_LESSON_TYPE} <b>{lesson.lesson_type}</b>\n\n"
+        text += f"{EMOJI_FOR_LESSON_TYPE} <b>{lesson.lesson_type}</b>\n"
 
         if lesson.teacher:
 
             text += (
-                f"🙂 <b>{lesson.teacher}</b>\n\n"
+                f"<b>{lesson.teacher}</b>\n\n"
             )
 
         if lesson.room:

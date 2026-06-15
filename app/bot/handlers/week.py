@@ -110,3 +110,13 @@ async def week_handler(message: Message):
 
     except:
         pass
+
+    @router.message(
+        lambda m: m.text == "🗓 Неделя"
+    )
+    async def week_button(
+        message: Message,
+    ):
+        await week_handler(
+            message
+        )

@@ -82,3 +82,12 @@ async def toggle_tomorrow(
     )
 
     await callback.answer()
+    @router.message(
+        lambda m: m.text == "⚙️ Уведомления"
+    )
+    async def notifications_button(
+        message: Message,
+    ):
+        await notifications_handler(
+            message
+        )

@@ -4,7 +4,7 @@ from aiogram.types import (
 )
 
 
-def get_menu_keyboard():
+def get_main_menu():
 
     return ReplyKeyboardMarkup(
         keyboard=[

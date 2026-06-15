@@ -77,3 +77,12 @@ async def show_session(
     )
 
     await callback.answer()
+    @router.message(
+        lambda m: m.text == "🎓 Сессия"
+    )
+    async def sessions_button(
+        message: Message,
+    ):
+        await sessions_handler(
+            message
+        )

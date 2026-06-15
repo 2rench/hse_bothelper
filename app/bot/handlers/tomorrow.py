@@ -77,3 +77,12 @@ async def tomorrow_handler(
     await message.answer(
         text
     )
+    @router.message(
+        lambda m: m.text == "📆 Завтра"
+    )
+    async def tomorrow_button(
+        message: Message,
+    ):
+        await tomorrow_handler(
+            message
+        )

@@ -35,10 +35,6 @@ from app.bot.handlers.home import (
     router as home_router
 )
 
-from app.bot.handlers.menu_buttons import (
-    router as menu_buttons_router
-)
-
 from app.bot.handlers.session_view import router as session_view_router
 load_dotenv()
 
@@ -67,7 +63,6 @@ async def main():
     dp.include_router(notification_open_router)
     dp.include_router(open_day_router)
     dp.include_router(home_router)
-    dp.include_router(menu_buttons_router)
 
     print("Bot started")
     asyncio.create_task(
