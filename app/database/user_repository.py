@@ -74,9 +74,22 @@ def get_user(
         .first()
     )
 
+    if not user:
+
+        db.close()
+
+        return None
+
+    data = {
+        "telegram_id": user.telegram_id,
+        "group_name": user.group_name,
+        "schedule_updates": user.schedule_updates,
+        "tomorrow_notifications": user.tomorrow_notifications,
+    }
+
     db.close()
 
-    return user
+    return data
 
 def toggle_schedule_updates(
     telegram_id: int,

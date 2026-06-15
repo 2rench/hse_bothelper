@@ -4,7 +4,6 @@ from aiogram.types import Message
 
 from app.database.user_repository import (
     get_user,
-    get_user_group,
 )
 
 from app.bot.keyboards.group_years import (
@@ -23,11 +22,14 @@ async def start_handler(
     message: Message,
 ):
 
-    group = get_user_group(
+    if message.from_user is None:
+        return
+
+    user = get_user(
         message.from_user.id
     )
 
-    if group is None:
+    if not user or not user["group_name"]:
 
         await message.answer(
             "🎓 Привет!\n\nВыбери курс:",
@@ -36,26 +38,22 @@ async def start_handler(
 
         return
 
-    user = get_user(
-        message.from_user.id
-    )
-
     updates = (
         "🟢 ВКЛ"
-        if user and user.schedule_updates
+        if user["schedule_updates"]
         else "🔴 ВЫКЛ"
     )
 
     tomorrow = (
         "🟢 ВКЛ"
-        if user and user.tomorrow_notifications
+        if user["tomorrow_notifications"]
         else "🔴 ВЫКЛ"
     )
 
     text = (
         "🎓 HSE Bot\n\n"
         f"👤 ID: {message.from_user.id}\n"
-        f"📚 Группа: {group}\n\n"
+        f"📚 Группа: {user['group_name']}\n\n"
         f"🔔 Изменения: {updates}\n"
         f"🌙 Напоминания: {tomorrow}"
     )
