@@ -1,6 +1,5 @@
 from aiogram import Router
 from aiogram.types import Message
-from aiogram.filters import Command
 
 from app.database.user_repository import (
     get_user,
@@ -13,8 +12,10 @@ from app.bot.keyboards.menu import (
 router = Router()
 
 
-@router.message(Command("start"))
-async def start_handler(
+@router.message(
+    lambda m: m.text == "🏠 Главная"
+)
+async def home_handler(
     message: Message,
 ):
 

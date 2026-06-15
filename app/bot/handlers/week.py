@@ -5,11 +5,6 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from app.services.schedule_service import (
-    get_lessons_by_date,
-    get_current_study_date,
-)
-
-from app.services.schedule_service import (
     get_week_lessons,
 )
 
@@ -38,28 +33,18 @@ async def week_handler(message: Message):
     if group is None:
 
         await message.answer(
-            "🔫 Выбери группу, чтобы посмотреть",
+            "Выбери группу",
             reply_markup=get_years_keyboard(),
         )
 
         return
 
-    lessons = get_week_lessons(
-        group
-    )
+    lessons = get_week_lessons(group)
 
     if not lessons:
 
         await message.answer(
-            "🤪 Расписание для твоей группы не найдено"
-        )
-
-        return
-
-    if not lessons:
-
-        await message.answer(
-            "На чиле, без пар 🤩"
+            "Расписание не найдено"
         )
 
         return
@@ -93,30 +78,25 @@ async def week_handler(message: Message):
     msg = await message.answer(text)
 
     try:
-
         await message.bot.unpin_all_chat_messages(
             message.chat.id
         )
-
     except:
         pass
 
     try:
-
         await message.bot.pin_chat_message(
             chat_id=message.chat.id,
             message_id=msg.message_id,
         )
-
     except:
         pass
 
-    @router.message(
-        lambda m: m.text == "🗓 Неделя"
-    )
-    async def week_button(
-        message: Message,
-    ):
-        await week_handler(
-            message
-        )
+
+@router.message(
+    lambda m: m.text == "🗓 Неделя"
+)
+async def week_button(
+    message: Message,
+):
+    await week_handler(message)

@@ -29,7 +29,7 @@ def get_main_menu():
                     text="⚙️ Уведомления"
                 ),
                 KeyboardButton(
-                    text="💬 Поддержка"
+                    text="🏠 Главная"
                 ),
             ],
         ],

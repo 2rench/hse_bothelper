@@ -25,7 +25,7 @@ async def sessions_handler(
     if not sessions:
 
         await message.answer(
-            "🥳 Сессии не найдены"
+            "Сессии не найдены"
         )
 
         return
@@ -35,4 +35,15 @@ async def sessions_handler(
         reply_markup=get_sessions_keyboard(
             sessions
         ),
+    )
+
+
+@router.message(
+    lambda m: m.text == "🎓 Сессия"
+)
+async def sessions_button(
+    message: Message,
+):
+    await sessions_handler(
+        message
     )
