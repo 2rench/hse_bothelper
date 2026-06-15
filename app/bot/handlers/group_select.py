@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 
 from app.bot.keyboards.groups import get_groups_keyboard
 from app.database.user_repository import save_user_group
-from app.bot.keyboards.menu import get_main_menu()
+from app.bot.keyboards.menu import get_main_menu
 
 router = Router()
 
