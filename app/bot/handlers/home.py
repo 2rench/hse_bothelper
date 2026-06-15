@@ -7,7 +7,7 @@ from app.database.user_repository import (
 )
 
 from app.bot.keyboards.menu import (
-    get_menu_keyboard,
+    get_main_menu(),
 )
 
 router = Router()
@@ -50,5 +50,5 @@ async def start_handler(
 
     await message.answer(
         text,
-        reply_markup=get_menu_keyboard(),
+        reply_markup=get_main_menu(),
     )

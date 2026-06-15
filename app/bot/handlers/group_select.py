@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 
 from app.bot.keyboards.groups import get_groups_keyboard
 from app.database.user_repository import save_user_group
-from app.bot.keyboards.menu import get_menu_keyboard
+from app.bot.keyboards.menu import get_main_menu()
 
 router = Router()
 
@@ -35,5 +35,5 @@ async def select_group(callback: CallbackQuery):
 
     await callback.message.answer(
         "Теперь можно смотреть расписание 👇",
-        reply_markup=get_menu_keyboard(),
+        reply_markup=get_main_menu(),
     )

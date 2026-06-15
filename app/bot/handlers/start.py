@@ -6,7 +6,7 @@ from app.bot.keyboards.group_years import (
     get_years_keyboard,
 )
 from app.bot.keyboards.menu import (
-    get_menu_keyboard,
+    get_main_menu(),
 )
 
 router = Router()
@@ -19,5 +19,5 @@ async def start_handler(message: Message):
         f"🎓 HSE Bot\n\n"
         f"👤 ID: {message.from_user.id}\n"
         f"📚 Группа: {group}",
-        reply_markup=get_menu_keyboard(),
+        reply_markup=get_main_menu(),
     )
