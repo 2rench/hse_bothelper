@@ -7,7 +7,7 @@ from app.database.user_repository import (
 )
 
 from app.bot.keyboards.menu import (
-    get_main_menu(),
+    get_main_menu,
 )
 
 router = Router()

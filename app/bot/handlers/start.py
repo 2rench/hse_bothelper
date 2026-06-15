@@ -6,7 +6,7 @@ from app.bot.keyboards.group_years import (
     get_years_keyboard,
 )
 from app.bot.keyboards.menu import (
-    get_main_menu(),
+    get_main_menu,
 )
 
 router = Router()
