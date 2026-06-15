@@ -87,7 +87,7 @@ def _format_day_lessons(lessons):
     for lesson in lessons:
 
         text += (
-            f"➖➖➖➖➖➖➖➖"
+            f"➖➖➖➖➖➖➖➖\n"
             f"☄️<b>№{lesson.lesson_number} пара</b> — "
             f"<b>{lesson.lesson_time}</b>\n\n"
         )

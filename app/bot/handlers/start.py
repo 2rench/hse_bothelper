@@ -1,19 +1,22 @@
-from aiogram import Router
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-
-from app.bot.keyboards.group_years import (
-    get_years_keyboard,
+from app.database.user_repository import (
+    get_user_group,
 )
-from app.bot.keyboards.menu import (
-    get_main_menu,
-)
-
-router = Router()
-
 
 @router.message(CommandStart())
 async def start_handler(message: Message):
+
+    group = get_user_group(
+        message.from_user.id
+    )
+
+    if group is None:
+
+        await message.answer(
+            "🎓 Добро пожаловать!\n\nВыберите курс:",
+            reply_markup=get_years_keyboard(),
+        )
+
+        return
 
     await message.answer(
         f"🎓 HSE Bot\n\n"

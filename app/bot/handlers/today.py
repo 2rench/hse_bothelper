@@ -6,7 +6,6 @@ from aiogram.types import Message
 
 from app.services.schedule_service import (
     get_lessons_by_date,
-    get_current_study_date,
 )
 
 from app.database.user_repository import (
@@ -25,7 +24,9 @@ router = Router()
 
 
 @router.message(Command("today"))
-async def today_handler(message: Message):
+async def today_handler(
+    message: Message,
+):
 
     group = get_user_group(
         message.from_user.id
@@ -34,7 +35,7 @@ async def today_handler(message: Message):
     if group is None:
 
         await message.answer(
-            "🔫 Выбери группу, чтобы посмотреть",
+            "🔫 Выбери группу, чтобы посмотреть расписание",
             reply_markup=get_years_keyboard(),
         )
 
@@ -44,35 +45,40 @@ async def today_handler(message: Message):
         "%d.%m.%Y"
     )
 
-    if not current_date:
-
-        await message.answer(
-            "🔦 Не вижу расписания, отдыхаем"
-        )
-
-        return
-
     lessons = get_lessons_by_date(
         group,
         current_date,
     )
 
+    if not lessons:
+
+        await message.answer(
+            f"🎉 На сегодня ({current_date}) пар нет"
+        )
+
+        return
+
     text = (
-        f"📚 Расписание на {current_date}\n"
-        f"🧭 Группа: {group}\n\n"
+        f"📚 Расписание на сегодня\n"
+        f"🧭 Группа: {group}\n"
+        f"📅 Дата: {current_date}\n\n"
     )
 
     text += format_lessons(
         lessons
     )
 
-    await message.answer(text)
-    @router.message(
-        lambda m: m.text == "📅 Сегодня"
+    await message.answer(
+        text
     )
-    async def today_button(
-        message: Message,
-    ):
-        await today_handler(
-            message
-        )
+
+
+@router.message(
+    lambda m: m.text == "📅 Сегодня"
+)
+async def today_button(
+    message: Message,
+):
+    await today_handler(
+        message
+    )
