@@ -3,6 +3,7 @@ from aiogram.types import Message
 
 from app.database.user_repository import (
     get_user,
+    get_user_group,
 )
 
 from app.bot.keyboards.menu import (
@@ -23,11 +24,9 @@ async def home_handler(
         message.from_user.id
     )
 
-    group = (
-        user.group_name
-        if user
-        else "не выбрана"
-    )
+    group = get_user_group(
+        message.from_user.id
+    ) or "не выбрана"
 
     updates = (
         "🟢 ВКЛ"

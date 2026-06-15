@@ -51,7 +51,7 @@ def format_lessons(
             text += (
                 f"━━━━━━━━━━━━\n"
                 f"📅 {day} — {date}\n"
-                f"━━━━━━━━━━━━"
+                f"━━━━━━━━━━━━\n"
                 f"{emoji(len(lessons))} Пар: {len(day_lessons)}\n\n"
             )
 

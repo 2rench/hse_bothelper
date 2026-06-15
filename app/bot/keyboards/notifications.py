@@ -8,18 +8,28 @@ def get_notifications_keyboard(
     settings,
 ):
 
+    schedule_updates = (
+        settings.schedule_updates
+        if settings
+        else True
+    )
+
+    tomorrow_notifications = (
+        settings.tomorrow_notifications
+        if settings
+        else True
+    )
+
     updates = (
         "🟢 Общие уведомления"
-        if settings.schedule_updates
-        else
-        "🔴 Общие уведомления"
+        if schedule_updates
+        else "🔴 Общие уведомления"
     )
 
     tomorrow = (
         "🟢 Напоминания о парах"
-        if settings.tomorrow_notifications
-        else
-        "🔴 Напоминания о парах"
+        if tomorrow_notifications
+        else "🔴 Напоминания о парах"
     )
 
     return InlineKeyboardMarkup(
