@@ -9,6 +9,10 @@ from app.bot.keyboards.menu import (
     get_main_menu,
 )
 
+from app.bot.keyboards.profile import (
+    get_profile_keyboard,
+)
+
 router = Router()
 
 
@@ -56,5 +60,10 @@ async def home_handler(
 
     await message.answer(
         text,
+        reply_markup=get_profile_keyboard(),
+    )
+
+    await message.answer(
+        "Выбери действие 👇",
         reply_markup=get_main_menu(),
     )

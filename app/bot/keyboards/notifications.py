@@ -9,13 +9,13 @@ def get_notifications_keyboard(
 ):
 
     schedule_updates = (
-        settings.schedule_updates
+        settings["schedule_updates"]
         if settings
         else True
     )
 
     tomorrow_notifications = (
-        settings.tomorrow_notifications
+        settings["tomorrow_notifications"]
         if settings
         else True
     )

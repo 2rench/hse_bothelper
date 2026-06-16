@@ -4,6 +4,9 @@ from aiogram.types import CallbackQuery
 from app.bot.keyboards.groups import get_groups_keyboard
 from app.database.user_repository import save_user_group
 from app.bot.keyboards.menu import get_main_menu
+from app.bot.keyboards.group_years import (
+    get_years_keyboard,
+)
 
 router = Router()
 
@@ -36,4 +39,16 @@ async def select_group(callback: CallbackQuery):
     await callback.message.answer(
         "Теперь можно смотреть расписание 👇",
         reply_markup=get_main_menu(),
+    )
+
+@router.callback_query(
+    lambda c: c.data == "change_group"
+)
+async def change_group(
+    callback: CallbackQuery,
+):
+
+    await callback.message.edit_text(
+        "🎓 Выберите курс:",
+        reply_markup=get_years_keyboard(),
     )

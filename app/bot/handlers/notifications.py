@@ -29,10 +29,14 @@ async def notifications_handler(
         message.from_user.id
     )
 
+    print(
+        "OPEN NOTIFICATIONS",
+        settings
+    )
+
     await message.answer(
         "🔔 Настройки уведомлений",
-        reply_markup=
-        get_notifications_keyboard(
+        reply_markup=get_notifications_keyboard(
             settings
         ),
     )
@@ -50,12 +54,16 @@ async def notifications_button(
 
 
 @router.callback_query(
-    lambda c:
-    c.data == "toggle_updates"
+    lambda c: c.data == "toggle_updates"
 )
 async def toggle_updates(
     callback: CallbackQuery,
 ):
+
+    print(
+        "CLICK UPDATE",
+        callback.from_user.id,
+    )
 
     toggle_schedule_updates(
         callback.from_user.id
@@ -66,19 +74,27 @@ async def toggle_updates(
     )
 
     await callback.message.edit_reply_markup(
-        reply_markup=get_notifications_keyboard(settings)
+        reply_markup=get_notifications_keyboard(
+            settings
+        )
     )
 
-    await callback.answer()
+    await callback.answer(
+        "Настройка обновлена"
+    )
 
 
 @router.callback_query(
-    lambda c:
-    c.data == "toggle_tomorrow"
+    lambda c: c.data == "toggle_tomorrow"
 )
 async def toggle_tomorrow(
     callback: CallbackQuery,
 ):
+
+    print(
+        "CLICK TOMORROW",
+        callback.from_user.id,
+    )
 
     toggle_tomorrow_notifications(
         callback.from_user.id
@@ -89,7 +105,11 @@ async def toggle_tomorrow(
     )
 
     await callback.message.edit_reply_markup(
-        reply_markup=get_notifications_keyboard(settings)
+        reply_markup=get_notifications_keyboard(
+            settings
+        )
     )
 
-    await callback.answer()
+    await callback.answer(
+        "Настройка обновлена"
+    )
