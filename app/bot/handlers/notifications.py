@@ -29,13 +29,12 @@ async def notifications_handler(
         message.from_user.id
     )
 
-    print(
-        "OPEN NOTIFICATIONS",
-        settings
-    )
 
     await message.answer(
-        "🔔 Настройки уведомлений",
+        "🔔 Могу сообщать об изменениях, если включено первое уведомление.\n"
+        """Если хочешь получать напоминания о парах
+            на завтра — вторая кнопка\n\n"""
+        "🔔 Могу сообщать об изменениях, если включено первое уведомление.\n",
         reply_markup=get_notifications_keyboard(
             settings
         ),
@@ -60,11 +59,6 @@ async def toggle_updates(
     callback: CallbackQuery,
 ):
 
-    print(
-        "CLICK UPDATE",
-        callback.from_user.id,
-    )
-
     toggle_schedule_updates(
         callback.from_user.id
     )
@@ -80,7 +74,7 @@ async def toggle_updates(
     )
 
     await callback.answer(
-        "Настройка обновлена"
+        "🔔 Запомнил изменения"
     )
 
 
@@ -91,10 +85,6 @@ async def toggle_tomorrow(
     callback: CallbackQuery,
 ):
 
-    print(
-        "CLICK TOMORROW",
-        callback.from_user.id,
-    )
 
     toggle_tomorrow_notifications(
         callback.from_user.id

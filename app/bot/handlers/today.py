@@ -59,9 +59,7 @@ async def today_handler(
         return
 
     text = (
-        f"📚 Расписание на сегодня\n"
-        f"🧭 Группа: {group}\n"
-        f"📅 Дата: {current_date}\n\n"
+        "📚 Расписание на сегодня\n"
     )
 
     text += format_lessons(
