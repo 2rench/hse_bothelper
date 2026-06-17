@@ -13,6 +13,8 @@ import os
 
 from app.bot.handlers.group_select import router as group_router
 
+from app.bot.handlers.help import router as help_router
+
 from app.services.scheduler import (
     schedule_loop,
 )
@@ -63,6 +65,7 @@ async def main():
     dp.include_router(notification_open_router)
     dp.include_router(open_day_router)
     dp.include_router(home_router)
+    dp.include_router(help_router)
 
     print("Bot started")
     asyncio.create_task(

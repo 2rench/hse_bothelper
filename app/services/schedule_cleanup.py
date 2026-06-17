@@ -2,6 +2,8 @@ import re
 
 from sqlalchemy.orm import Session
 
+from sqlalchemy import func
+
 from app.database.models import Lesson
 
 
@@ -29,7 +31,7 @@ def delete_schedule(
         return (
             db.query(Lesson)
             .filter(
-                Lesson.schedule_name == schedule_name
+                Lesson.schedule_type == "session"
             )
             .delete(
                 synchronize_session=False

@@ -13,6 +13,12 @@ def get_profile_keyboard():
                     text="🔄 Сменить группу",
                     callback_data="change_group",
                 )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔄 Поддержка",
+                    callback_data="help",
+                )
             ]
         ]
     )
