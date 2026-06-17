@@ -1,3 +1,7 @@
+import asyncio
+import os
+
+
 from aiogram import Bot, Dispatcher
 
 from aiogram.client.default import (
@@ -7,9 +11,6 @@ from aiogram.client.default import (
 from aiogram.enums import ParseMode
 
 from dotenv import load_dotenv
-
-import asyncio
-import os
 
 from app.bot.handlers.group_select import router as group_router
 
@@ -23,6 +24,11 @@ from app.bot.handlers import start, today, week, tomorrow, sessions
 
 from app.bot.handlers.notifications import (
     router as notifications_router
+)
+
+from app.database.database import (
+    Base,
+    engine,
 )
 
 from app.bot.handlers.open_notification_day import (
@@ -43,6 +49,10 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 async def main():
+
+    Base.metadata.create_all(
+        bing=engine
+    )
 
     bot = Bot(
         token=BOT_TOKEN,

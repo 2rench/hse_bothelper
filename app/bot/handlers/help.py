@@ -11,5 +11,5 @@ async def change_group(
 ):
 
     await callback.message.edit_text(
-        "Пишите, если что",
+        "💬 Пишите, если что",
     )

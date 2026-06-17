@@ -1,25 +1,36 @@
+import os
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DATABASE_URL = os.getenv(
+    "DATABASE_URL"
+)
 
-DATABASE_PATH = BASE_DIR / "schedule.db"
+if DATABASE_URL and DATABASE_URL.startswith(
+    "postgresql://"
+):
+    DATABASE_URL = DATABASE_URL.replace(
+        "postgresql://",
+        "postgresql+psycopg2://",
+        1,
+    )
 
-print(f"Using database: {DATABASE_PATH}")
-
-DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
+print(
+    f"Using database: {DATABASE_URL}"
+)
 
 engine = create_engine(
     DATABASE_URL,
-    echo=False,
+    pool_pre_ping=True,
 )
 
 SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
     bind=engine,
 )
 
-class Base(DeclarativeBase):
-    pass
+Base = declarative_base()

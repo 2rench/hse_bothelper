@@ -53,7 +53,7 @@ async def today_handler(
     if not lessons:
 
         await message.answer(
-            f"🎉 На сегодня ({current_date}) пар нет"
+            f"😎 На сегодня ({current_date}) пар нет"
         )
 
         return

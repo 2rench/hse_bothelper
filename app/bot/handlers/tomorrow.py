@@ -61,7 +61,7 @@ async def tomorrow_handler(
     if not lessons:
 
         await message.answer(
-            f"Завтра ({tomorrow_date}) без пар 🙏🙏🙏"
+            f"Завтра ({tomorrow_date}) без пар 😎😎😎"
         )
 
         return

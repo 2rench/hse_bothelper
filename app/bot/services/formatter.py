@@ -4,7 +4,7 @@ from collections import defaultdict
 def emoji(lesson_count):
     if lesson_count == 1:
         EMOJI_LESSONS_DAY = '😋'
-    elif lesson_count > 1 and lesson_count <= 3:
+    elif lesson_count == 2 or lesson_count == 3:
         EMOJI_LESSONS_DAY = '😐'
     else:
         EMOJI_LESSONS_DAY = '😵‍💫'
@@ -96,13 +96,13 @@ def _format_day_lessons(lessons):
         else:
             EMOJI_FOR_LESSON_TYPE = '😴'
 
-        text += f"🎾 <b>Предмет:</b> {lesson.subject}\n\n"
+        text += f"🎾 {lesson.subject}\n\n"
         text += f"{EMOJI_FOR_LESSON_TYPE} <b>{lesson.lesson_type}</b>\n"
 
         if lesson.teacher:
 
             text += (
-                f"<b>{lesson.teacher}</b>\n\n"
+                f"<b><i>{lesson.teacher}</i></b>\n\n"
             )
 
         if lesson.room:
