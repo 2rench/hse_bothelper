@@ -1,5 +1,5 @@
 from sqlalchemy import Column
-from sqlalchemy import Integer
+from sqlalchemy import Integer, BigInteger
 from sqlalchemy import String
 from sqlalchemy import Boolean
 
@@ -11,12 +11,12 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(
-        Integer,
-        primary_key=True,
+        BigInteger,
+        primary_key=True
     )
 
     telegram_id = Column(
-        Integer,
+        BigInteger,
         unique=True,
         nullable=False,
     )
