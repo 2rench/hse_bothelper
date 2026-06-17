@@ -50,9 +50,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 async def main():
 
-    Base.metadata.create_all(
-        bing=engine
-    )
+    Base.metadata.create_all(engine)
 
     bot = Bot(
         token=BOT_TOKEN,
