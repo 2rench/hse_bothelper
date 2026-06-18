@@ -83,8 +83,3 @@ class Lesson(Base):
         String,
         nullable=True,
     )
-
-    source_file: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True,
-    )

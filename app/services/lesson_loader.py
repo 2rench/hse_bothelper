@@ -49,9 +49,6 @@ def load_lessons(
             schedule_type=item[
                 "schedule_type"
             ],
-            source_file=item[
-                "source_file"
-            ],
             schedule_key=item.get(
                 "schedule_key"
             ),
