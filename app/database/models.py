@@ -78,3 +78,13 @@ class Lesson(Base):
         String,
         nullable=True,
     )
+
+    schedule_key: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
+
+    source_file: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )

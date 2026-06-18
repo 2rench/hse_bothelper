@@ -8,11 +8,19 @@ from app.services.schedule_name_normalizer import (
 def load_lessons(
     lessons_data: list[dict],
 ):
-    """
-    Загружает lessons в SQLite.
-    """
+
+    if not lessons_data:
+        return
 
     db = SessionLocal()
+
+    schedule_key = lessons_data[0][
+        "schedule_key"
+    ]
+
+    db.query(Lesson).filter(
+        Lesson.schedule_key == schedule_key
+    ).delete()
 
     objects = []
 
@@ -36,10 +44,16 @@ def load_lessons(
                 "lesson_type"
             ),
             schedule_name=normalize_schedule_name(
-                item.get("schedule_name")
+                item["schedule_name"]
             ),
-            schedule_type=item.get(
+            schedule_type=item[
                 "schedule_type"
+            ],
+            source_file=item[
+                "source_file"
+            ],
+            schedule_key=item.get(
+                "schedule_key"
             ),
         )
 

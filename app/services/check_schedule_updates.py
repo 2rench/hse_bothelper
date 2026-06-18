@@ -32,10 +32,28 @@ from app.services.schedule_importer import (
     import_schedule,
 )
 
-from app.services.schedule_cleanup import (
-    delete_schedule,
-)
+def extract_schedule_key(
+    name: str,
+) -> str:
 
+    match = re.search(
+        r"неделя №(\d+)",
+        name.lower(),
+    )
+
+    if match:
+
+        week = match.group(1)
+
+        if "сессия" in name.lower():
+            return f"session_{week}"
+
+        if "базовое" in name.lower():
+            return "base"
+
+        return f"changes_{week}"
+
+    return name.lower()
 
 def check_updates():
 
@@ -94,10 +112,14 @@ def check_updates():
 
             db.commit()
             db.close()
+            schedule_key = extract_schedule_key(
+                item["name"]
+            )
 
             import_schedule(
                 str(saved_path),
-                schedule_type
+                schedule_type,
+                schedule_key
             )
 
             Path(saved_path).unlink(
@@ -148,20 +170,14 @@ def check_updates():
 
             try:
 
-                deleted = delete_schedule(
-                    db,
-                    item["name"],
-                )
-
-                db.commit()
-
-                print(
-                    f"DELETED LESSONS: {deleted}"
+                schedule_key = extract_schedule_key(
+                    item["name"]
                 )
 
                 success = import_schedule(
                     str(saved_path),
-                    schedule_type
+                    schedule_type,
+                    schedule_key
                 )
 
                 if not success:

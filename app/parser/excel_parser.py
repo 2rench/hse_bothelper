@@ -119,8 +119,8 @@ def create_lesson_record(
     lesson_type,
     schedule_name,
     schedule_type,
+    schedule_key,
 ):
-
 
     return {
         "group": group_name,
@@ -139,8 +139,10 @@ def create_lesson_record(
 
         "is_online": lesson_info["is_online"],
         "lesson_type": lesson_type,
+
         "schedule_name": schedule_name,
         "schedule_type": schedule_type,
+        "schedule_key": schedule_key,
     }
 
 
@@ -148,6 +150,7 @@ def parse_excel(
     file_path: str,
     schedule_name: str,
     schedule_type: str,
+    schedule_key: str,
 ) -> list[dict]:
 
 
@@ -286,6 +289,7 @@ def parse_excel(
                             lesson_type,
                             schedule_name,
                             schedule_type,
+                            schedule_key,
                         )
                     )
 
@@ -340,7 +344,7 @@ def parse_excel(
 
                     parsed_lessons.append(
                         create_lesson_record(
-                            shared_group,
+                            group_name,
                             current_day,
                             current_date,
                             lesson_number,
@@ -351,6 +355,7 @@ def parse_excel(
                             lesson_type,
                             schedule_name,
                             schedule_type,
+                            schedule_key,
                         )
                     )
 
@@ -359,7 +364,6 @@ def parse_excel(
                 )
 
     return parsed_lessons
-
 
 def export_to_json(
     lessons: list[dict],
