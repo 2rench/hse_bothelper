@@ -1,72 +1,45 @@
-from app.database.database import SessionLocal
-from app.database.models import Lesson
-from app.database.schedule_repository import (
-    delete_schedule_key,
+from pathlib import Path
+
+import xlrd
+
+from app.parser.excel_parser import (
+    parse_excel,
 )
-from app.services.schedule_name_normalizer import (
-    normalize_schedule_name,
+
+from app.services.lesson_loader import (
+    load_lessons,
 )
 
 
-def load_lessons(
-    lessons_data: list[dict],
+def import_schedule(
+    file_path: str,
+    schedule_type: str,
+    schedule_key: str,
 ):
 
-    if not lessons_data:
-        return
+    schedule_name = Path(
+        file_path
+    ).stem
 
-    db = SessionLocal()
+    try:
 
-    schedule_key = lessons_data[0][
-        "schedule_key"
-    ]
-
-    db.query(Lesson).filter(
-        Lesson.schedule_key == schedule_key
-    ).delete()
-
-    objects = []
-
-    for item in lessons_data:
-
-        lesson = Lesson(
-            group_name=item["group"],
-            day=item["day"],
-            date=item["date"],
-            lesson_number=item["lesson_number"],
-            lesson_time=item["lesson_time"],
-            subject=item["subject"],
-            teacher=item["teacher"],
-            room=item["room"],
-            building=item["building"],
-            is_online=item.get(
-                "is_online",
-                False,
-            ),
-            lesson_type=item.get(
-                "lesson_type"
-            ),
-            schedule_name=normalize_schedule_name(
-                item["schedule_name"]
-            ),
-            schedule_type=item[
-                "schedule_type"
-            ],
-            source_file=item[
-                "source_file"
-            ],
-            schedule_key=item.get(
-                "schedule_key"
-            ),
+        lessons = parse_excel(
+            file_path=file_path,
+            schedule_name=schedule_name,
+            schedule_type=schedule_type,
+            schedule_key=schedule_key,
         )
 
-        objects.append(
-            lesson
+    except xlrd.biffh.XLRDError:
+
+        print(
+            f"INVALID XLS: {file_path}"
         )
 
-    db.bulk_save_objects(
-        objects
+        return False
+
+    load_lessons(
+        lessons
     )
 
-    db.commit()
-    db.close()
+    return True
