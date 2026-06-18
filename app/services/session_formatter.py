@@ -2,8 +2,6 @@ from collections import defaultdict
 
 from app.database.models import Lesson
 
-from app.bot.services.formatter import get_lesson_status
-
 def format_session_schedule(
     lessons: list[Lesson],
 ) -> str:
@@ -31,7 +29,7 @@ def format_session_schedule(
         text += f"━━━━━━━━━━━━\n\n"
 
         for lesson in day_lessons:
-            text += f"""{get_lesson_status(lesson)} <b>№{lesson.lesson_number}
+            text += f"""☄️ <b>№{lesson.lesson_number}
             пара — {lesson.lesson_time}</b>\n"""
             text += f"🥶 {lesson.subject}\n"
 
