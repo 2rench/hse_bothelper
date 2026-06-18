@@ -16,12 +16,6 @@ from app.services.tomorrow_notifications import (
     send_tomorrow_notifications,
 )
 
-from datetime import datetime
-
-from app.services.cleanup_old_schedules import (
-    cleanup_old_schedules,
-)
-
 
 async def schedule_loop(
     bot,
@@ -36,12 +30,6 @@ async def schedule_loop(
             )
 
             updates = check_updates()
-
-            current_week = datetime.now().isocalendar().week
-
-            cleanup_old_schedules(
-                current_week
-            )
 
             await send_update_notifications(
                 bot,

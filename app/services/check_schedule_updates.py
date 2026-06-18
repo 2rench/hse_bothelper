@@ -1,67 +1,73 @@
 import re
 
 from pathlib import Path
-
 from sqlalchemy.orm import Session
 
-from app.database.database import (
-    SessionLocal,
-)
-
-from app.database.schedule_file_model import (
-    ScheduleFile,
-)
+from app.database.database import SessionLocal
+from app.database.models import Lesson
+from app.database.schedule_file_model import ScheduleFile
 
 from app.services.hse_schedule_scraper import (
     get_schedule_files,
 )
-
 from app.services.file_downloader import (
     download_file,
 )
-
 from app.services.file_hash import (
     calculate_hash,
 )
-
 from app.services.file_storage import (
     save_file,
 )
-
 from app.services.schedule_importer import (
     import_schedule,
 )
+
 
 def extract_schedule_key(
     name: str,
 ) -> str:
 
+    name = name.lower()
+
     match = re.search(
         r"неделя №(\d+)",
-        name.lower(),
+        name,
     )
 
     if match:
 
         week = match.group(1)
 
-        if "сессия" in name.lower():
+        if "сессия" in name:
             return f"session_{week}"
 
-        if "базовое" in name.lower():
+        if "базовое" in name:
             return "base"
 
         return f"changes_{week}"
 
-    return name.lower()
+    return name
+
 
 def check_updates():
 
     updates = []
+
     files = get_schedule_files()
 
+    actual_keys = set()
+
     for item in files:
+
+        actual_keys.add(
+            extract_schedule_key(
+                item["name"]
+            )
+        )
+
         db: Session = SessionLocal()
+
         name = item["name"].lower()
 
         if "сессия" in name:
@@ -80,6 +86,7 @@ def check_updates():
 
             db.close()
             continue
+
         content = download_file(
             item["url"]
         )
@@ -110,8 +117,6 @@ def check_updates():
                 content,
             )
 
-            db.commit()
-            db.close()
             schedule_key = extract_schedule_key(
                 item["name"]
             )
@@ -119,14 +124,12 @@ def check_updates():
             import_schedule(
                 str(saved_path),
                 schedule_type,
-                schedule_key
+                schedule_key,
             )
 
             Path(saved_path).unlink(
                 missing_ok=True
             )
-
-            db = SessionLocal()
 
             db.add(
                 ScheduleFile(
@@ -135,6 +138,7 @@ def check_updates():
                     file_hash=current_hash,
                 )
             )
+
             db.commit()
             db.close()
 
@@ -147,16 +151,15 @@ def check_updates():
                     ),
                     "is_session": (
                         "сессия"
-                        in item["name"].lower()
+                        in name
                     ),
                 }
             )
+
             continue
 
-        if (
-            existing.file_hash
-            != current_hash
-        ):
+        # Изменённый файл
+        if existing.file_hash != current_hash:
 
             print(
                 "UPDATED:",
@@ -177,53 +180,87 @@ def check_updates():
                 success = import_schedule(
                     str(saved_path),
                     schedule_type,
-                    schedule_key
+                    schedule_key,
                 )
 
-                if not success:
+                if success:
 
-                    db.rollback()
-                    db.close()
-                    continue
+                    existing.file_hash = current_hash
 
-                Path(saved_path).unlink(
-                    missing_ok=True
-                )
+                    db.commit()
 
-                existing.file_hash = (
-                    current_hash
-                )
+                    Path(saved_path).unlink(
+                        missing_ok=True
+                    )
 
-                db.commit()
+                    print(
+                        "REIMPORTED:",
+                        item["name"]
+                    )
 
-                print(
-                    "REIMPORTED:",
-                    item["name"]
-                )
-                updates.append(
-                    {
-                        "type": "new",
-                        "name": item["name"],
-                        "week": extract_week_number(
-                            item["name"]
-                        ),
-                        "is_session": (
-                            "сессия"
-                            in item["name"].lower()
-                        ),
-                    }
-                )
+                    updates.append(
+                        {
+                            "type": "updated",
+                            "name": item["name"],
+                            "week": extract_week_number(
+                                item["name"]
+                            ),
+                            "is_session": (
+                                "сессия"
+                                in name
+                            ),
+                        }
+                    )
 
-            except Exception as e:
+            except Exception as error:
 
                 db.rollback()
 
                 print(
                     "IMPORT ERROR:",
-                    e,
+                    error,
                 )
+
             finally:
+
                 db.close()
+
+        else:
+
+            db.close()
+
+    # Удаляем расписания,
+    # которых больше нет на сайте
+
+    db = SessionLocal()
+
+    db_keys = (
+        db.query(
+            Lesson.schedule_key
+        )
+        .distinct()
+        .all()
+    )
+
+    for row in db_keys:
+
+        key = row[0]
+
+        if key is None:
+            continue
+
+        if key not in actual_keys:
+
+            print(
+                f"DELETE OLD {key}"
+            )
+
+            db.query(Lesson).filter(
+                Lesson.schedule_key == key
+            ).delete()
+
+    db.commit()
+    db.close()
 
     return updates
 
@@ -243,6 +280,7 @@ def extract_week_number(
     return int(
         match.group(1)
     )
+
 
 if __name__ == "__main__":
 

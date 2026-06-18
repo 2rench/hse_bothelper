@@ -340,11 +340,12 @@ def parse_excel(
                     next_col += 1
 
                 # Создаем lessons
+
                 for shared_group in shared_groups:
 
                     parsed_lessons.append(
                         create_lesson_record(
-                            group_name,
+                            shared_group,
                             current_day,
                             current_date,
                             lesson_number,
