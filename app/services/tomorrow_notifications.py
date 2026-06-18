@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from aiogram import Bot
 
@@ -14,6 +15,8 @@ from app.database.session_repository import (
     get_session_lessons,
 )
 
+from app.bot.services.formatter import emoji
+
 
 _last_sent_date = None
 
@@ -24,7 +27,9 @@ async def send_tomorrow_notifications(
 
     global _last_sent_date
 
-    now = datetime.now()
+    now = datetime.now(
+        ZoneInfo("Asia/Yekaterinburg")
+    )
 
     today_key = now.strftime(
         "%d.%m.%Y"
@@ -78,7 +83,7 @@ async def send_tomorrow_notifications(
                 "🛎️ Напоминание\n\n"
                 f"🫣 Завтра пары\n"
                 f"{tomorrow}\n"
-                f"😑 Количество: {len(lessons)}"
+                f"😑 Количество: {emoji(len(lessons))}"
             )
 
         try:
