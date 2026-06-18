@@ -30,7 +30,7 @@ def get_lesson_status(lesson):
     ).time()
 
     if now > end:
-        return "😮‍💨"
+        return "☄️"
 
     if start <= now <= end:
         return "⏰"

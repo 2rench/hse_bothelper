@@ -83,7 +83,7 @@ async def send_tomorrow_notifications(
                 "🛎️ Напоминание\n\n"
                 f"🫣 Завтра пары\n"
                 f"{tomorrow}\n"
-                f"😑 Количество: {emoji(len(lessons))}"
+                f"😑 Количество: {len(lessons)}"
             )
 
         try:
