@@ -29,18 +29,17 @@ def format_session_schedule(
         text += f"━━━━━━━━━━━━\n\n"
 
         for lesson in day_lessons:
-            text += f"""☄️ <b>№{lesson.lesson_number}
-            пара — {lesson.lesson_time}</b>\n"""
+            text += f"☄️ <b>№{lesson.lesson_number} пара — {lesson.lesson_time}</b>\n"
             text += f"🥶 {lesson.subject}\n"
 
             if lesson.teacher:
                 text += f"<b><i>{lesson.teacher}</i></b>\n"
 
-            if lesson.room:
-                text += f"💥 Аудитория: {lesson.room}"
-                if lesson.building:
-                    text += f"🏫 Корпус: {lesson.building}"
-                text += "\n"
+            if lesson.room and lesson.building:
+                text += f"💥 Аудитория: {lesson.room} в {lesson.building} корпусе"
+            else:
+                text+= f'🫤 Информации по аудитории и корпусу нет'
+            text += "\n"
 
             if lesson.is_online:
                 text += "🌐 Онлайн\n"
