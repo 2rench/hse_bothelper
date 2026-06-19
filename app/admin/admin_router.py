@@ -7,8 +7,6 @@ from aiogram.types import (
 )
 from aiogram.fsm.context import FSMContext
 
-from config import ADMINS
-
 from app.admin.admin_states import (
     BroadcastState,
 )
@@ -24,6 +22,9 @@ from app.admin.broadcast_service import (
 
 router = Router()
 
+ADMINS = [
+    123,
+]
 
 @router.message(F.text == "/admin")
 async def admin_panel(
