@@ -20,6 +20,10 @@ from app.services.scheduler import (
     schedule_loop,
 )
 
+from app.admin.admin_router import (
+    router as admin_router
+)
+
 from app.bot.handlers import start, today, week, tomorrow, sessions
 
 from app.bot.handlers.notifications import (
@@ -74,6 +78,7 @@ async def main():
     dp.include_router(open_day_router)
     dp.include_router(home_router)
     dp.include_router(help_router)
+    dp.include_router(admin_router)
 
     print("Bot started")
     asyncio.create_task(

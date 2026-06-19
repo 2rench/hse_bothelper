@@ -4,39 +4,6 @@ from app.services.session_formatter import (
     format_session_schedule,
 )
 
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
-from datetime import datetime
-from zoneinfo import ZoneInfo
-
-PERM_TZ = ZoneInfo("Asia/Yekaterinburg")
-
-
-def get_lesson_status(lesson):
-
-    now = datetime.now(PERM_TZ).time()
-
-    start_str, end_str = lesson.lesson_time.split("-")
-
-    start = datetime.strptime(
-        start_str.strip(),
-        "%H:%M"
-    ).time()
-
-    end = datetime.strptime(
-        end_str.strip(),
-        "%H:%M"
-    ).time()
-
-    if now > end:
-        return "☄️"
-
-    if start <= now <= end:
-        return "⏰"
-
-    return "⏳"
-
 def emoji(lesson_count):
     if lesson_count == 1:
         EMOJI_LESSONS_DAY = '😋'
@@ -130,7 +97,7 @@ def _format_day_lessons(lessons):
 
         text += (
             f"➖➖➖➖➖➖➖➖\n"
-            f"{get_lesson_status(lesson)}<b>№{lesson.lesson_number} пара</b> — "
+            f"☄️ <b>№{lesson.lesson_number} пара</b> — "
             f"<b>{lesson.lesson_time}</b>\n\n"
         )
         if lesson.lesson_type == 'Семинар':

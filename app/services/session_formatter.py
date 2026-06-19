@@ -19,18 +19,18 @@ def format_session_schedule(
         grouped[key].append(lesson)
 
     # Получаем название сессии из первого урока
-    session_name = lessons[0].schedule_name if lessons else ""
+    # session_name = lessons[0].schedule_name if lessons else ""
 
-    text = f"🎓 {session_name}\n\n"
+    # text = f"🎓 {session_name}\n\n"
 
     for (day, date), day_lessons in grouped.items():
-        text += f"━━━━━━━━━━━━\n"
+        text = f"━━━━━━━━━━━━\n"
         text += f"📅 {day} ({date})\n"
         text += f"━━━━━━━━━━━━\n\n"
 
         for lesson in day_lessons:
-            text += f"☄️ <b>№{lesson.lesson_number} пара — {lesson.lesson_time}</b>\n"
-            text += f"🥶 {lesson.subject}\n"
+            text += f"☄️ <b>№{lesson.lesson_number} пара — {lesson.lesson_time}</b>\n\n"
+            text += f"🥶 {lesson.subject}\n\n"
 
             if lesson.teacher:
                 text += f"<b><i>{lesson.teacher}</i></b>\n"

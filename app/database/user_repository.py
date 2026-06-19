@@ -170,3 +170,13 @@ def get_users_for_tomorrow_notifications():
     db.close()
 
     return users
+
+def get_all_users():
+
+    db = SessionLocal()
+
+    users = db.query(User).all()
+
+    db.close()
+
+    return users
