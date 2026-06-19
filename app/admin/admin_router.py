@@ -23,7 +23,7 @@ from app.admin.broadcast_service import (
 router = Router()
 
 ADMINS = [
-    123,
+    1485495835,
 ]
 
 @router.message(F.text == "/admin")
