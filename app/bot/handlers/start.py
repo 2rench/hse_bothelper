@@ -36,10 +36,15 @@ async def start_handler(
     if not user or not user["group_name"]:
 
         await message.answer(
-            """<b>😎 привет!</b>\nБот поможет тебе быстро
-              и удобно смотреть обычное расписание и
-              расписание <tg-spoiler>сессий 🥶.</tg-spoiler>\n\n
-              Для начала — выбери год и группу обучения. Welcome""",
+            """
+            <b>😎 привет!</b>\n\nБот поможет тебе быстро
+            и удобно смотреть обычное расписание и
+            расписание <tg-spoiler>сессий 🥶.</tg-spoiler>
+
+            Для начала — выбери год и группу обучения.
+
+            Welcome
+            """.strip(),
             reply_markup=get_years_keyboard(),
         )
 

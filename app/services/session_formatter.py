@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from app.database.models import Lesson
 
+
 def format_session_schedule(
     lessons: list[Lesson],
 ) -> str:
@@ -12,34 +13,52 @@ def format_session_schedule(
     grouped = defaultdict(list)
 
     for lesson in lessons:
-        key = (
-            lesson.day,
-            lesson.date,
-        )
-        grouped[key].append(lesson)
+        grouped[
+            (lesson.day, lesson.date)
+        ].append(lesson)
 
-    # Получаем название сессии из первого урока
-    # session_name = lessons[0].schedule_name if lessons else ""
+    session_name = lessons[0].schedule_name
 
-    # text = f"🎓 {session_name}\n\n"
+    text = f"🎓 <b>{session_name}</b>\n\n"
 
     for (day, date), day_lessons in grouped.items():
-        text = f"━━━━━━━━━━━━\n"
-        text += f"📅 {day} ({date})\n"
-        text += f"━━━━━━━━━━━━\n\n"
+
+        text += (
+            "━━━━━━━━━━━━\n"
+            f"📅 {day} ({date})\n"
+            "━━━━━━━━━━━━\n\n"
+        )
 
         for lesson in day_lessons:
-            text += f"☄️ <b>№{lesson.lesson_number} пара — {lesson.lesson_time}</b>\n\n"
-            text += f"🥶 {lesson.subject}\n\n"
+
+            text += (
+                f"☄️ <b>№{lesson.lesson_number} пара — "
+                f"{lesson.lesson_time}</b>\n\n"
+            )
+
+            text += f"🥶 <b>{lesson.subject}</b>\n\n"
 
             if lesson.teacher:
-                text += f"<b><i>{lesson.teacher}</i></b>\n"
+                text += (
+                    f"<b><i>{lesson.teacher}</i></b>\n"
+                )
 
-            if lesson.room and lesson.building:
-                text += f"💥 Аудитория: {lesson.room} в {lesson.building} корпусе"
+            if lesson.room:
+
+                text += f"💥 Аудитория: {lesson.room}"
+
+                if lesson.building:
+                    text += (
+                        f" в {lesson.building} корпусе"
+                    )
+
+                text += "\n"
+
             else:
-                text+= f'🫤 Информации по аудитории и корпусу нет'
-            text += "\n"
+
+                text += (
+                    "🫤 Информации по аудитории нет\n"
+                )
 
             if lesson.is_online:
                 text += "🌐 Онлайн\n"

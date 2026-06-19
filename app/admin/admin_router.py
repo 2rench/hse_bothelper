@@ -49,7 +49,7 @@ async def create_broadcast(
 ):
 
     await callback.message.answer(
-        "📢 Отправьте текст или фото с подписью"
+        "📢 Жду"
     )
 
     await state.set_state(
