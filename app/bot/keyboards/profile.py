@@ -19,6 +19,12 @@ def get_profile_keyboard():
                     text="💬 Поддержка",
                     callback_data="help",
                 )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔔 Уведы",
+                    callback_data="notifications",
+                )
             ]
         ]
     )

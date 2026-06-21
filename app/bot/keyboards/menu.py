@@ -26,7 +26,7 @@ def get_main_menu():
             ],
             [
                 KeyboardButton(
-                    text="⚙️ Уведомления"
+                    text="🏃 Физ–ра"
                 ),
                 KeyboardButton(
                     text="🏠 Главная"
