@@ -19,6 +19,7 @@ from app.bot.handlers.help import router as help_router
 from app.services.scheduler import (
     schedule_loop,
 )
+from app.bot.handlers.sport_schedule import router as sport_router
 
 from app.admin.admin_router import (
     router as admin_router
@@ -79,6 +80,7 @@ async def main():
     dp.include_router(home_router)
     dp.include_router(help_router)
     dp.include_router(admin_router)
+    dp.include_router(sport_router)
 
     print("Bot started")
     asyncio.create_task(

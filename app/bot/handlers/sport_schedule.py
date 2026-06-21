@@ -1,13 +1,12 @@
 from pathlib import Path
 
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.types import Message
-from aiogram.filters import Text
 
 router = Router()
 
 
-@router.message(Text("🏃 Физ-ра"))
+@router.message(F.text("🏃 Физ–ра"))
 async def sport_schedule(
         message: Message,
 ):

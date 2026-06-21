@@ -18,19 +18,18 @@ from app.bot.keyboards.notifications import (
 router = Router()
 
 
-@router.message(
-    Command("notifications")
+@router.callback_query(
+    lambda c: c.data == "notifications"
 )
 async def notifications_handler(
-    message: Message,
+    callback: CallbackQuery,
 ):
 
     settings = get_user(
-        message.from_user.id
+        callback.from_user.id
     )
 
-
-    await message.answer(
+    await callback.message.edit_text(
         "🔔 Общие — буду писать, когда выложат новое расписание.\n"
         "🔔 Напоминание — за день пришлю напоминание о парах.\n\n"
         "Кстати, выкл/вкл можно в любой момент",
@@ -39,16 +38,7 @@ async def notifications_handler(
         ),
     )
 
-
-@router.message(
-    lambda m: m.text == "🔔 Уведы"
-)
-async def notifications_button(
-    message: Message,
-):
-    await notifications_handler(
-        message
-    )
+    await callback.answer()
 
 
 @router.callback_query(
