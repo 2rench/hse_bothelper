@@ -19,7 +19,7 @@ def format_session_schedule(
 
     session_name = lessons[0].schedule_name
 
-    text = f"🎓 <b>{session_name}</b>\n\n"
+    # text = f"🎓 <b>{session_name}</b>\n\n"
 
     for (day, date), day_lessons in grouped.items():
 
