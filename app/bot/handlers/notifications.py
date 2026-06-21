@@ -41,7 +41,7 @@ async def notifications_handler(
 
 
 @router.message(
-    lambda m: m.text == "🔔 Уведомления"
+    lambda m: m.text == "🔔 Уведы"
 )
 async def notifications_button(
     message: Message,
