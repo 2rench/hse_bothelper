@@ -6,7 +6,7 @@ from aiogram.types import Message
 router = Router()
 
 
-@router.message(F.text("🏃 Физ–ра"))
+@router.message(lambda m: m.text == "🏃 Физ–ра")
 async def sport_schedule(
         message: Message,
 ):
