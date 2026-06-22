@@ -39,13 +39,13 @@ def get_girls_themes_keyboard():
             [
                 InlineKeyboardButton(
                     text="💎 Люкс girl",
-                    callback_data="theme_lux",
+                    callback_data="theme_luxury",
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="✨ Clean girl",
-                    callback_data="theme_clean",
+                    callback_data="theme_clean_girl",
                 )
             ],
             [
@@ -63,13 +63,13 @@ def get_boys_themes_keyboard():
             [
                 InlineKeyboardButton(
                     text="🖤 Брат стиль",
-                    callback_data="theme_brat",
+                    callback_data="theme_brother",
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="💻 IT стиль",
-                    callback_data="theme_it",
+                    callback_data="theme_it_style",
                 )
             ],
             [
