@@ -17,13 +17,13 @@ def format_session_schedule(
             (lesson.day, lesson.date)
         ].append(lesson)
 
-    session_name = lessons[0].schedule_name
+    # session_name = lessons[0].schedule_name
 
     # text = f"🎓 <b>{session_name}</b>\n\n"
 
     for (day, date), day_lessons in grouped.items():
 
-        text += (
+        text = (
             "━━━━━━━━━━━━\n"
             f"📅 {day} ({date})\n"
             "━━━━━━━━━━━━\n\n"
