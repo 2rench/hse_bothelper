@@ -89,6 +89,7 @@ def get_user(
         "group_name": user.group_name,
         "schedule_updates": user.schedule_updates,
         "tomorrow_notifications": user.tomorrow_notifications,
+        "theme": user.theme,
     }
 
     db.close()
@@ -229,3 +230,26 @@ def get_command_stats():
     db.close()
 
     return stats
+
+def set_theme(
+    telegram_id: int,
+    theme: str,
+):
+
+    db = SessionLocal()
+
+    user = (
+        db.query(User)
+        .filter(
+            User.telegram_id == telegram_id
+        )
+        .first()
+    )
+
+    if user:
+
+        user.theme = theme
+
+        db.commit()
+
+    db.close()

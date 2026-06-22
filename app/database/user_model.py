@@ -37,3 +37,8 @@ class User(Base):
         default=False,
         nullable=False,
     )
+
+    theme = Column(
+        String,
+        default='base'
+    )
