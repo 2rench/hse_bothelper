@@ -4,44 +4,81 @@ from app.services.session_formatter import (
     format_session_schedule,
 )
 
-def emoji(lesson_count):
-    if lesson_count == 1:
-        EMOJI_LESSONS_DAY = '😋'
-    elif lesson_count == 2 or lesson_count == 3:
-        EMOJI_LESSONS_DAY = '😐'
-    else:
-        EMOJI_LESSONS_DAY = '😵‍💫'
+from app.database.user_repository import (
+    get_user,
+)
 
-    return EMOJI_LESSONS_DAY
+from app.themes.default import THEME as base_theme
+from app.themes.niche_girl import THEME as girls_niche
+from app.themes.luxury import THEME as girls_lux
+from app.themes.clean_girl import THEME as girls_clean
+from app.themes.brother import THEME as boys_brat
+from app.themes.it_style import THEME as boys_it
+# from app.themes.english import THEME as english
+# from app.themes.chinese import THEME as chinese
+# from app.themes.french import THEME as french
+
+
+THEMES = {
+    "base": base_theme,
+    "girls_niche": girls_niche,
+    "girls_lux": girls_lux,
+    "girls_clean": girls_clean,
+    "boys_brat": boys_brat,
+    "boys_it": boys_it,
+    # "english": english,
+    # "chinese": chinese,
+    # "french": french,
+}
+
+
+def emoji(lesson_count):
+
+    if lesson_count == 1:
+        return "😋"
+
+    elif lesson_count in [2, 3]:
+        return "😐"
+
+    return "😵‍💫"
+
 
 def format_lessons(
     lessons,
-    title: str | None = None,
-    group_by_day: bool = False,
+    telegram_id=None,
+    title=None,
+    group_by_day=False,
 ):
 
-    """
-    Форматирует расписание
-    в Telegram-текст.
-    """
-
     if not lessons:
-
         return "На чиле, без пар 🤩"
 
-    # Сессия
-    if lessons and lessons[0].schedule_type == "session":
+    if lessons[0].schedule_type == "session":
         return format_session_schedule(
             lessons
         )
 
+    theme = THEMES["base"]
+
+    if telegram_id:
+
+        user = get_user(
+            telegram_id
+        )
+
+        if user:
+            theme_name = user["theme"]
+
+            theme = THEMES.get(
+                theme_name,
+                base_theme
+            )
+
     text = ""
 
     if title:
-
         text += f"{title}\n\n"
 
-    # Для /week
     if group_by_day:
 
         grouped = defaultdict(list)
@@ -54,77 +91,84 @@ def format_lessons(
 
         for (
             day,
-            date,
+            date
         ), day_lessons in grouped.items():
 
             text += (
-                f"━━━━━━━━━━━━\n"
-                f"📅 {day} — {date}\n"
-                f"━━━━━━━━━━━━\n"
-                f"{emoji(len(lessons))} Пар: {len(day_lessons)}\n\n"
+                "━━━━━━━━━━━━\n"
+                f"{theme['day']} {day} — {date}\n"
+                "━━━━━━━━━━━━\n"
+                f"{emoji(len(day_lessons))} "
+                f"{theme['pairs']}: {len(day_lessons)}\n\n"
             )
 
             text += _format_day_lessons(
-                day_lessons
+                day_lessons,
+                theme,
             )
 
             text += "\n"
 
         return text
 
-    # Для /today
     text += (
-        f"{emoji(len(lessons))} Пар: {len(lessons)}\n\n"
+        f"{emoji(len(lessons))} "
+        f"{theme['pairs']}: {len(lessons)}\n\n"
     )
 
     text += _format_day_lessons(
-        lessons
+        lessons,
+        theme,
     )
 
     return text
 
 
-def _format_day_lessons(lessons):
-
-    """
-    Форматирует пары
-    одного дня.
-    """
+def _format_day_lessons(
+    lessons,
+    theme,
+):
 
     text = ""
 
     for lesson in lessons:
 
         text += (
-            f"➖➖➖➖➖➖➖➖\n"
-            f"☄️ <b>№{lesson.lesson_number} пара</b> — "
+            "➖➖➖➖➖➖➖➖\n"
+            f"{theme['lesson']} "
+            f"<b>№{lesson.lesson_number}</b> — "
             f"<b>{lesson.lesson_time}</b>\n\n"
         )
-        if lesson.lesson_type == 'Семинар':
-            EMOJI_FOR_LESSON_TYPE = '🙄'
-        else:
-            EMOJI_FOR_LESSON_TYPE = '😴'
 
-        text += f"🎾 {lesson.subject}\n\n"
-        text += f"{EMOJI_FOR_LESSON_TYPE} <b>{lesson.lesson_type}</b>\n"
+        text += (
+            f"{theme['subject']} "
+            f"{lesson.subject}\n\n"
+        )
+
+        text += (
+            f"{theme['type']} "
+            f"<b>{lesson.lesson_type}</b>\n"
+        )
 
         if lesson.teacher:
 
             text += (
-                f"<b><i>{lesson.teacher}</i></b>\n\n"
+                f"<b><i>"
+                f"{lesson.teacher}"
+                f"</i></b>\n\n"
             )
 
         if lesson.room:
 
             text += (
-                f"🏫 "
-                f"{lesson.room} в"
+                f"{theme['room']} "
+                f"{lesson.room}"
             )
 
             if lesson.building:
 
                 text += (
-                    f" {lesson.building} корпусе"
+                    f" в {lesson.building} корпусе"
                 )
 
             text += "\n"
@@ -132,7 +176,7 @@ def _format_day_lessons(lessons):
         if lesson.is_online:
 
             text += (
-                "🌐 Онлайн\n"
+                f"{theme['online']}\n"
             )
 
         text += "\n"

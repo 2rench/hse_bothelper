@@ -30,6 +30,9 @@ from app.bot.handlers import start, today, week, tomorrow, sessions
 from app.bot.handlers.notifications import (
     router as notifications_router
 )
+from app.bot.handlers.themes import (
+    router as themes_router,
+)
 
 from app.database.database import (
     Base,
@@ -81,6 +84,7 @@ async def main():
     dp.include_router(help_router)
     dp.include_router(admin_router)
     dp.include_router(sport_router)
+    dp.include_router(themes_router)
 
     print("Bot started")
     asyncio.create_task(
