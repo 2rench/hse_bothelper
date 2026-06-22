@@ -20,12 +20,17 @@ from app.bot.services.formatter import (
     format_lessons,
 )
 
+from app.database.user_repository import (
+    increase_command,
+)
+
 router = Router()
 
 
 @router.message(Command("week"))
 async def week_handler(message: Message):
 
+    increase_command('week')
     group = get_user_group(
         message.from_user.id
     )

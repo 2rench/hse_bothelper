@@ -3,6 +3,10 @@ from sqlalchemy.orm import Session
 from app.database.database import SessionLocal
 from app.database.user_model import User
 
+from app.database.command_stat_model import (
+    CommandStat,
+)
+
 
 def save_user_group(
     telegram_id: int,
@@ -180,3 +184,48 @@ def get_all_users():
     db.close()
 
     return users
+
+
+def increase_command(
+    command_name: str,
+):
+
+    db = SessionLocal()
+
+    stat = (
+        db.query(CommandStat)
+        .filter(
+            CommandStat.command_name
+            == command_name
+        )
+        .first()
+    )
+
+    if stat:
+
+        stat.count += 1
+
+    else:
+
+        db.add(
+            CommandStat(
+                command_name=command_name,
+                count=1,
+            )
+        )
+
+    db.commit()
+    db.close()
+
+
+def get_command_stats():
+
+    db = SessionLocal()
+
+    stats = db.query(
+        CommandStat
+    ).all()
+
+    db.close()
+
+    return stats

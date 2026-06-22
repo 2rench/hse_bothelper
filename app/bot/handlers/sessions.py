@@ -10,6 +10,10 @@ from app.bot.keyboards.sessions import (
     get_sessions_keyboard,
 )
 
+from app.database.user_repository import (
+    increase_command,
+)
+
 router = Router()
 
 
@@ -20,6 +24,7 @@ async def sessions_handler(
     message: Message,
 ):
 
+    increase_command('sessions')
     sessions = get_all_sessions()
 
     if not sessions:

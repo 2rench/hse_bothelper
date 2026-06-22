@@ -3,16 +3,31 @@ from aiogram.utils.keyboard import (
 )
 
 
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
+
+
 def admin_keyboard():
 
-    builder = InlineKeyboardBuilder()
-
-    builder.button(
-        text="📢 Рассылка",
-        callback_data="create_broadcast"
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📢 Рассылка",
+                    callback_data="admin_broadcast",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📊 Статистика",
+                    callback_data="admin_stats",
+                )
+            ],
+        ]
     )
 
-    return builder.as_markup()
 
 
 def confirm_keyboard():

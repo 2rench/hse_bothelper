@@ -20,6 +20,19 @@ from app.admin.broadcast_service import (
     send_broadcast,
 )
 
+from app.admin.admin_keyboards import (
+    admin_keyboard,
+)
+
+from app.database.command_stats_repository import (
+    get_stats,
+)
+
+from app.database.user_repository import (
+    get_all_users,
+    get_command_stats,
+)
+
 router = Router()
 
 ADMINS = [
@@ -35,8 +48,9 @@ async def admin_panel(
         return
 
     await message.answer(
-        "⚙️ Панель администратора",
-        reply_markup=admin_keyboard()
+        "⚙️ Панель администратора\n\n"
+        "/stats - статистика\n"
+        "/broadcast - рассылка"
     )
 
 
@@ -170,4 +184,34 @@ async def cancel_send(
 
     await callback.message.answer(
         "❌ Рассылка отменена"
+    )
+
+@router.message(
+    F.text == "/stats"
+)
+async def stats_handler(
+    message: Message,
+):
+
+    if message.from_user.id not in ADMINS:
+        return
+
+    users = get_all_users()
+
+    stats = get_command_stats()
+
+    text = (
+        "📊 Статистика\n\n"
+        f"👥 Пользователей: {len(users)}\n\n"
+    )
+
+    for stat in stats:
+
+        text += (
+            f"• {stat.command_name}: "
+            f"{stat.count}\n"
+        )
+
+    await message.answer(
+        text
     )

@@ -2,13 +2,13 @@ from sqlalchemy import (
     String,
     Integer,
     Boolean,
-    Column,
+
 )
 
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-
 from app.database.database import Base
+from sqlalchemy import Integer, String, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
 
 class Lesson(Base):
 
@@ -82,4 +82,23 @@ class Lesson(Base):
     schedule_key: Mapped[str | None] = mapped_column(
         String,
         nullable=True,
+    )
+
+class CommandStat(Base):
+
+    __tablename__ = "command_stats"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    command_name: Mapped[str] = mapped_column(
+        String
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.now,
     )

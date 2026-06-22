@@ -23,6 +23,10 @@ from app.services.schedule_service import (
     get_lessons_by_date,
 )
 
+from app.database.user_repository import (
+    increase_command,
+)
+
 router = Router()
 
 
@@ -33,6 +37,7 @@ async def tomorrow_handler(
     message: Message,
 ):
 
+    increase_command('tomorrow')
     group = get_user_group(
         message.from_user.id
     )

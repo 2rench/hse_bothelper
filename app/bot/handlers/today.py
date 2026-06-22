@@ -20,6 +20,10 @@ from app.bot.services.formatter import (
     format_lessons,
 )
 
+from app.database.user_repository import (
+    increase_command,
+)
+
 router = Router()
 
 
@@ -27,7 +31,7 @@ router = Router()
 async def today_handler(
     message: Message,
 ):
-
+    increase_command('today')
     group = get_user_group(
         message.from_user.id
     )
