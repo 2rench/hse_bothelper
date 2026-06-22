@@ -83,22 +83,3 @@ class Lesson(Base):
         String,
         nullable=True,
     )
-
-class CommandStat(Base):
-
-    __tablename__ = "command_stats"
-
-    id: Mapped[int] = mapped_column(
-        Integer,
-        primary_key=True,
-        autoincrement=True,
-    )
-
-    command_name: Mapped[str] = mapped_column(
-        String
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.now,
-    )
