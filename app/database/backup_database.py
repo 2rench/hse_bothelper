@@ -2,12 +2,12 @@ import os
 import subprocess
 from datetime import datetime
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL"
-)
-
 
 def create_backup():
+
+    database_url = os.getenv(
+        "DATABASE_URL"
+    )
 
     now = datetime.now().strftime(
         "%Y-%m-%d_%H-%M"
@@ -21,7 +21,7 @@ def create_backup():
     subprocess.run(
         [
             "pg_dump",
-            DATABASE_URL,
+            database_url,
             "-f",
             filename,
         ]

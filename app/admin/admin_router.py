@@ -12,20 +12,11 @@ from app.admin.admin_states import (
 )
 
 from app.admin.admin_keyboards import (
-    admin_keyboard,
     confirm_keyboard,
 )
 
 from app.admin.broadcast_service import (
     send_broadcast,
-)
-
-from app.admin.admin_keyboards import (
-    admin_keyboard,
-)
-
-from app.database.command_stats_repository import (
-    get_stats,
 )
 
 from app.database.user_repository import (
@@ -39,6 +30,7 @@ ADMINS = [
     1485495835,
 ]
 
+
 @router.message(F.text == "/admin")
 async def admin_panel(
     message: Message,
@@ -49,21 +41,26 @@ async def admin_panel(
 
     await message.answer(
         "⚙️ Панель администратора\n\n"
-        "/stats - статистика\n"
-        "/broadcast - рассылка"
+        "/broadcast — рассылка\n"
+        "/stats — статистика"
     )
 
 
-@router.callback_query(
-    F.data == "create_broadcast"
-)
-async def create_broadcast(
-    callback: CallbackQuery,
+# ----------------------
+# Рассылка
+# ----------------------
+
+@router.message(F.text == "/broadcast")
+async def start_broadcast(
+    message: Message,
     state: FSMContext,
 ):
 
-    await callback.message.answer(
-        "📢 Жду"
+    if message.from_user.id not in ADMINS:
+        return
+
+    await message.answer(
+        "📢 Отправь текст или фото с подписью"
     )
 
     await state.set_state(
@@ -114,7 +111,7 @@ async def get_content(
 
     await state.update_data(
         text=text,
-        image_path=image_path,
+        image_path=image_path
     )
 
     await message.answer(
@@ -186,9 +183,12 @@ async def cancel_send(
         "❌ Рассылка отменена"
     )
 
-@router.message(
-    F.text == "/stats"
-)
+
+# ----------------------
+# Статистика
+# ----------------------
+
+@router.message(F.text == "/stats")
 async def stats_handler(
     message: Message,
 ):
