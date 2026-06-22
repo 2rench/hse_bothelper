@@ -40,5 +40,5 @@ class User(Base):
 
     theme = Column(
         String,
-        default='base'
+        default='default'
     )
