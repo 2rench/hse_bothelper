@@ -1,18 +1,13 @@
-from pathlib import Path
-from datetime import datetime
+import os
 import subprocess
+from datetime import datetime
 
-from app.config import DATABASE_URL
+DATABASE_URL = os.getenv(
+    "DATABASE_URL"
+)
 
 
 def create_backup():
-
-    Path(
-        "files/backups"
-    ).mkdir(
-        parents=True,
-        exist_ok=True,
-    )
 
     now = datetime.now().strftime(
         "%Y-%m-%d_%H-%M"
@@ -20,18 +15,16 @@ def create_backup():
 
     filename = (
         f"files/backups/"
-        f"backup_{now}.dump"
+        f"backup_{now}.sql"
     )
 
     subprocess.run(
         [
             "pg_dump",
-            "-Fc",
             DATABASE_URL,
             "-f",
             filename,
-        ],
-        check=True,
+        ]
     )
 
     return filename
