@@ -11,7 +11,7 @@ def get_themes_keyboard():
             [
                 InlineKeyboardButton(
                     text="✨ Стандарт",
-                    callback_data="themes_default",
+                    callback_data="theme_default",
                 )
             ],
             [
