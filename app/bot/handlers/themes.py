@@ -22,7 +22,7 @@ async def show_themes(
 ):
 
     await callback.message.edit_text(
-        "🎨 Выбери категорию:",
+        "🎨 Оформление:",
         reply_markup=get_themes_keyboard()
     )
 
