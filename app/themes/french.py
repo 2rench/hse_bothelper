@@ -14,4 +14,10 @@ THEME = {
     "room": "🏫",
 
     "online": "🌐 En ligne",
+
+    "today_no_lessons": "pas de leçons pour aujourd'hui 🥐",
+
+    "tomorrow_no_lessons": "pas de cours pour demain 🥐",
+
+    "week_no_lessons": "pas de cours pour la semaine 🥐",
 }
