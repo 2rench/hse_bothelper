@@ -72,7 +72,6 @@ async def tomorrow_handler(
 
         await message.answer(
             f"{get_tomorrow_no_lessons(message.from_user.id)} "
-            f"({tomorrow_date})"
         )
 
         return

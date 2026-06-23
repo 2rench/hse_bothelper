@@ -62,7 +62,6 @@ async def today_handler(
 
         await message.answer(
             f"{get_today_no_lessons(message.from_user.id)} "
-            f"({current_date})"
         )
 
         return

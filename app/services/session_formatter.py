@@ -78,8 +78,6 @@ def format_session_schedule(
             "━━━━━━━━━━━━\n"
             f"🎓 {day} ({date})\n"
             "━━━━━━━━━━━━\n\n"
-            f"📝 Экзаменов: "
-            f"{len(day_lessons)}\n\n"
         )
 
         for lesson in day_lessons:
@@ -130,7 +128,5 @@ def format_session_schedule(
                 )
 
             text += "\n"
-
-        text += "\n"
 
     return text
