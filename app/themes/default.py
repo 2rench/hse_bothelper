@@ -1,27 +1,23 @@
-def no_lessons():
-    return "На чиле, без пар 🤩"
+THEME = {
+    "no_lessons": "На чиле, без пар 🤩",
 
-def lessons_count(count):
-    return f"😋 Пар: {count}"
+    "pairs": "Пар",
 
-def lesson_header(lesson):
-    return (
-        f"➖➖➖➖➖➖➖➖\n"
-        f"☄️ <b>№{lesson.lesson_number} пара</b> — "
-        f"<b>{lesson.lesson_time}</b>\n\n"
-    )
+    "day": "📅",
 
-def subject(lesson):
-    return f"🎾 {lesson.subject}\n\n"
+    "lesson": "☄️",
 
-def lesson_type(lesson):
-    return f"😴 <b>{lesson.lesson_type}</b>\n"
+    "subject": "🎾",
 
-def teacher(lesson):
-    return f"<b><i>{lesson.teacher}</i></b>\n\n"
+    "type": "😴",
 
-def room(lesson):
-    return f"🏫 {lesson.room} в {lesson.building} корпусе\n"
+    "room": "🏫",
 
-def online():
-    return "🌐 Онлайн\n"
+    "online": "🌐 Онлайн",
+
+    "today_no_lessons": "На чиле, без пар 🤩",
+
+    "tomorrow_no_lessons": "Завтра без пар 🤩",
+
+    "week_no_lessons": "На неделе нет пар 🤩",
+}

@@ -23,6 +23,10 @@ from app.bot.services.formatter import (
 from app.database.user_repository import (
     increase_command,
 )
+from app.bot.services.formatter import (
+    format_lessons,
+    get_today_no_lessons,
+)
 
 router = Router()
 
@@ -57,7 +61,8 @@ async def today_handler(
     if not lessons:
 
         await message.answer(
-            f"😎 На сегодня ({current_date}) пар нет"
+            f"{get_today_no_lessons(message.from_user.id)} "
+            f"({current_date})"
         )
 
         return
@@ -67,7 +72,8 @@ async def today_handler(
     )
 
     text += format_lessons(
-        lessons
+        lessons,
+        telegram_id=message.from_user.id,
     )
 
     await message.answer(

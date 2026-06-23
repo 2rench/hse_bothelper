@@ -1,26 +1,23 @@
-def no_lessons():
-    return "Зай, сегодня никаких пар ✨"
+THEME = {
+    "no_lessons": "💎 Зай, всё такое люксовое, что даже пар нет",
 
-def lessons_count(count):
-    return f"💎 Дел на сегодня: {count}"
+    "pairs": "Lux events:",
 
-def lesson_header(lesson):
-    return (
-        f"━━━━━━━━━━━━\n"
-        f"⏰ {lesson.lesson_time}\n\n"
-    )
+    "day": "💎",
 
-def subject(lesson):
-    return f"🥂 {lesson.subject}\n"
+    "lesson": "✨",
 
-def lesson_type(lesson):
-    return f"✨ {lesson.lesson_type}\n"
+    "subject": "👑",
 
-def teacher(lesson):
-    return f"🎓 {lesson.teacher}\n"
+    "type": "💅",
 
-def room(lesson):
-    return f"🏛 {lesson.room}, {lesson.building} корпус\n"
+    "room": "🏛",
 
-def online():
-    return "💻 Online\n"
+    "online": "📱 Online meeting",
+
+    "today_no_lessons": "✨ Сегодня люкс и пар нет",
+
+    "tomorrow_no_lessons": "Мы такие 🤩🤩🤩, что пары не поставили",
+
+    "week_no_lessons": "💯 Отдыхаем неделю",
+}

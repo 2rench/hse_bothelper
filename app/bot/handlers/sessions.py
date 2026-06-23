@@ -36,7 +36,7 @@ async def sessions_handler(
         return
 
     await message.answer(
-        "🎓 Выберите сессию",
+        "🎓 Выбери сессию",
         reply_markup=get_sessions_keyboard(
             sessions
         ),

@@ -27,6 +27,11 @@ from app.database.user_repository import (
     increase_command,
 )
 
+from app.bot.services.formatter import (
+    format_lessons,
+    get_tomorrow_no_lessons,
+)
+
 router = Router()
 
 
@@ -66,7 +71,8 @@ async def tomorrow_handler(
     if not lessons:
 
         await message.answer(
-            f"Завтра ({tomorrow_date}) без пар 😎😎😎"
+            f"{get_tomorrow_no_lessons(message.from_user.id)} "
+            f"({tomorrow_date})"
         )
 
         return
@@ -76,7 +82,8 @@ async def tomorrow_handler(
     )
 
     text += format_lessons(
-        lessons
+        lessons,
+        telegram_id=message.from_user.id,
     )
 
     await message.answer(

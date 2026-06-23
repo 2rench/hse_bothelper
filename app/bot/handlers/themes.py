@@ -22,7 +22,7 @@ async def show_themes(
 ):
 
     await callback.message.edit_text(
-        "🎨 Оформление:",
+        "🎨 От темы будет зависить визуал: текст, эмодзи. Выбирай, как чувствуешь",
         reply_markup=get_themes_keyboard()
     )
 
@@ -37,7 +37,7 @@ async def girls_themes(
 ):
 
     await callback.message.edit_text(
-        "👩 Темы для девушек:",
+        "💃",
         reply_markup=get_girls_themes_keyboard()
     )
 
@@ -52,7 +52,7 @@ async def boys_themes(
 ):
 
     await callback.message.edit_text(
-        "👨 Темы для парней:",
+        "🕺",
         reply_markup=get_boys_themes_keyboard()
     )
 

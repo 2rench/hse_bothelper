@@ -1,25 +1,23 @@
-def no_lessons():
-    return "status=FREE"
+THEME = {
+    "no_lessons": "return WeekendMode(); 😎",
 
-def lessons_count(count):
-    return f"tasks={count}"
+    "pairs": "Task list",
 
-def lesson_header(lesson):
-    return (
-        f"BEGIN {lesson.lesson_time}\n"
-    )
+    "day": "📆",
 
-def subject(lesson):
-    return f"module={lesson.subject}\n"
+    "lesson": "⚙️",
 
-def lesson_type(lesson):
-    return f"type={lesson.lesson_type}\n"
+    "subject": "📦",
 
-def teacher(lesson):
-    return f"mentor={lesson.teacher}\n"
+    "type": "🔧",
 
-def room(lesson):
-    return f"location={lesson.room}\n"
+    "room": "🖥",
 
-def online():
-    return "remote=True\n"
+    "online": "☁️ Remote",
+
+    "today_no_lessons": "Error: 'пары' is not defined",
+
+    "tomorrow_no_lessons": "return tomorrow_lessons(0000000)",
+
+    "week_no_lessons": "return f'На неделе пар нет'",
+}

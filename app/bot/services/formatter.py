@@ -8,16 +8,15 @@ from app.database.user_repository import (
     get_user,
 )
 
-from app.themes import (
-    default,
-    luxury,
-    clean_girl,
-    brother,
-    it_style,
-    # english,
-    # chinese,
-    # french,
-)
+from app.themes.default import THEME as default
+from app.themes.luxury import THEME as luxury
+from app.themes.clean_girl import THEME as clean_girl
+from app.themes.brother import THEME as brother
+from app.themes.it_style import THEME as it_style
+from app.themes.english import THEME as english
+from app.themes.chinese import THEME as chinese
+from app.themes.french import THEME as french
+
 
 THEMES = {
     "default": default,
@@ -25,9 +24,9 @@ THEMES = {
     "clean": clean_girl,
     "brat": brother,
     "it": it_style,
-    # "en": english,
-    # "cn": chinese,
-    # "fr": french,
+    "english": english,
+    "french": french,
+    "chinese": chinese,
 }
 
 
@@ -76,13 +75,13 @@ def format_lessons(
     )
 
     if not lessons:
-
-        return theme.no_lessons()
+        return theme["no_lessons"]
 
     if lessons[0].schedule_type == "session":
 
         return format_session_schedule(
-            lessons
+            lessons,
+            telegram_id,
         )
 
     text = ""
@@ -115,14 +114,14 @@ def format_lessons(
 
             text += (
                 "━━━━━━━━━━━━\n"
-                f"📅 {day} — {date}\n"
+                f"{theme['day']} {day} — {date}\n"
                 "━━━━━━━━━━━━\n"
             )
 
             text += (
-                theme.lessons_count(
-                    len(day_lessons)
-                )
+                f"{emoji(len(day_lessons))} "
+                f"{theme['pairs']}: "
+                f"{len(day_lessons)}"
             )
 
             text += "\n\n"
@@ -137,9 +136,9 @@ def format_lessons(
         return text
 
     text += (
-        theme.lessons_count(
-            len(lessons)
-        )
+        f"{emoji(len(lessons))} "
+        f"{theme['pairs']}: "
+        f"{len(lessons)}"
     )
 
     text += "\n\n"
@@ -161,29 +160,37 @@ def _format_day_lessons(
 
     for lesson in lessons:
 
-        text += theme.lesson_header(
-            lesson
+        text += (
+            "➖➖➖➖➖➖➖➖\n"
+            f"{theme['lesson']} "
+            f"<b>№{lesson.lesson_number} пара</b> — "
+            f"<b>{lesson.lesson_time}</b>\n\n"
         )
 
-        text += theme.subject(
-            lesson
+        text += (
+            f"{theme['subject']} "
+            f"{lesson.subject}\n\n"
         )
 
-        text += theme.lesson_type(
-            lesson
-        )
+        if lesson.lesson_type:
+
+            text += (
+                f"{theme['type']} "
+                f"<b>{lesson.lesson_type}</b>\n"
+            )
 
         if lesson.teacher:
 
-            text += theme.teacher(
-                lesson
+            text += (
+                f"<b><i>{lesson.teacher}</i></b>\n\n"
             )
 
         if lesson.room:
 
-            text += theme.room(
-                lesson
-            ).rstrip()
+            text += (
+                f"{theme['room']} "
+                f"{lesson.room}"
+            )
 
             if lesson.building:
 
@@ -195,8 +202,34 @@ def _format_day_lessons(
 
         if lesson.is_online:
 
-            text += theme.online()
+            text += (
+                f"{theme['online']}\n"
+            )
 
         text += "\n"
 
     return text
+
+def get_today_no_lessons(
+    telegram_id=None,
+):
+    return get_theme(
+        telegram_id
+    )["today_no_lessons"]
+
+
+def get_tomorrow_no_lessons(
+    telegram_id=None,
+):
+    return get_theme(
+        telegram_id
+    )["tomorrow_no_lessons"]
+
+
+def get_week_no_lessons(
+    telegram_id=None,
+):
+    return get_theme(
+        telegram_id
+    )["week_no_lessons"]
+

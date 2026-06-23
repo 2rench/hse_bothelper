@@ -1,23 +1,23 @@
-def no_lessons():
-    return "Сегодня свободно ☁️"
+THEME = {
+    "no_lessons": "🩵 Дорогая,  сегодня день для self care.\nПредлагаю пилатес или йогу",
 
-def lessons_count(count):
-    return f"☁️ {count} занятий"
+    "pairs": "Активностей",
 
-def lesson_header(lesson):
-    return f"{lesson.lesson_time}\n"
+    "day": "🌿",
 
-def subject(lesson):
-    return f"{lesson.subject}\n"
+    "lesson": "✨",
 
-def lesson_type(lesson):
-    return f"{lesson.lesson_type}\n"
+    "subject": "🕊",
 
-def teacher(lesson):
-    return f"{lesson.teacher}\n"
+    "type": "🩵",
 
-def room(lesson):
-    return f"{lesson.room}\n"
+    "room": "☁️",
 
-def online():
-    return "online\n"
+    "online": "💻 Online",
+
+    "today_no_lessons": "🩵 Дорогая,  сегодня день для self care.\nПредлагаю пилатес или йогу",
+
+    "tomorrow_no_lessons": "🌸 Завтра день того, что захочешь ты",
+
+    "week_no_lessons": "🥑 Вся неделя — для тебя",
+}

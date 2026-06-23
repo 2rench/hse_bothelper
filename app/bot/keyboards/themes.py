@@ -16,11 +16,11 @@ def get_themes_keyboard():
             ],
             [
                 InlineKeyboardButton(
-                    text="👩 Для девушек",
+                    text="💃 Для girls",
                     callback_data="themes_girls",
                 ),
                 InlineKeyboardButton(
-                    text="👨 Для парней",
+                    text="🕺 Для менов",
                     callback_data="themes_boys",
                 ),
             ],
@@ -44,7 +44,7 @@ def get_girls_themes_keyboard():
             ],
             [
                 InlineKeyboardButton(
-                    text="✨ Clean girl",
+                    text="💅 Нишевая girl",
                     callback_data="theme_clean_girl",
                 )
             ],
@@ -62,13 +62,13 @@ def get_boys_themes_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🖤 Брат стиль",
+                    text="🖤 Брат(макан) стиль",
                     callback_data="theme_brother",
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="💻 IT стиль",
+                    text="💻 Для айтишников",
                     callback_data="theme_it_style",
                 )
             ],
@@ -80,33 +80,33 @@ def get_boys_themes_keyboard():
             ]
         ]
     )
-def get_languages_keyboard():
+# def get_languages_keyboard():
 
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🇬🇧 English",
-                    callback_data="theme_en",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🇨🇳 中文",
-                    callback_data="theme_cn",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🇫🇷 Français",
-                    callback_data="theme_fr",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="⬅️ Назад",
-                    callback_data="themes",
-                )
-            ]
-        ]
-    )
+#     return InlineKeyboardMarkup(
+#         inline_keyboard=[
+#             [
+#                 InlineKeyboardButton(
+#                     text="🇬🇧 English",
+#                     callback_data="theme_en",
+#                 )
+#             ],
+#             [
+#                 InlineKeyboardButton(
+#                     text="🇨🇳 中文",
+#                     callback_data="theme_cn",
+#                 )
+#             ],
+#             [
+#                 InlineKeyboardButton(
+#                     text="🇫🇷 Français",
+#                     callback_data="theme_fr",
+#                 )
+#             ],
+#             [
+#                 InlineKeyboardButton(
+#                     text="⬅️ Назад",
+#                     callback_data="themes",
+#                 )
+#             ]
+#         ]
+#     )

@@ -2,52 +2,115 @@ from collections import defaultdict
 
 from app.database.models import Lesson
 
+from app.database.user_repository import (
+    get_user,
+)
+
+from app.themes.default import THEME as default
+from app.themes.luxury import THEME as luxury
+from app.themes.clean_girl import THEME as clean_girl
+from app.themes.brother import THEME as brother
+from app.themes.it_style import THEME as it_style
+
+
+THEMES = {
+    "default": default,
+    "lux": luxury,
+    "clean": clean_girl,
+    "brat": brother,
+    "it": it_style,
+}
+
+
+def get_theme(
+    telegram_id=None,
+):
+
+    if not telegram_id:
+        return default
+
+    user = get_user(
+        telegram_id
+    )
+
+    if not user:
+        return default
+
+    return THEMES.get(
+        user["theme"],
+        default,
+    )
+
 
 def format_session_schedule(
     lessons: list[Lesson],
+    telegram_id=None,
 ) -> str:
 
     if not lessons:
-        return "Сессия не найдена 😄"
+        return "😄 Сессия не найдена"
+
+    theme = get_theme(
+        telegram_id
+    )
 
     grouped = defaultdict(list)
 
     for lesson in lessons:
+
         grouped[
-            (lesson.day, lesson.date)
-        ].append(lesson)
+            (
+                lesson.day,
+                lesson.date,
+            )
+        ].append(
+            lesson
+        )
 
-    # session_name = lessons[0].schedule_name
-
-    # text = f"🎓 <b>{session_name}</b>\n\n"
     text = ""
-    for (day, date), day_lessons in grouped.items():
+
+    for (
+        day,
+        date,
+    ), day_lessons in grouped.items():
 
         text += (
             "━━━━━━━━━━━━\n"
-            f"📅 {day} ({date})\n"
+            f"🎓 {day} ({date})\n"
             "━━━━━━━━━━━━\n\n"
+            f"📝 Экзаменов: "
+            f"{len(day_lessons)}\n\n"
         )
 
         for lesson in day_lessons:
 
             text += (
-                f"☄️ <b>№{lesson.lesson_number} пара — "
-                f"{lesson.lesson_time}</b>\n\n"
+                "═══════════════\n"
+                f"🎯 №{lesson.lesson_number} пара — "
+                f"{lesson.lesson_time}\n\n"
             )
 
-            text += f"🥶 <b>{lesson.subject}</b>\n\n"
+            text += (
+                f"{theme['subject']} "
+                f"<b>{lesson.subject}</b>\n\n"
+            )
 
             if lesson.teacher:
+
                 text += (
-                    f"<b><i>{lesson.teacher}</i></b>\n"
+                    f"👨‍🏫 "
+                    f"<b><i>{lesson.teacher}</i></b>\n\n"
                 )
 
             if lesson.room:
 
-                text += f"💥 Аудитория: {lesson.room}"
+                text += (
+                    f"{theme['room']} "
+                    f"{lesson.room}"
+                )
 
                 if lesson.building:
+
                     text += (
                         f" в {lesson.building} корпусе"
                     )
@@ -57,12 +120,17 @@ def format_session_schedule(
             else:
 
                 text += (
-                    "🫤 Информации по аудитории нет\n"
+                    "❓ Аудитория пока не указана\n"
                 )
 
             if lesson.is_online:
-                text += "🌐 Онлайн\n"
+
+                text += (
+                    f"{theme['online']}\n"
+                )
 
             text += "\n"
+
+        text += "\n"
 
     return text

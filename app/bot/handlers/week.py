@@ -23,6 +23,10 @@ from app.bot.services.formatter import (
 from app.database.user_repository import (
     increase_command,
 )
+from app.bot.services.formatter import (
+    format_lessons,
+    get_week_no_lessons,
+)
 
 router = Router()
 
@@ -49,7 +53,9 @@ async def week_handler(message: Message):
     if not lessons:
 
         await message.answer(
-            "Расписание не найдено"
+            get_week_no_lessons(
+                message.from_user.id
+            )
         )
 
         return

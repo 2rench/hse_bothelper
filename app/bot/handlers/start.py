@@ -37,13 +37,9 @@ async def start_handler(
 
         await message.answer(
             """
-            <b>😎 привет!</b>\n\nБот поможет тебе быстро
-            и удобно смотреть обычное расписание и
-            расписание <tg-spoiler>сессий 🥶.</tg-spoiler>
-
-            Для начала — выбери год и группу обучения.
-
-            Welcome
+            <b>😎 привет!</b>\n\nЭто — бот хелпер. Его основная задача
+        — удобный просмотр расписания, <tg-spoiler>но это пока.</tg-spoiler>\n
+        Для начала нужно выбрать группу и год.\n\nWelcome
             """.strip(),
             reply_markup=get_years_keyboard(),
         )
