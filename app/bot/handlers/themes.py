@@ -5,6 +5,7 @@ from app.bot.keyboards.themes import (
     get_themes_keyboard,
     get_girls_themes_keyboard,
     get_boys_themes_keyboard,
+    get_languages_keyboard,
 )
 
 from app.database.user_repository import (
@@ -54,6 +55,20 @@ async def boys_themes(
     await callback.message.edit_text(
         "🕺",
         reply_markup=get_boys_themes_keyboard()
+    )
+
+    await callback.answer()
+
+@router.callback_query(
+    F.data == "themes_languages"
+)
+async def languages_themes(
+    callback: CallbackQuery,
+):
+
+    await callback.message.edit_text(
+        "🌍",
+        reply_markup=get_languages_keyboard()
     )
 
     await callback.answer()
