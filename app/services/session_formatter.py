@@ -117,9 +117,11 @@ def format_session_schedule(
 
             else:
 
-                text += (
-                    "❓ Аудитория пока не указана\n"
-                )
+                if not lesson.is_online:
+
+                    text += (
+                        "❓ Аудитория пока не указана\n"
+                    )
 
             if lesson.is_online:
 
