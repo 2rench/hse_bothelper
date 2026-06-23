@@ -20,10 +20,10 @@ from app.themes.french import THEME as french
 
 THEMES = {
     "default": default,
-    "lux": luxury,
-    "clean": clean_girl,
-    "brat": brother,
-    "it": it_style,
+    "luxury": luxury,
+    "clean_girl": clean_girl,
+    "brother": brother,
+    "it_style": it_style,
     "english": english,
     "french": french,
     "chinese": chinese,
@@ -161,7 +161,7 @@ def _format_day_lessons(
     for lesson in lessons:
 
         text += (
-            "➖➖➖➖➖➖➖➖\n"
+            "➖➖➖➖➖➖➖➖➖\n"
             f"{theme['lesson']} "
             f"<b>№{lesson.lesson_number} пара</b> — "
             f"<b>{lesson.lesson_time}</b>\n\n"

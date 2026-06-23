@@ -85,14 +85,14 @@ def format_session_schedule(
         for lesson in day_lessons:
 
             text += (
-                "═══════════════\n"
+                "➖➖➖➖➖➖➖➖➖\n"
                 f"🎯 №{lesson.lesson_number} пара — "
                 f"{lesson.lesson_time}\n\n"
             )
 
             text += (
                 f"{theme['subject']} "
-                f"<b>{lesson.subject}</b>\n\n"
+                f"<b>{lesson.subject}</b>\n"
             )
 
             if lesson.teacher:
@@ -126,7 +126,7 @@ def format_session_schedule(
             if lesson.is_online:
 
                 text += (
-                    f"{theme['online']}\n"
+                    f"{theme['online']}"
                 )
 
             text += "\n"

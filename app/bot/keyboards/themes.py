@@ -80,33 +80,33 @@ def get_boys_themes_keyboard():
             ]
         ]
     )
-# def get_languages_keyboard():
+def get_languages_keyboard():
 
-#     return InlineKeyboardMarkup(
-#         inline_keyboard=[
-#             [
-#                 InlineKeyboardButton(
-#                     text="🇬🇧 English",
-#                     callback_data="theme_en",
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="🇨🇳 中文",
-#                     callback_data="theme_cn",
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="🇫🇷 Français",
-#                     callback_data="theme_fr",
-#                 )
-#             ],
-#             [
-#                 InlineKeyboardButton(
-#                     text="⬅️ Назад",
-#                     callback_data="themes",
-#                 )
-#             ]
-#         ]
-#     )
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🇬🇧 English",
+                    callback_data="theme_english",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🇨🇳 中文",
+                    callback_data="theme_chinese",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🇫🇷 Français",
+                    callback_data="theme_french",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="⬅️ Назад",
+                    callback_data="themes",
+                )
+            ]
+        ]
+    )
