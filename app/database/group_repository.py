@@ -4,7 +4,9 @@ from app.database.database import SessionLocal
 from app.database.group_model import Group
 
 
-def save_group(group_name: str):
+def save_group(
+    group_name: str,
+):
 
     db: Session = SessionLocal()
 
@@ -59,3 +61,31 @@ def get_groups_by_year(
         group.group_name
         for group in groups
     ]
+
+
+def get_all_groups():
+
+    db = SessionLocal()
+
+    groups = (
+        db.query(Group)
+        .order_by(
+            Group.group_name
+        )
+        .all()
+    )
+
+    db.close()
+
+    return groups
+
+
+def clear_groups():
+
+    db = SessionLocal()
+
+    db.query(Group).delete()
+
+    db.commit()
+
+    db.close()

@@ -12,20 +12,10 @@ from app.services.tomorrow_notifications import (
     send_tomorrow_notifications,
 )
 
-from app.services.group_refresh import (
-    refresh_groups_if_needed,
-)
-
-last_backup_hour = None
-last_cleanup_day = None
-
 
 async def schedule_loop(
     bot,
 ):
-
-    global last_backup_hour
-    global last_cleanup_day
 
     while True:
 
@@ -34,8 +24,6 @@ async def schedule_loop(
             print(
                 "CHECKING UPDATES..."
             )
-
-            refresh_groups_if_needed()
 
             updates = check_updates()
 
