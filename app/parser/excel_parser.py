@@ -6,6 +6,10 @@ import xlrd
 
 from app.parser.lesson_parser import parse_lesson_text
 
+from app.database.group_repository import (
+    save_group,
+)
+
 IGNORE_COLUMNS = {
 "дни",
 "пары",
@@ -227,6 +231,9 @@ def parse_excel(
 
             for col_index, group_name in groups.items():
 
+                save_group(
+                    group_name
+                )
                 lesson_cell = get_cell_value(
                     sheet,
                     row_index,

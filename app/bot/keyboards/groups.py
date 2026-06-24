@@ -1,45 +1,44 @@
-from aiogram.types import InlineKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 
-from app.database.database import SessionLocal
-from app.database.models import Lesson
+from app.database.group_repository import (
+    get_groups_by_year,
+)
 
 
-def get_groups_keyboard(year: str) -> InlineKeyboardMarkup:
-    """
-    Клавиатура групп по году.
-    """
+def get_groups_keyboard(
+    year: str,
+):
 
-    db = SessionLocal()
-
-    groups = (
-        db.query(Lesson.group_name)
-        .distinct()
-        .all()
+    groups = get_groups_by_year(
+        year
     )
 
-    db.close()
+    keyboard = []
 
-    filtered_groups = []
+    row = []
 
-    for group_tuple in groups:
+    for group in groups:
 
-        group_name = group_tuple[0]
-
-        if f"-{year}-" in group_name:
-            filtered_groups.append(group_name)
-
-    filtered_groups = sorted(filtered_groups)
-
-    builder = InlineKeyboardBuilder()
-
-    for group in filtered_groups:
-
-        builder.button(
-            text=group,
-            callback_data=f"group:{group}",
+        row.append(
+            InlineKeyboardButton(
+                text=group,
+                callback_data=f"group:{group}",
+            )
         )
 
-    builder.adjust(2)
+        if len(row) == 2:
 
-    return builder.as_markup()
+            keyboard.append(row)
+
+            row = []
+
+    if row:
+
+        keyboard.append(row)
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=keyboard
+    )
