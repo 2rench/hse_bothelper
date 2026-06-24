@@ -52,6 +52,15 @@ async def week_handler(message: Message):
 
     if not lessons:
 
+        try:
+
+            await message.bot.unpin_all_chat_messages(
+                message.chat.id
+            )
+
+        except:
+            pass
+
         await message.answer(
             get_week_no_lessons(
                 message.from_user.id

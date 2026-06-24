@@ -7,7 +7,7 @@ def fill_groups():
 
     db = SessionLocal()
 
-    # очищаем старые записи
+
     db.query(Group).delete()
 
     # получаем все группы из lessons
