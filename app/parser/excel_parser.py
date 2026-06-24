@@ -197,6 +197,7 @@ def parse_excel(
                 continue
 
             groups[col_index] = value
+            save_group(value)
 
         current_day = None
         current_date = None
@@ -231,9 +232,6 @@ def parse_excel(
 
             for col_index, group_name in groups.items():
 
-                save_group(
-                    group_name
-                )
                 lesson_cell = get_cell_value(
                     sheet,
                     row_index,
