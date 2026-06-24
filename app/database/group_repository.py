@@ -4,35 +4,36 @@ from app.database.database import SessionLocal
 from app.database.group_model import Group
 
 
-def save_group(
-    group_name: str,
-):
+def save_group(group_name: str):
 
     db: Session = SessionLocal()
 
-    parts = group_name.split("-")
-    year = parts[1]
+    try:
 
-    exists = (
-        db.query(Group)
-        .filter(
-            Group.group_name == group_name
+        year = group_name.split("-")[1]
+
+        exists = (
+            db.query(Group)
+            .filter(
+                Group.group_name == group_name
+            )
+            .first()
         )
-        .first()
-    )
 
-    if not exists:
+        if not exists:
 
-        db.add(
-            Group(
+            group = Group(
                 education_year=year,
                 group_name=group_name,
             )
-        )
 
-        db.commit()
+            db.add(group)
 
-    db.close()
+            db.commit()
+
+    finally:
+
+        db.close()
 
 
 def get_groups_by_year(
@@ -58,14 +59,3 @@ def get_groups_by_year(
         group.group_name
         for group in groups
     ]
-
-
-def clear_groups():
-
-    db = SessionLocal()
-
-    db.query(Group).delete()
-
-    db.commit()
-
-    db.close()
