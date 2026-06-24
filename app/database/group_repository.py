@@ -10,7 +10,8 @@ def save_group(
 
     db: Session = SessionLocal()
 
-    year = group_name[0]
+    parts = group_name.split("-")
+    year = parts[1]
 
     exists = (
         db.query(Group)
