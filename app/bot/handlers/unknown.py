@@ -9,6 +9,6 @@ async def unknown_command(
     message: Message,
 ):
     await message.answer(
-        "Стоп 🫷🏾. Куда-то мы не туда\n\n"
+        "Стоп 🫷🏾\nКуда-то мы не туда\n\n"
         "Домой — /start"
     )

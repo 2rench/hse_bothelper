@@ -70,6 +70,6 @@ async def start_handler(
     )
 
     await message.answer(
-        "Выбери действие 👇",
+        "🏄‍♂️",
         reply_markup=get_main_menu(),
     )

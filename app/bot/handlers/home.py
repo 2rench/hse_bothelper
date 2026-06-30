@@ -64,6 +64,6 @@ async def home_handler(
     )
 
     await message.answer(
-        "\u2060",
+        "🏄‍♂️",
         reply_markup=get_main_menu(),
     )
