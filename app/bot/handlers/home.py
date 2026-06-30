@@ -17,7 +17,7 @@ router = Router()
 
 
 @router.message(
-    lambda m: m.text == "🏠 Главная"
+    lambda m: m.text == "🎾 Главная"
 )
 async def home_handler(
     message: Message,
@@ -64,6 +64,6 @@ async def home_handler(
     )
 
     await message.answer(
-        "",
+        "\u2060",
         reply_markup=get_main_menu(),
     )

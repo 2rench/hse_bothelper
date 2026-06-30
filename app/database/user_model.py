@@ -1,7 +1,15 @@
-from sqlalchemy import Column
-from sqlalchemy import Integer, BigInteger
-from sqlalchemy import String
-from sqlalchemy import Boolean
+from datetime import (
+    datetime,
+    UTC,
+)
+
+from sqlalchemy import (
+    Column,
+    BigInteger,
+    String,
+    Boolean,
+    DateTime,
+)
 
 from app.database.database import Base
 
@@ -12,7 +20,7 @@ class User(Base):
 
     id = Column(
         BigInteger,
-        primary_key=True
+        primary_key=True,
     )
 
     telegram_id = Column(
@@ -40,5 +48,12 @@ class User(Base):
 
     theme = Column(
         String,
-        default='default'
+        default="default",
+        nullable=False,
+    )
+
+    created_date = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
     )

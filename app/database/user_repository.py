@@ -7,6 +7,11 @@ from app.database.command_stat_model import (
     CommandStat,
 )
 
+from datetime import (
+    datetime,
+    UTC,
+)
+
 
 def save_user_group(
     telegram_id: int,
@@ -34,6 +39,7 @@ def save_user_group(
             group_name=group_name,
             schedule_updates=True,
             tomorrow_notifications=False,
+            created_date=datetime.now(UTC),
         )
 
         db.add(user)

@@ -13,20 +13,16 @@ from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
 from app.bot.handlers.group_select import router as group_router
-
 from app.bot.handlers.help import router as help_router
-
 from app.services.scheduler import (
     schedule_loop,
 )
+from app.bot.handlers.unknown import router as unknown_router
 from app.bot.handlers.sport_schedule import router as sport_router
-
 from app.admin.admin_router import (
     router as admin_router
 )
-
 from app.bot.handlers import start, today, week, tomorrow, sessions
-
 from app.bot.handlers.notifications import (
     router as notifications_router
 )
@@ -68,6 +64,9 @@ async def main():
         ),
     )
 
+    await bot.delete_webhook(
+        drop_pending_updates=True
+    )
     dp = Dispatcher()
 
     dp.include_router(group_router)
@@ -85,8 +84,8 @@ async def main():
     dp.include_router(admin_router)
     dp.include_router(sport_router)
     dp.include_router(themes_router)
+    dp.include_router(unknown_router)
 
-    print("Bot started")
     asyncio.create_task(
         schedule_loop(bot)
     )
