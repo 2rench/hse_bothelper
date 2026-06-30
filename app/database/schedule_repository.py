@@ -125,3 +125,21 @@ def save_lessons(
     db.commit()
 
     db.close()
+
+
+def has_sessions() -> bool:
+
+    db = SessionLocal()
+
+    exists = (
+        db.query(Lesson)
+        .filter(
+            Lesson.schedule_type == "session"
+        )
+        .first()
+        is not None
+    )
+
+    db.close()
+
+    return exists
