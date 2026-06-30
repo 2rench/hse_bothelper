@@ -86,14 +86,6 @@ async def main():
             command="sessions",
             description="Сессия",
         ),
-        BotCommand(
-            command="menu",
-            description="Главное меню",
-        ),
-        BotCommand(
-            command="help",
-            description="Помощь",
-        ),
     ])
 
     await bot.delete_webhook(
