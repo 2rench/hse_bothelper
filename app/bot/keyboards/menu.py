@@ -3,10 +3,12 @@ from aiogram.types import (
     KeyboardButton,
 )
 
+from app.database.schedule_repository import (
+    has_sessions,
+)
 
-def get_main_menu(
-    has_session: bool = False,
-):
+
+def get_main_menu():
 
     keyboard = [
         [
@@ -19,8 +21,7 @@ def get_main_menu(
         ],
     ]
 
-    # если в бд есть сессии, то выводим кнопку
-    if has_session:
+    if has_sessions():
 
         keyboard.append(
             [
@@ -68,4 +69,5 @@ def get_main_menu(
     return ReplyKeyboardMarkup(
         keyboard=keyboard,
         resize_keyboard=True,
+        is_persistent=True,
     )

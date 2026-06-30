@@ -10,6 +10,7 @@ from aiogram.client.default import (
 
 from aiogram.enums import ParseMode
 
+from aiogram.types import BotCommand
 from dotenv import load_dotenv
 
 from app.bot.handlers.group_select import router as group_router
@@ -63,6 +64,37 @@ async def main():
             parse_mode=ParseMode.HTML,
         ),
     )
+
+    await bot.set_my_commands([
+        BotCommand(
+            command="start",
+            description="Запустить бота",
+        ),
+        BotCommand(
+            command="today",
+            description="Расписание на сегодня",
+        ),
+        BotCommand(
+            command="tomorrow",
+            description="Расписание на завтра",
+        ),
+        BotCommand(
+            command="week",
+            description="Расписание недели",
+        ),
+        BotCommand(
+            command="sessions",
+            description="Сессия",
+        ),
+        BotCommand(
+            command="menu",
+            description="Главное меню",
+        ),
+        BotCommand(
+            command="help",
+            description="Помощь",
+        ),
+    ])
 
     await bot.delete_webhook(
         drop_pending_updates=True
