@@ -36,6 +36,13 @@ def _is_xlrd_sheet(sheet):
     return hasattr(sheet, "cell_value")
 
 
+def _get_sheet_name(sheet):
+    if _is_xlrd_sheet(sheet):
+        return sheet.name
+    else:
+        return sheet.title
+
+
 def _get_merged_cells(sheet):
     if _is_xlrd_sheet(sheet):
         return sheet.merged_cells
@@ -174,7 +181,8 @@ def parse_excel(
     processed_shared_cells = set()
 
     for sheet in _get_sheets(workbook):
-        print(f"Processing sheet: {sheet.name}")
+        sheet_name = _get_sheet_name(sheet)
+        print(f"Processing sheet: {sheet_name}")
 
         groups: dict[int, str] = {}
         GROUPS_ROW_INDEX = 2
@@ -237,7 +245,7 @@ def parse_excel(
                             current_date,
                             lesson_number,
                             lesson_time,
-                            sheet.name,
+                            sheet_name,
                             lesson_text,
                             lesson_info,
                             lesson_type,
@@ -275,7 +283,7 @@ def parse_excel(
                             current_date,
                             lesson_number,
                             lesson_time,
-                            sheet.name,
+                            sheet_name,
                             lesson_text,
                             lesson_info,
                             lesson_type,
