@@ -27,7 +27,7 @@ def save_file(
 
     file_path = (
         DOWNLOAD_DIR
-        / f"{safe_name}.xls"
+        / safe_name
     )
 
     with open(
