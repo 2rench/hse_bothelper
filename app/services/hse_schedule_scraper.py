@@ -1,60 +1,98 @@
 import requests
 
-from bs4 import BeautifulSoup
-
-from urllib.parse import urljoin
-
 
 TIMETABLE_URL = (
     "https://disk.360.yandex.ru/d/At7POE_VL0oNiA"
+)
+
+YANDEX_API_URL = (
+    "https://cloud-api.yandex.net/v1/disk/public/resources"
+)
+
+YANDEX_DOWNLOAD_URL = (
+    "https://cloud-api.yandex.net/v1/disk/public/resources/download"
 )
 
 
 def get_schedule_files():
 
     response = requests.get(
-        TIMETABLE_URL,
+        YANDEX_API_URL,
+        params={
+            "public_key": TIMETABLE_URL,
+            "limit": 1000,
+        },
         timeout=30,
     )
 
     response.raise_for_status()
 
-    soup = BeautifulSoup(
-        response.text,
-        "html.parser",
-    )
+    data = response.json()
 
     files = []
 
-    for link in soup.find_all("a"):
+    embedded = data.get(
+        "_embedded",
+        {},
+    )
 
-        href = link.get("href")
+    items = embedded.get(
+        "items",
+        [],
+    )
 
-        if not href:
+    for item in items:
+
+        if item.get("type") != "file":
             continue
 
-        href_lower = href.lower()
+        name = item.get(
+            "name",
+            "",
+        )
+
+        name_lower = name.lower()
 
         if not (
-            href_lower.endswith(".xls")
+            name_lower.endswith(".xls")
             or
-            href_lower.endswith(".xlsx")
+            name_lower.endswith(".xlsx")
         ):
             continue
 
-        name = link.get_text(
-            strip=True
+        path = item.get(
+            "path"
         )
 
-        href = urljoin(
-            TIMETABLE_URL,
-            href,
+        if not path:
+            continue
+
+        download_response = requests.get(
+            YANDEX_DOWNLOAD_URL,
+            params={
+                "public_key": TIMETABLE_URL,
+                "path": path,
+            },
+            timeout=30,
         )
+
+        download_response.raise_for_status()
+
+        download_data = (
+            download_response.json()
+        )
+
+        download_url = download_data.get(
+            "href"
+        )
+
+        if not download_url:
+            continue
 
         files.append(
             {
                 "name": name,
-                "url": href,
+                "url": download_url,
             }
         )
 
