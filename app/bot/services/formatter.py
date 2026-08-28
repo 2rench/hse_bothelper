@@ -164,7 +164,7 @@ def _format_day_lessons(
             "➖➖➖➖➖➖➖➖➖\n"
             f"{theme['lesson']} "
             f"<b>№{lesson.lesson_number} пара</b> — "
-            f"<b>{lesson.lesson_time}</b>\n\n"
+            f"<b>{lesson.lesson_time}</b>\n"
         )
 
         text += (
