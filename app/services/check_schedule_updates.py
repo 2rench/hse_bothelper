@@ -1,6 +1,7 @@
 import re
 
 from pathlib import Path
+
 from sqlalchemy.orm import Session
 
 from app.database.database import SessionLocal
@@ -10,15 +11,19 @@ from app.database.schedule_file_model import ScheduleFile
 from app.services.hse_schedule_scraper import (
     get_schedule_files,
 )
+
 from app.services.file_downloader import (
     download_file,
 )
+
 from app.services.file_hash import (
     calculate_hash,
 )
+
 from app.services.file_storage import (
     save_file,
 )
+
 from app.services.schedule_importer import (
     import_schedule,
 )
@@ -50,6 +55,32 @@ def extract_schedule_key(
     return name
 
 
+def find_existing_file(
+    db: Session,
+    schedule_key: str,
+):
+    """
+    Ищет сохранённый файл по постоянному
+    schedule_key, а не по временному
+    URL скачивания.
+    """
+
+    files = (
+        db.query(ScheduleFile)
+        .all()
+    )
+
+    for file in files:
+
+        if extract_schedule_key(
+            file.file_name
+        ) == schedule_key:
+
+            return file
+
+    return None
+
+
 def check_updates():
 
     updates = []
@@ -60,13 +91,15 @@ def check_updates():
 
     for item in files:
 
-        actual_keys.add(
+        schedule_key = (
             extract_schedule_key(
                 item["name"]
             )
         )
 
-        db: Session = SessionLocal()
+        actual_keys.add(
+            schedule_key
+        )
 
         name = item["name"].lower()
 
@@ -84,9 +117,20 @@ def check_updates():
 
         else:
 
-            db.close()
             continue
 
+        db: Session = SessionLocal()
+
+        existing = find_existing_file(
+            db,
+            schedule_key,
+        )
+
+        # Один и тот же schedule_key
+        # уже существует.
+        #
+        # Скачиваем файл, чтобы сравнить
+        # его реальный hash.
         content = download_file(
             item["url"]
         )
@@ -95,16 +139,10 @@ def check_updates():
             content
         )
 
-        existing = (
-            db.query(ScheduleFile)
-            .filter(
-                ScheduleFile.file_url
-                == item["url"]
-            )
-            .first()
-        )
+        # -------------------------------------------------
+        # НОВЫЙ ФАЙЛ
+        # -------------------------------------------------
 
-        # Новый файл
         if existing is None:
 
             print(
@@ -117,120 +155,145 @@ def check_updates():
                 content,
             )
 
-            schedule_key = extract_schedule_key(
-                item["name"]
-            )
-
-            import_schedule(
+            success = import_schedule(
                 str(saved_path),
                 schedule_type,
                 schedule_key,
             )
 
-            Path(saved_path).unlink(
+            Path(
+                saved_path
+            ).unlink(
                 missing_ok=True
             )
 
-            db.add(
-                ScheduleFile(
-                    file_name=item["name"],
-                    file_url=item["url"],
-                    file_hash=current_hash,
+            if success:
+
+                db.add(
+                    ScheduleFile(
+                        file_name=item["name"],
+                        file_url=item["url"],
+                        file_hash=current_hash,
+                    )
                 )
-            )
 
-            db.commit()
+                db.commit()
+
+                updates.append(
+                    {
+                        "type": "new",
+                        "name": item["name"],
+                        "week": extract_week_number(
+                            item["name"]
+                        ),
+                        "is_session": (
+                            "сессия"
+                            in name
+                        ),
+                    }
+                )
+
             db.close()
-
-            updates.append(
-                {
-                    "type": "new",
-                    "name": item["name"],
-                    "week": extract_week_number(
-                        item["name"]
-                    ),
-                    "is_session": (
-                        "сессия"
-                        in name
-                    ),
-                }
-            )
 
             continue
 
-        # Изменённый файл
-        if existing.file_hash != current_hash:
+        # -------------------------------------------------
+        # ФАЙЛ НЕ ИЗМЕНИЛСЯ
+        # -------------------------------------------------
 
-            print(
-                "UPDATED:",
-                item["name"]
-            )
-
-            saved_path = save_file(
-                item["name"],
-                content,
-            )
-
-            try:
-
-                schedule_key = extract_schedule_key(
-                    item["name"]
-                )
-
-                success = import_schedule(
-                    str(saved_path),
-                    schedule_type,
-                    schedule_key,
-                )
-
-                if success:
-
-                    existing.file_hash = current_hash
-
-                    db.commit()
-
-                    Path(saved_path).unlink(
-                        missing_ok=True
-                    )
-
-                    print(
-                        "REIMPORTED:",
-                        item["name"]
-                    )
-
-                    updates.append(
-                        {
-                            "type": "updated",
-                            "name": item["name"],
-                            "week": extract_week_number(
-                                item["name"]
-                            ),
-                            "is_session": (
-                                "сессия"
-                                in name
-                            ),
-                        }
-                    )
-
-            except Exception as error:
-
-                db.rollback()
-
-                print(
-                    "IMPORT ERROR:",
-                    error,
-                )
-
-            finally:
-
-                db.close()
-
-        else:
+        if existing.file_hash == current_hash:
 
             db.close()
 
-    # Удаляем расписания,
-    # которых больше нет на сайте
+            continue
+
+        # -------------------------------------------------
+        # ФАЙЛ ИЗМЕНИЛСЯ
+        # -------------------------------------------------
+
+        print(
+            "UPDATED:",
+            item["name"]
+        )
+
+        saved_path = save_file(
+            item["name"],
+            content,
+        )
+
+        try:
+
+            success = import_schedule(
+                str(saved_path),
+                schedule_type,
+                schedule_key,
+            )
+
+            if success:
+
+                # Обновляем информацию
+                # о сохранённом файле.
+                existing.file_name = (
+                    item["name"]
+                )
+
+                existing.file_url = (
+                    item["url"]
+                )
+
+                existing.file_hash = (
+                    current_hash
+                )
+
+                db.commit()
+
+                Path(
+                    saved_path
+                ).unlink(
+                    missing_ok=True
+                )
+
+                print(
+                    "REIMPORTED:",
+                    item["name"]
+                )
+
+                updates.append(
+                    {
+                        "type": "updated",
+                        "name": item["name"],
+                        "week": extract_week_number(
+                            item["name"]
+                        ),
+                        "is_session": (
+                            "сессия"
+                            in name
+                        ),
+                    }
+                )
+
+        except Exception as error:
+
+            db.rollback()
+
+            print(
+                "IMPORT ERROR:",
+                error,
+            )
+
+        finally:
+
+            Path(
+                saved_path
+            ).unlink(
+                missing_ok=True
+            )
+
+            db.close()
+
+    # -----------------------------------------------------
+    # УДАЛЕНИЕ РАСПИСАНИЙ, КОТОРЫХ БОЛЬШЕ НЕТ
+    # -----------------------------------------------------
 
     db = SessionLocal()
 
@@ -255,7 +318,9 @@ def check_updates():
                 f"DELETE OLD {key}"
             )
 
-            db.query(Lesson).filter(
+            db.query(
+                Lesson
+            ).filter(
                 Lesson.schedule_key == key
             ).delete()
 
