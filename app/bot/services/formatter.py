@@ -206,8 +206,6 @@ def _format_day_lessons(
                 f"{theme['online']}\n"
             )
 
-        text += "\n"
-
     return text
 
 def get_today_no_lessons(
