@@ -21,6 +21,26 @@ def import_schedule(
         file_path
     ).stem
 
+    print(
+        "IMPORT START:",
+        file_path,
+    )
+
+    print(
+        "SCHEDULE NAME:",
+        schedule_name,
+    )
+
+    print(
+        "SCHEDULE TYPE:",
+        schedule_type,
+    )
+
+    print(
+        "SCHEDULE KEY:",
+        schedule_key,
+    )
+
     try:
 
         lessons = parse_excel(
@@ -30,6 +50,22 @@ def import_schedule(
             schedule_key=schedule_key,
         )
 
+        print(
+            "PARSE SUCCESS"
+        )
+
+        print(
+            "LESSONS PARSED:",
+            len(lessons),
+        )
+
+        if lessons:
+
+            print(
+                "FIRST LESSON:",
+                lessons[0],
+            )
+
     except xlrd.biffh.XLRDError:
 
         print(
@@ -38,8 +74,38 @@ def import_schedule(
 
         return False
 
-    load_lessons(
-        lessons
+    except Exception as error:
+
+        print(
+            "PARSE ERROR:",
+            repr(error),
+        )
+
+        return False
+
+    try:
+
+        load_lessons(
+            lessons
+        )
+
+        print(
+            "LESSONS LOADED:",
+            len(lessons),
+        )
+
+    except Exception as error:
+
+        print(
+            "LOAD LESSONS ERROR:",
+            repr(error),
+        )
+
+        return False
+
+    print(
+        "IMPORT FINISHED:",
+        schedule_name,
     )
 
     return True
