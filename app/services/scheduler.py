@@ -27,14 +27,14 @@ async def schedule_loop(
 
             updates = check_updates()
 
-            await send_update_notifications(
-                bot,
-                updates,
-            )
+            # await send_update_notifications(
+            #     bot,
+            #     updates,
+            # )
 
-            await send_tomorrow_notifications(
-                bot,
-            )
+            # await send_tomorrow_notifications(
+            #     bot,
+            # )
 
             print(
                 "CHECK FINISHED"
