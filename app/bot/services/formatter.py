@@ -114,7 +114,7 @@ def format_lessons(
 
             text += (
                 "━━━━━━━━━━━━\n"
-                f"{theme['day']} {day} — {date}\n"
+                f"<b>{day} — {date}</b>\n"
                 "━━━━━━━━━━━━\n"
             )
 
@@ -168,7 +168,6 @@ def _format_day_lessons(
         )
 
         text += (
-            f"{theme['subject']} "
             f"{lesson.subject}\n\n"
         )
 
