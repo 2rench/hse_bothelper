@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 
 
 TIMETABLE_URL = (
-    "https://perm.hse.ru/students/timetable/"
+    "https://disk.360.yandex.ru/d/At7POE_VL0oNiA"
 )
 
 
