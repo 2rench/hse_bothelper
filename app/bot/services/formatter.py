@@ -180,8 +180,8 @@ def _format_day_lessons(
            or check_subject != 'военная кафедра'):
 
             text += (
-                f"<b>, {lesson.lesson_type.lower()}</b>\n\n"
-                f"{theme['type']} "
+                f"<b>, {lesson.lesson_type.lower()}</b>"
+                f"{theme['type']}\n\n "
             )
 
         if lesson.room:
