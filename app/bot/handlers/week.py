@@ -100,10 +100,7 @@ async def week_handler(
     ), day_lessons in grouped.items():
 
         text = (
-            f"━━━━━━━━━━━━\n"
-            f"📚 <b>{day} — {date}</b>\n"
-            f"🧭 Группа: {group}\n"
-            f"━━━━━━━━━━━━\n\n"
+            f"<b>{day} — {date}</b>"
         )
 
         text += format_lessons(

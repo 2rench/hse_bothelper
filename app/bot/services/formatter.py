@@ -163,25 +163,24 @@ def _format_day_lessons(
         text += (
             "➖➖➖➖➖➖➖➖➖\n"
             f"{theme['lesson']} "
-            f"<b>№{lesson.lesson_number} пара</b> — "
+            f"<b>№{lesson.lesson_number}</b> — "
             f"<b>{lesson.lesson_time}</b>\n"
         )
 
         text += (
             f"{lesson.subject}\n\n"
         )
-
-        if lesson.lesson_type:
-
-            text += (
-                f"{theme['type']} "
-                f"<b>{lesson.lesson_type}</b>\n"
-            )
-
         if lesson.teacher:
 
             text += (
-                f"<b><i>{lesson.teacher}</i></b>\n\n"
+                f"<b><i>{lesson.teacher}</i></b>"
+            )
+        check_subject = lesson.subject.lower()
+        if lesson.lesson_type and check_subject != 'МАЙНОР':
+
+            text += (
+                f"<b>, {lesson.lesson_type.lower()}</b>\n\n"
+                f"{theme['type']} "
             )
 
         if lesson.room:
@@ -194,7 +193,7 @@ def _format_day_lessons(
             if lesson.building:
 
                 text += (
-                    f" в {lesson.building} корпусе"
+                    f"[{lesson.building}]"
                 )
 
             text += "\n"
