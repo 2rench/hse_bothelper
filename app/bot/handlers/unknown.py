@@ -8,7 +8,8 @@ router = Router()
 async def unknown_command(
     message: Message,
 ):
-    await message.answer(
-        "Стоп 🫷🏾\nКуда-то мы не туда\n\n"
-        "Домой — /start"
-    )
+    pass
+    # await message.answer(
+    #     "Стоп 🫷🏾\nКуда-то мы не туда\n\n"
+    #     "Домой — /start"
+    # )

@@ -2,11 +2,16 @@ from pathlib import Path
 import json
 import re
 
-import xlrd
 import openpyxl
+import xlrd
 
-from app.parser.lesson_parser import parse_lesson_text
-from app.database.group_repository import save_group
+from app.database.group_repository import (
+    save_group,
+)
+
+from app.parser.lesson_parser import (
+    parse_lesson_text,
+)
 
 
 IGNORE_COLUMNS = {
@@ -78,9 +83,13 @@ def parse_time(
     )
 
 
+# ============================================================
+# Excel abstraction
+# ============================================================
+
 def _is_xlrd_sheet(
     sheet,
-):
+) -> bool:
 
     return hasattr(
         sheet,
@@ -90,7 +99,7 @@ def _is_xlrd_sheet(
 
 def _get_sheet_name(
     sheet,
-):
+) -> str:
 
     if _is_xlrd_sheet(sheet):
 
@@ -101,11 +110,13 @@ def _get_sheet_name(
 
 def _get_merged_cells(
     sheet,
-):
+) -> list[tuple[int, int, int, int]]:
 
     if _is_xlrd_sheet(sheet):
 
-        return sheet.merged_cells
+        return list(
+            sheet.merged_cells
+        )
 
     merged = []
 
@@ -125,8 +136,8 @@ def _get_merged_cells(
 
 def get_merged_region(
     sheet,
-    row_index,
-    col_index,
+    row_index: int,
+    col_index: int,
 ):
 
     for merged in _get_merged_cells(
@@ -157,8 +168,8 @@ def get_merged_region(
 
 def get_cell_value(
     sheet,
-    row_index,
-    col_index,
+    row_index: int,
+    col_index: int,
 ):
 
     if _is_xlrd_sheet(sheet):
@@ -168,7 +179,10 @@ def get_cell_value(
             col_index,
         )
 
-        if value:
+        if value not in (
+            None,
+            "",
+        ):
 
             return value
 
@@ -182,7 +196,12 @@ def get_cell_value(
 
             return ""
 
-        row_start, _, col_start, _ = merged
+        (
+            row_start,
+            _,
+            col_start,
+            _,
+        ) = merged
 
         return sheet.cell_value(
             row_start,
@@ -196,9 +215,9 @@ def get_cell_value(
 
     value = cell.value
 
-    if (
-        value is not None
-        and value != ""
+    if value not in (
+        None,
+        "",
     ):
 
         return value
@@ -228,9 +247,13 @@ def get_cell_value(
 
 def is_underlined(
     sheet,
-    row_index,
-    col_index,
-):
+    row_index: int,
+    col_index: int,
+) -> bool:
+
+    # --------------------------------------------
+    # XLS
+    # --------------------------------------------
 
     if _is_xlrd_sheet(sheet):
 
@@ -259,143 +282,22 @@ def is_underlined(
 
             return False
 
+    # --------------------------------------------
+    # XLSX
+    # --------------------------------------------
+
     cell = sheet.cell(
         row_index + 1,
         col_index + 1,
     )
 
-    if (
-        cell.font
-        and cell.font.underline
-    ):
+    underline = cell.font.underline
 
-        return True
+    if not underline:
 
-    return False
+        return False
 
-
-def _get_group_columns_from_merged_region(
-    sheet,
-    row_index,
-    col_index,
-    groups,
-):
-
-    merged = get_merged_region(
-        sheet,
-        row_index,
-        col_index,
-    )
-
-    if not merged:
-
-        return []
-
-    (
-        row_start,
-        row_end,
-        col_start,
-        col_end,
-    ) = merged
-
-    # Нас интересует только объединение
-    # в пределах одной строки
-    if (
-        row_end - row_start
-        != 1
-    ):
-
-        return []
-
-    group_columns = []
-
-    for group_col in groups:
-
-        if (
-            col_start
-            <= group_col
-            < col_end
-        ):
-
-            group_columns.append(
-                group_col
-            )
-
-    return group_columns
-
-
-def _is_shared_lesson(
-    sheet,
-    row_index,
-    col_index,
-    groups,
-):
-
-    merged_group_columns = (
-        _get_group_columns_from_merged_region(
-            sheet,
-            row_index,
-            col_index,
-            groups,
-        )
-    )
-
-    # Если одна ячейка объединена
-    # сразу на несколько групп —
-    # это общая пара
-    if len(
-        merged_group_columns
-    ) > 1:
-
-        return True
-
-    # Если объединения нет —
-    # используем старую логику
-    # с подчёркиванием
-    return is_underlined(
-        sheet,
-        row_index,
-        col_index,
-    )
-
-
-def create_lesson_record(
-    group_name,
-    current_day,
-    current_date,
-    lesson_number,
-    lesson_time,
-    sheet_name,
-    lesson_text,
-    lesson_info,
-    lesson_type,
-    schedule_name,
-    schedule_type,
-    schedule_key,
-):
-
-    return {
-        "group": group_name,
-        "day": current_day,
-        "date": current_date,
-        "lesson_number": lesson_number,
-        "lesson_time": lesson_time,
-        "sheet": sheet_name,
-
-        "raw_text": lesson_text,
-
-        "subject": lesson_info["subject"],
-        "teacher": lesson_info["teacher"],
-        "room": lesson_info["room"],
-        "building": lesson_info["building"],
-
-        "is_online": lesson_info["is_online"],
-        "lesson_type": lesson_type,
-
-        "schedule_name": schedule_name,
-        "schedule_type": schedule_type,
-        "schedule_key": schedule_key,
-    }
+    return True
 
 
 def _open_workbook(
@@ -435,7 +337,7 @@ def _get_sheets(
 
 def _get_nrows(
     sheet,
-):
+) -> int:
 
     if _is_xlrd_sheet(sheet):
 
@@ -446,7 +348,7 @@ def _get_nrows(
 
 def _get_ncols(
     sheet,
-):
+) -> int:
 
     if _is_xlrd_sheet(sheet):
 
@@ -454,6 +356,173 @@ def _get_ncols(
 
     return sheet.max_column
 
+
+# ============================================================
+# Groups
+# ============================================================
+
+def _get_groups(
+    sheet,
+) -> dict[int, str]:
+
+    groups = {}
+
+    GROUPS_ROW_INDEX = 2
+
+    for col_index in range(
+        _get_ncols(sheet)
+    ):
+
+        value = get_cell_value(
+            sheet,
+            GROUPS_ROW_INDEX,
+            col_index,
+        )
+
+        if value in (
+            None,
+            "",
+        ):
+
+            continue
+
+        value = normalize_whitespace(
+            str(value)
+        )
+
+        if not value:
+
+            continue
+
+        if value.lower() in IGNORE_COLUMNS:
+
+            continue
+
+        groups[
+            col_index
+        ] = value
+
+        save_group(
+            value
+        )
+
+    return groups
+
+
+# ============================================================
+# Merged groups
+# ============================================================
+
+def _get_group_columns_from_merged_region(
+    sheet,
+    row_index: int,
+    col_index: int,
+    groups: dict[int, str],
+) -> list[int]:
+
+    merged = get_merged_region(
+        sheet,
+        row_index,
+        col_index,
+    )
+
+    if not merged:
+
+        return []
+
+    (
+        row_start,
+        row_end,
+        col_start,
+        col_end,
+    ) = merged
+
+    # Объединение должно находиться
+    # в одной строке.
+    if (
+        row_end - row_start
+        != 1
+    ):
+
+        return []
+
+    result = []
+
+    for group_col in groups:
+
+        if (
+            col_start
+            <= group_col
+            < col_end
+        ):
+
+            result.append(
+                group_col
+            )
+
+    return result
+
+
+# ============================================================
+# Lesson
+# ============================================================
+
+def create_lesson_record(
+    group_name,
+    current_day,
+    current_date,
+    lesson_number,
+    lesson_time,
+    sheet_name,
+    lesson_text,
+    lesson_info,
+    lesson_type,
+    schedule_name,
+    schedule_type,
+    schedule_key,
+):
+
+    return {
+        "group": group_name,
+        "day": current_day,
+        "date": current_date,
+        "lesson_number": lesson_number,
+        "lesson_time": lesson_time,
+        "sheet": sheet_name,
+
+        "raw_text": lesson_text,
+
+        "subject": lesson_info[
+            "subject"
+        ],
+
+        "teacher": lesson_info[
+            "teacher"
+        ],
+
+        "room": lesson_info[
+            "room"
+        ],
+
+        "building": lesson_info[
+            "building"
+        ],
+
+        "is_online": lesson_info[
+            "is_online"
+        ],
+
+        "lesson_type": lesson_type,
+
+        "schedule_name": schedule_name,
+        "schedule_type": schedule_type,
+        "schedule_key": schedule_key,
+    }
+
+
+# ============================================================
+# Main parser
+# ============================================================
 
 def parse_excel(
     file_path: str,
@@ -468,8 +537,6 @@ def parse_excel(
 
     parsed_lessons: list[dict] = []
 
-    processed_cells = set()
-
     for sheet in _get_sheets(
         workbook
     ):
@@ -482,44 +549,14 @@ def parse_excel(
             f"Processing sheet: {sheet_name}"
         )
 
-        groups: dict[int, str] = {}
-
-        GROUPS_ROW_INDEX = 2
-
-
-        for col_index in range(
-            _get_ncols(sheet)
-        ):
-
-            value = get_cell_value(
-                sheet,
-                GROUPS_ROW_INDEX,
-                col_index,
-            )
-
-            if not value:
-
-                continue
-
-            value = normalize_whitespace(
-                str(value)
-            )
-
-            if value.lower() in IGNORE_COLUMNS:
-
-                continue
-
-            groups[
-                col_index
-            ] = value
-
-            save_group(
-                value
-            )
+        groups = _get_groups(
+            sheet
+        )
 
         current_day = None
         current_date = None
 
+        processed_merged_cells = set()
 
         for row_index in range(
             3,
@@ -558,75 +595,109 @@ def parse_excel(
                 str(time_cell)
             )
 
-
             for col_index, group_name in groups.items():
 
-                cell_key = (
-                    row_index,
-                    col_index,
-                )
-
-                if cell_key in processed_cells:
-
-                    continue
-
-                lesson_cell = get_cell_value(
+                merged_region = get_merged_region(
                     sheet,
                     row_index,
                     col_index,
                 )
 
-                if not lesson_cell:
+                if merged_region:
 
-                    continue
+                    (
+                        row_start,
+                        row_end,
+                        col_start,
+                        col_end,
+                    ) = merged_region
 
-                lesson_text = normalize_whitespace(
-                    str(lesson_cell)
-                )
+                    # Для горизонтального merge нас интересует
+                    # только верхняя строка.
+                    if (
+                        row_end - row_start
+                        != 1
+                    ):
 
-                if not lesson_text:
+                        continue
 
-                    continue
+                    # Только первая группа данного merge
+                    # обрабатывает всю область.
+                    if col_index != col_start:
 
-                merged_group_columns = (
-                    _get_group_columns_from_merged_region(
+                        continue
+
+                    merged_key = (
+                        row_index,
+                        col_start,
+                        col_end,
+                    )
+
+                    if (
+                        merged_key
+                        in processed_merged_cells
+                    ):
+
+                        continue
+
+                    processed_merged_cells.add(
+                        merged_key
+                    )
+
+                    lesson_cell = get_cell_value(
                         sheet,
                         row_index,
                         col_index,
-                        groups,
                     )
-                )
 
-                is_shared = _is_shared_lesson(
-                    sheet,
-                    row_index,
-                    col_index,
-                    groups,
-                )
+                    if not lesson_cell:
 
+                        continue
 
-                lesson_info = parse_lesson_text(
-                    lesson_text,
-                    is_shared=is_shared,
-                )
+                    lesson_text = normalize_whitespace(
+                        str(lesson_cell)
+                    )
 
-                if lesson_info["skip"]:
+                    if not lesson_text:
 
-                    continue
+                        continue
 
-                lesson_type = (
-                    "Лекция"
-                    if is_shared
-                    else "Семинар"
-                )
+                    is_lecture = is_underlined(
+                        sheet,
+                        row_index,
+                        col_index,
+                    )
 
+                    lesson_type = (
+                        "Лекция"
+                        if is_lecture
+                        else "Семинар"
+                    )
 
-                if (
-                    is_shared
-                    and len(
-                        merged_group_columns
-                    ) > 1
-                ):
+                    # shared нужен только для lesson_parser
+                    lesson_info = parse_lesson_text(
+                        lesson_text,
+                        is_shared=True,
+                    )
+
+                    if lesson_info["skip"]:
+
+                        continue
+
+                    merged_group_columns = (
+                        _get_group_columns_from_merged_region(
+                            sheet,
+                            row_index,
+                            col_index,
+                            groups,
+                        )
+                    )
+
+                    if not merged_group_columns:
+
+                        merged_group_columns = [
+                            col_index
+                        ]
 
                     for shared_col in merged_group_columns:
 
@@ -651,15 +722,55 @@ def parse_excel(
                             )
                         )
 
-                        processed_cells.add(
-                            (
-                                row_index,
-                                shared_col,
-                            )
-                        )
+                    continue
+
+                # ------------------------------------------------
+                # Обычная ячейка
+                # ------------------------------------------------
+
+                lesson_cell = get_cell_value(
+                    sheet,
+                    row_index,
+                    col_index,
+                )
+
+                if not lesson_cell:
 
                     continue
 
+                lesson_text = normalize_whitespace(
+                    str(lesson_cell)
+                )
+
+                if not lesson_text:
+
+                    continue
+
+                # --------------------------------------------
+                # Для обычной пары тип определяется
+                # непосредственно по её форматированию.
+                # --------------------------------------------
+
+                is_lecture = is_underlined(
+                    sheet,
+                    row_index,
+                    col_index,
+                )
+
+                lesson_type = (
+                    "Лекция"
+                    if is_lecture
+                    else "Семинар"
+                )
+
+                lesson_info = parse_lesson_text(
+                    lesson_text,
+                    is_shared=False,
+                )
+
+                if lesson_info["skip"]:
+
+                    continue
 
                 parsed_lessons.append(
                     create_lesson_record(
@@ -676,10 +787,6 @@ def parse_excel(
                         schedule_type,
                         schedule_key,
                     )
-                )
-
-                processed_cells.add(
-                    cell_key
                 )
 
     return parsed_lessons
