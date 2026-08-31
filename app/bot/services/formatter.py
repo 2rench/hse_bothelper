@@ -115,7 +115,7 @@ def format_lessons(
             text += (
                 "━━━━━━━━━━━━\n"
                 f"<b>{day} — {date}</b>\n"
-                "━━━━━━━━━━━━\n"
+                "━━━━━━━━━━━━\n\n"
             )
 
             text += (
@@ -161,7 +161,7 @@ def _format_day_lessons(
     for lesson in lessons:
 
         text += (
-            "➖➖➖➖➖➖➖➖➖\n"
+            "\n"
             f"{theme['lesson']} "
             f"<b>№{lesson.lesson_number}</b> — "
             f"<b>{lesson.lesson_time}</b>\n"
@@ -176,11 +176,11 @@ def _format_day_lessons(
                 f"<b><i>{lesson.teacher}</i></b>"
             )
         check_subject = lesson.subject.lower()
-        if (lesson.lesson_type and check_subject != 'майнор'
-           or check_subject != 'военная кафедра'):
+        if (lesson.lesson_type and check_subject
+           not in ('майнор', 'военная кафедра')):
 
             text += (
-                f"<b>, {lesson.lesson_type.lower()}</b>"
+                f"<b>, {lesson.lesson_type.lower()}</b> "
                 f"{theme['type']}\n\n "
             )
 
