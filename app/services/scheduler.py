@@ -48,5 +48,5 @@ async def schedule_loop(
             )
 
         await asyncio.sleep(
-            1800
+            60
         )
