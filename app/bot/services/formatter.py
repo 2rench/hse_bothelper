@@ -176,7 +176,8 @@ def _format_day_lessons(
                 f"<b><i>{lesson.teacher}</i></b>"
             )
         check_subject = lesson.subject.lower()
-        if lesson.lesson_type and check_subject != 'МАЙНОР':
+        if (lesson.lesson_type and check_subject != 'майнор'
+           or check_subject != 'военная кафедра'):
 
             text += (
                 f"<b>, {lesson.lesson_type.lower()}</b>\n\n"
