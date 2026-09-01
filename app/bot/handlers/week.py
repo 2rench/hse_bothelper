@@ -100,7 +100,7 @@ async def week_handler(
     ), day_lessons in grouped.items():
 
         text = (
-            f"<b>{day} — {date}</b>"
+            f"<b>{day} — {date}</b>\n"
         )
 
         text += format_lessons(
