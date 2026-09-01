@@ -12,52 +12,47 @@ async def send_update_notifications(
     bot,
     updates,
 ):
-    
-    # ВРЕМЕННО ОТКЛЮЧЕНО: отправка уведомлений закомментирована
-    
-    # if not updates:
-    #     return
 
-    # users = (
-    #     get_users_for_schedule_updates()
-    # )
+    if not updates:
+        return
 
-    # for user in users:
+    users = (
+        get_users_for_schedule_updates()
+    )
 
-    #     for update in updates:
+    for user in users:
 
-    #         if update["type"] == "new":
+        for update in updates:
 
-    #             text = (
-    #                 "📢 Новое расписание\n\n"
-    #                 f"{update['name']}"
-    #             )
+            if update["type"] == "new":
 
-    #         else:
+                text = (
+                    "📢 Новое расписание\n\n"
+                    f"{update['name']}"
+                )
 
-    #             text = (
-    #                 "✏️ Расписание обновлено\n\n"
-    #                 f"{update['name']}"
-    #             )
+            else:
 
-    #         try:
+                text = (
+                    "✏️ Расписание обновлено\n\n"
+                    f"{update['name']}"
+                )
 
-    #             await bot.send_message(
-    #                 chat_id=user.telegram_id,
-    #                 text=text,
-    #                 reply_markup=get_update_keyboard(
-    #                     update["week"],
-    #                     update["is_session"],
-    #                 ),
-    #             )
-    #             await asyncio.sleep(0.05)
+            try:
 
-    #         except Exception as e:
+                await bot.send_message(
+                    chat_id=user.telegram_id,
+                    text=text,
+                    reply_markup=get_update_keyboard(
+                        update["week"],
+                        update["is_session"],
+                    ),
+                )
+                await asyncio.sleep(0.05)
 
-    #             print(
-    #                 "NOTIFICATION ERROR:",
-    #                 e,
-    #             )
-    
-    # Временный заглушка - функция ничего не делает
-    pass
+            except Exception as e:
+
+                print(
+                    "NOTIFICATION ERROR:",
+                    e,
+                )

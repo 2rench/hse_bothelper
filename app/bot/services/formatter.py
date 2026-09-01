@@ -113,35 +113,27 @@ def format_lessons(
         ), day_lessons in grouped.items():
 
             text += (
-                "━━━━━━━━━━━━\n"
-                f"<b>{day} — {date}</b>\n"
-                "━━━━━━━━━━━━\n\n"
+                f"<b>{day}, {date}</b>\n\n"
             )
 
             text += (
                 f"{emoji(len(day_lessons))} "
                 f"{theme['pairs']}: "
-                f"{len(day_lessons)}"
+                f"{len(day_lessons)}\n\n"
             )
-
-            text += "\n\n"
 
             text += _format_day_lessons(
                 day_lessons,
                 theme,
             )
 
-            text += "\n"
-
         return text
 
     text += (
         f"{emoji(len(lessons))} "
         f"{theme['pairs']}: "
-        f"{len(lessons)}"
+        f"{len(lessons)}\n\n"
     )
-
-    text += "\n\n"
 
     text += _format_day_lessons(
         lessons,
@@ -161,55 +153,76 @@ def _format_day_lessons(
     for lesson in lessons:
 
         text += (
-            "\n"
             f"{theme['lesson']} "
-            f"<b>№{lesson.lesson_number}</b> — "
-            f"<b>{lesson.lesson_time}</b>\n"
+            f"<b>{lesson.lesson_number}</b> "
+            f"<i>{lesson.lesson_time}</i>"
         )
-
-        text += (
-            f"{lesson.subject}\n\n"
-        )
-        if lesson.teacher:
-
-            text += (
-                f"<b><i>{lesson.teacher}</i></b>"
-            )
-        check_subject = lesson.subject.lower()
-        if (lesson.lesson_type and check_subject
-           not in ('майнор', 'военная кафедра')):
-
-            text += (
-                f"<b>, {lesson.lesson_type.lower()}</b> "
-                f"{theme['type']}\n\n "
-            )
 
         if lesson.room:
 
             text += (
-                f"{theme['room']} "
-                f"{lesson.room}"
+                f" <b>{lesson.room}"
             )
 
             if lesson.building:
 
                 text += (
-                    f"[{lesson.building}]"
+                    f" [{lesson.building}]"
                 )
 
-            text += "\n"
+            text += "</b>"
+
+        text += "\n\n"
+
+        text += (
+            f"{lesson.subject}\n\n"
+        )
+
+        if lesson.teacher:
+
+            text += (
+                f"<i>{lesson.teacher}</i>"
+            )
+
+        check_subject = (
+            lesson.subject.lower()
+        )
+
+        if (
+            lesson.lesson_type
+            and check_subject not in (
+                "майнор",
+                "военная кафедра",
+            )
+        ):
+
+            if lesson.teacher:
+                text += " "
+
+            text += (
+                f"<b>"
+                f"{lesson.lesson_type.lower()}"
+                f"</b> "
+                f"{theme['type']}"
+            )
+
+        text += "\n\n"
 
         if lesson.is_online:
 
             text += (
-                f"{theme['online']}\n"
+                f"{theme['online']}\n\n"
             )
 
+        text += "\n"
+
     return text
+
 
 def get_today_no_lessons(
     telegram_id=None,
 ):
+
     return get_theme(
         telegram_id
     )["today_no_lessons"]
@@ -218,6 +231,7 @@ def get_today_no_lessons(
 def get_tomorrow_no_lessons(
     telegram_id=None,
 ):
+
     return get_theme(
         telegram_id
     )["tomorrow_no_lessons"]
@@ -226,7 +240,7 @@ def get_tomorrow_no_lessons(
 def get_week_no_lessons(
     telegram_id=None,
 ):
+
     return get_theme(
         telegram_id
     )["week_no_lessons"]
-
