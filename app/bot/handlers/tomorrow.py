@@ -77,7 +77,7 @@ async def tomorrow_handler(
         return
 
     text = (
-        f"👀 На завтра — {tomorrow_date}\n\n"
+        f"👀 На завтра — {tomorrow_date}\n"
     )
 
     text += format_lessons(

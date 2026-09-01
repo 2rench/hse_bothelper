@@ -113,7 +113,7 @@ def format_lessons(
         ), day_lessons in grouped.items():
 
             text += (
-                f"<b>{day}, {date}</b>\n\n"
+                f"<b>{day} — {date}</b>\n\n"
             )
 
             text += (
@@ -127,7 +127,7 @@ def format_lessons(
                 theme,
             )
 
-        return text
+        return text.rstrip()
 
     text += (
         f"{emoji(len(lessons))} "
@@ -140,7 +140,7 @@ def format_lessons(
         theme,
     )
 
-    return text
+    return text.rstrip()
 
 
 def _format_day_lessons(
@@ -148,20 +148,20 @@ def _format_day_lessons(
     theme,
 ):
 
-    text = ""
+    blocks = []
 
     for lesson in lessons:
 
-        text += (
+        text = (
             f"{theme['lesson']} "
-            f"<b>{lesson.lesson_number}</b> "
+            f"<b>№{lesson.lesson_number}</b> "
             f"<i>{lesson.lesson_time}</i>"
         )
 
         if lesson.room:
 
             text += (
-                f" <b>{lesson.room}"
+                f", <b>{lesson.room}"
             )
 
             if lesson.building:
@@ -172,15 +172,17 @@ def _format_day_lessons(
 
             text += "</b>"
 
-        text += "\n\n"
+        text += "\n"
 
         text += (
-            f"{lesson.subject}\n\n"
+            f"{lesson.subject}\n"
         )
+
+        lesson_lines = []
 
         if lesson.teacher:
 
-            text += (
+            lesson_lines.append(
                 f"<i>{lesson.teacher}</i>"
             )
 
@@ -196,27 +198,33 @@ def _format_day_lessons(
             )
         ):
 
-            if lesson.teacher:
-                text += " "
-
-            text += (
-                f"<b>"
-                f"{lesson.lesson_type.lower()}"
-                f"</b> "
+            lesson_lines.append(
+                f"<b>{lesson.lesson_type.lower()}</b> "
                 f"{theme['type']}"
             )
 
-        text += "\n\n"
+        if lesson_lines:
+
+            text += (
+                " ".join(
+                    lesson_lines
+                )
+                + "\n"
+            )
 
         if lesson.is_online:
 
             text += (
-                f"{theme['online']}\n\n"
+                f"{theme['online']}\n"
             )
 
-        text += "\n"
+        blocks.append(
+            text.rstrip()
+        )
 
-    return text
+    return "\n\n".join(
+        blocks
+    )
 
 
 def get_today_no_lessons(

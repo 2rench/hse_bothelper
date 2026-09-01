@@ -66,11 +66,7 @@ async def today_handler(
 
         return
 
-    text = (
-        "📚 Расписание на сегодня\n"
-    )
-
-    text += format_lessons(
+    text = format_lessons(
         lessons,
         telegram_id=message.from_user.id,
     )
