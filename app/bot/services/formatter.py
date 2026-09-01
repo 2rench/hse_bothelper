@@ -155,7 +155,7 @@ def _format_day_lessons(
         text = (
             f"{theme['lesson']} "
             f"<b>№{lesson.lesson_number}</b> "
-            f"<i>{lesson.lesson_time}</i>"
+            f"<b><i>{lesson.lesson_time}</i></b>"
         )
 
         if lesson.room:
