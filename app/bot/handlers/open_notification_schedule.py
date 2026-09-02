@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from aiogram import Router
 from aiogram.types import CallbackQuery
 
@@ -40,6 +42,7 @@ async def open_week(
             "Сначала выберите группу",
             show_alert=True,
         )
+
         return
 
     week = int(
@@ -49,11 +52,9 @@ async def open_week(
         )
     )
 
-    lessons = (
-        get_week_lessons_by_number(
-            group,
-            week,
-        )
+    lessons = get_week_lessons_by_number(
+        group,
+        week,
     )
 
     if not lessons:
@@ -62,20 +63,39 @@ async def open_week(
             "Расписание не найдено",
             show_alert=True,
         )
+
         return
 
-    text = (
-        f"📚 Неделя №{week}\n\n"
-    )
+    grouped = defaultdict(list)
 
-    text += format_lessons(
-        lessons,
-        group_by_day=True,
-    )
+    for lesson in lessons:
 
-    await callback.message.answer(
-        text
-    )
+        grouped[
+            (
+                lesson.day,
+                lesson.date,
+            )
+        ].append(
+            lesson
+        )
+
+    for (
+        day,
+        date,
+    ), day_lessons in grouped.items():
+
+        text = (
+            f"<b>{day} — {date}</b>\n\n"
+        )
+
+        text += format_lessons(
+            day_lessons,
+            telegram_id=callback.from_user.id,
+        )
+
+        await callback.message.answer(
+            text
+        )
 
     await callback.answer()
 
