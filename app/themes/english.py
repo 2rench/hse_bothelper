@@ -5,7 +5,7 @@ THEME = {
 
     "day": "📅",
 
-    "lesson": "📚",
+    "lesson": "🇬🇧",
 
     "subject": "📖",
 

@@ -1,7 +1,7 @@
 THEME = {
     "no_lessons": "💎 Зай, всё такое люксовое, что даже пар нет",
 
-    "pairs": "Lux events:",
+    "pairs": "Lux events",
 
     "day": "💎",
 
