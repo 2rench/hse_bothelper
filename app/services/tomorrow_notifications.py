@@ -78,12 +78,16 @@ async def send_tomorrow_notifications(
             )
 
         else:
-
+            if len(lessons) == 1:
+                lesson_text = 'пара'
+            elif len(lessons) > 5:
+                lesson_text = 'пар'
+            else:
+                lesson_text = 'пары'
             text = (
-                "🛎️ Напоминание\n\n"
-                f"🫣 Завтра пары\n"
+                f"🫣 Завтра {len(lessons)} {lesson_text}\n"
                 f"{tomorrow}\n"
-                f"😑 Количество: {len(lessons)}"
+                f"/tomorrow"
             )
 
         try:

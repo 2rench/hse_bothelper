@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import json
 import re
 
@@ -10,7 +11,7 @@ from app.database.group_repository import (
 )
 
 from app.parser.lesson_parser import (
-    parse_lesson_text,
+    parse_lesson_texts,
 )
 
 
@@ -437,8 +438,6 @@ def _get_group_columns_from_merged_region(
         col_end,
     ) = merged
 
-    # Объединение должно находиться
-    # в одной строке.
     if (
         row_end - row_start
         != 1
@@ -489,31 +488,23 @@ def create_lesson_record(
         "lesson_number": lesson_number,
         "lesson_time": lesson_time,
         "sheet": sheet_name,
-
         "raw_text": lesson_text,
-
         "subject": lesson_info[
             "subject"
         ],
-
         "teacher": lesson_info[
             "teacher"
         ],
-
         "room": lesson_info[
             "room"
         ],
-
         "building": lesson_info[
             "building"
         ],
-
         "is_online": lesson_info[
             "is_online"
         ],
-
         "lesson_type": lesson_type,
-
         "schedule_name": schedule_name,
         "schedule_type": schedule_type,
         "schedule_key": schedule_key,
@@ -603,6 +594,10 @@ def parse_excel(
                     col_index,
                 )
 
+                # ------------------------------------------------
+                # Merged cell
+                # ------------------------------------------------
+
                 if merged_region:
 
                     (
@@ -614,6 +609,7 @@ def parse_excel(
 
                     # Для горизонтального merge нас интересует
                     # только верхняя строка.
+
                     if (
                         row_end - row_start
                         != 1
@@ -623,6 +619,7 @@ def parse_excel(
 
                     # Только первая группа данного merge
                     # обрабатывает всю область.
+
                     if col_index != col_start:
 
                         continue
@@ -674,13 +671,12 @@ def parse_excel(
                         else "Семинар"
                     )
 
-                    # shared нужен только для lesson_parser
-                    lesson_info = parse_lesson_text(
+                    lesson_infos = parse_lesson_texts(
                         lesson_text,
                         is_shared=True,
                     )
 
-                    if lesson_info["skip"]:
+                    if not lesson_infos:
 
                         continue
 
@@ -705,22 +701,24 @@ def parse_excel(
                             shared_col
                         ]
 
-                        parsed_lessons.append(
-                            create_lesson_record(
-                                shared_group,
-                                current_day,
-                                current_date,
-                                lesson_number,
-                                lesson_time,
-                                sheet_name,
-                                lesson_text,
-                                lesson_info,
-                                lesson_type,
-                                schedule_name,
-                                schedule_type,
-                                schedule_key,
+                        for lesson_info in lesson_infos:
+
+                            parsed_lessons.append(
+                                create_lesson_record(
+                                    shared_group,
+                                    current_day,
+                                    current_date,
+                                    lesson_number,
+                                    lesson_time,
+                                    sheet_name,
+                                    lesson_text,
+                                    lesson_info,
+                                    lesson_type,
+                                    schedule_name,
+                                    schedule_type,
+                                    schedule_key,
+                                )
                             )
-                        )
 
                     continue
 
@@ -763,31 +761,33 @@ def parse_excel(
                     else "Семинар"
                 )
 
-                lesson_info = parse_lesson_text(
+                lesson_infos = parse_lesson_texts(
                     lesson_text,
                     is_shared=False,
                 )
 
-                if lesson_info["skip"]:
+                if not lesson_infos:
 
                     continue
 
-                parsed_lessons.append(
-                    create_lesson_record(
-                        group_name,
-                        current_day,
-                        current_date,
-                        lesson_number,
-                        lesson_time,
-                        sheet_name,
-                        lesson_text,
-                        lesson_info,
-                        lesson_type,
-                        schedule_name,
-                        schedule_type,
-                        schedule_key,
+                for lesson_info in lesson_infos:
+
+                    parsed_lessons.append(
+                        create_lesson_record(
+                            group_name,
+                            current_day,
+                            current_date,
+                            lesson_number,
+                            lesson_time,
+                            sheet_name,
+                            lesson_text,
+                            lesson_info,
+                            lesson_type,
+                            schedule_name,
+                            schedule_type,
+                            schedule_key,
+                        )
                     )
-                )
 
     return parsed_lessons
 
