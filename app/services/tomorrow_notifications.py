@@ -39,7 +39,7 @@ async def send_tomorrow_notifications(
         return
 
     # 20:00
-    if now.hour < 20:
+    if now.hour < 19:
         return
 
     tomorrow = (
