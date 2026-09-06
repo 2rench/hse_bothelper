@@ -1,11 +1,12 @@
 import re
 
+from datetime import datetime, timedelta
+
+from sqlalchemy import not_
 from sqlalchemy.orm import Session
 
 from app.database.database import SessionLocal
 from app.database.models import Lesson
-from datetime import datetime, timedelta
-from sqlalchemy import not_
 
 
 def get_lessons_by_date(
@@ -15,31 +16,16 @@ def get_lessons_by_date(
 
     db: Session = SessionLocal()
 
-    changes = (
+    lessons = (
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
             Lesson.date == date,
-            Lesson.schedule_type == "changes",
-        )
-        .order_by(
-            Lesson.lesson_number
-        )
-        .all()
-    )
-
-    if changes:
-
-        db.close()
-
-        return changes
-
-    base = (
-        db.query(Lesson)
-        .filter(
-            Lesson.group_name == group,
-            Lesson.date == date,
-            Lesson.schedule_type == "base",
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
         )
         .order_by(
             Lesson.lesson_number
@@ -49,7 +35,7 @@ def get_lessons_by_date(
 
     db.close()
 
-    return base
+    return lessons
 
 
 def get_week_lessons(
@@ -62,9 +48,11 @@ def get_week_lessons(
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
-            Lesson.schedule_type.in_(
-                ["changes", "base"]
-            )
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
         )
         .all()
     )
@@ -73,6 +61,34 @@ def get_week_lessons(
 
     if not lessons:
         return []
+
+    unique = {}
+
+    for lesson in lessons:
+
+        key = (
+            lesson.date,
+            lesson.lesson_number,
+            lesson.subject,
+            lesson.teacher,
+            lesson.room,
+        )
+
+        unique[key] = lesson
+
+    lessons = list(
+        unique.values()
+    )
+
+    lessons.sort(
+        key=lambda x: (
+            datetime.strptime(
+                x.date,
+                "%d.%m.%Y"
+            ),
+            int(x.lesson_number),
+        )
+    )
 
     today = datetime.now()
 
@@ -91,12 +107,213 @@ def get_week_lessons(
         days=6
     )
 
-    grouped = {}
+    filtered = []
 
     for lesson in lessons:
 
-        if not lesson.date:
+        lesson_date = datetime.strptime(
+            lesson.date,
+            "%d.%m.%Y"
+        )
+
+        if (
+            week_start
+            <= lesson_date
+            <= week_end
+        ):
+
+            filtered.append(
+                lesson
+            )
+
+    return filtered
+
+
+def get_week_lessons_by_number(
+    group: str,
+    week: int,
+) -> list[Lesson]:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    if not lessons:
+        return []
+
+    pattern = re.compile(
+        r"недел(?:я|и)\s*№?\s*(\d+)",
+        re.IGNORECASE,
+    )
+
+    result = []
+
+    for lesson in lessons:
+
+        schedule_name = (
+            lesson.schedule_name
+            or ""
+        )
+
+        match = pattern.search(
+            schedule_name
+        )
+
+        if not match:
             continue
+
+        schedule_week = int(
+            match.group(1)
+        )
+
+        if schedule_week == week:
+
+            result.append(
+                lesson
+            )
+
+    unique = {}
+
+    for lesson in result:
+
+        key = (
+            lesson.date,
+            lesson.lesson_number,
+            lesson.subject,
+            lesson.teacher,
+            lesson.room,
+            lesson.building,
+        )
+
+        unique[key] = lesson
+
+    result = list(
+        unique.values()
+    )
+
+    result.sort(
+        key=lambda x: (
+            datetime.strptime(
+                x.date,
+                "%d.%m.%Y"
+            ),
+            int(x.lesson_number)
+            if str(x.lesson_number).isdigit()
+            else 0,
+        )
+    )
+
+    return result
+
+
+def get_available_week_numbers(
+    group: str,
+) -> list[int]:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    if not lessons:
+        return []
+
+    pattern = re.compile(
+        r"недел(?:я|и)\s*№?\s*(\d+)",
+        re.IGNORECASE,
+    )
+
+    weeks = set()
+
+    for lesson in lessons:
+
+        schedule_name = (
+            lesson.schedule_name
+            or ""
+        )
+
+        match = pattern.search(
+            schedule_name
+        )
+
+        if not match:
+            continue
+
+        weeks.add(
+            int(
+                match.group(1)
+            )
+        )
+
+    return sorted(
+        weeks
+    )
+
+
+def get_current_schedule_week(
+    group: str,
+) -> int | None:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    if not lessons:
+        return None
+
+    pattern = re.compile(
+        r"недел(?:я|и)\s*№?\s*(\d+)",
+        re.IGNORECASE,
+    )
+
+    today = datetime.now().replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    week_dates = {}
+
+    for lesson in lessons:
 
         try:
 
@@ -105,66 +322,73 @@ def get_week_lessons(
                 "%d.%m.%Y"
             )
 
-        except ValueError:
+        except Exception:
+
             continue
 
-        if not (
-            week_start
-            <= lesson_date
-            <= week_end
-        ):
+        schedule_name = (
+            lesson.schedule_name
+            or ""
+        )
+
+        match = pattern.search(
+            schedule_name
+        )
+
+        if not match:
             continue
 
-        grouped.setdefault(
-            lesson.date,
+        week = int(
+            match.group(1)
+        )
+
+        week_dates.setdefault(
+            week,
             []
         ).append(
-            lesson
+            lesson_date
         )
 
-    result = []
+    if not week_dates:
+        return None
 
-    for date, day_lessons in grouped.items():
+    for week, dates in week_dates.items():
 
-        changes = [
-            lesson
-            for lesson in day_lessons
-            if lesson.schedule_type == "changes"
-        ]
+        week_start = min(dates)
+        week_end = max(dates)
 
-        if changes:
+        if (
+            week_start
+            <= today
+            <= week_end
+        ):
 
-            result.extend(
-                changes
+            return week
+
+    future_weeks = []
+
+    for week, dates in week_dates.items():
+
+        week_start = min(dates)
+
+        if week_start > today:
+
+            future_weeks.append(
+                (
+                    week_start,
+                    week,
+                )
             )
 
-        else:
+    if future_weeks:
 
-            result.extend(
-                [
-                    lesson
-                    for lesson in day_lessons
-                    if lesson.schedule_type == "base"
-                ]
-            )
+        future_weeks.sort()
 
-    result.sort(
-        key=lambda lesson: (
-            datetime.strptime(
-                lesson.date,
-                "%d.%m.%Y"
-            ),
-            int(
-                lesson.lesson_number
-            )
-            if str(
-                lesson.lesson_number
-            ).isdigit()
-            else 999
-        )
+        return future_weeks[0][1]
+
+    return max(
+        week_dates
     )
-
-    return result
 
 
 def get_tomorrow_study_date(
@@ -203,8 +427,10 @@ def get_current_study_date(
         db.query(Lesson)
         .filter(
             Lesson.group_name == group,
-            Lesson.schedule_type.in_(
-                ["changes", "base"]
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
             ),
         )
         .all()
@@ -221,9 +447,6 @@ def get_current_study_date(
 
     for lesson in lessons:
 
-        if not lesson.date:
-            continue
-
         try:
 
             lesson_date = datetime.strptime(
@@ -235,7 +458,8 @@ def get_current_study_date(
                 lesson_date
             )
 
-        except ValueError:
+        except Exception:
+
             continue
 
     if not parsed_dates:
@@ -259,35 +483,3 @@ def get_current_study_date(
     return parsed_dates[-1].strftime(
         "%d.%m.%Y"
     )
-
-
-def get_week_lessons_by_number(
-    group: str,
-    week: int,
-):
-
-    db: Session = SessionLocal()
-
-    lessons = (
-        db.query(Lesson)
-        .filter(
-            Lesson.group_name == group,
-            Lesson.schedule_name.like(
-                f"%неделя №{week}%"
-            ),
-            not_(
-                Lesson.schedule_name.like(
-                    "СЕССИЯ%"
-                )
-            ),
-        )
-        .order_by(
-            Lesson.date,
-            Lesson.lesson_number,
-        )
-        .all()
-    )
-
-    db.close()
-
-    return lessons
