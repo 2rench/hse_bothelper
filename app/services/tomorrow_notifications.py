@@ -85,7 +85,7 @@ async def send_tomorrow_notifications(
             else:
                 lesson_text = 'пары'
             text = (
-                f"🫣 Завтра {len(lessons)} {lesson_text}\n"
+                f"🥶 Завтра {len(lessons)} {lesson_text}\n"
                 f"{tomorrow}\n"
                 f"/tomorrow"
             )
