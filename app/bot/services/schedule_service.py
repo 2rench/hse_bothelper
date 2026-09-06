@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy.orm import Session
 
 from app.database.database import SessionLocal
@@ -220,4 +222,179 @@ def get_current_study_date(
 
     return parsed_dates[-1].strftime(
         "%d.%m.%Y"
+    )
+
+def get_available_week_numbers(
+    group: str,
+) -> list[int]:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    if not lessons:
+
+        return []
+
+    weeks = set()
+
+    pattern = re.compile(
+        r"недел(?:я|и)\s*№?\s*(\d+)",
+        re.IGNORECASE,
+    )
+
+    for lesson in lessons:
+
+        value = (
+            lesson.schedule_name
+            or ""
+        )
+
+        match = pattern.search(
+            value
+        )
+
+        if match:
+
+            weeks.add(
+                int(
+                    match.group(1)
+                )
+            )
+
+    return sorted(
+        weeks
+    )
+
+
+def get_current_schedule_week(
+    group: str,
+) -> int | None:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.group_name == group,
+
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    if not lessons:
+
+        return None
+
+    today = datetime.now().replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    week_dates = {}
+
+    pattern = re.compile(
+        r"недел(?:я|и)\s*№?\s*(\d+)",
+        re.IGNORECASE,
+    )
+
+    for lesson in lessons:
+
+        try:
+
+            lesson_date = datetime.strptime(
+                lesson.date,
+                "%d.%m.%Y",
+            )
+
+        except Exception:
+
+            continue
+
+        match = pattern.search(
+            lesson.schedule_name or ""
+        )
+
+        if not match:
+
+            continue
+
+        week = int(
+            match.group(1)
+        )
+
+        if week not in week_dates:
+
+            week_dates[week] = []
+
+        week_dates[week].append(
+            lesson_date
+        )
+
+    if not week_dates:
+
+        return None
+
+    for week, dates in week_dates.items():
+
+        week_start = min(dates)
+        week_end = max(dates)
+
+        if (
+            week_start
+            <= today
+            <= week_end
+        ):
+
+            return week
+
+    # Если сегодня нет занятий,
+    # берём ближайшую будущую неделю.
+
+    future_weeks = []
+
+    for week, dates in week_dates.items():
+
+        week_start = min(dates)
+
+        if week_start > today:
+
+            future_weeks.append(
+                (
+                    week_start,
+                    week,
+                )
+            )
+
+    if future_weeks:
+
+        future_weeks.sort()
+
+        return future_weeks[0][1]
+
+    return max(
+        week_dates
     )
