@@ -11,6 +11,8 @@ from sqlalchemy import (
     DateTime,
 )
 
+from sqlalchemy.dialects.postgresql import JSONB
+
 from app.database.database import Base
 
 
@@ -56,4 +58,11 @@ class User(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
         nullable=False,
+    )
+
+    excluded_subjects = Column(
+        JSONB,
+        nullable=False,
+        default=list,
+        server_default="[]",
     )

@@ -31,6 +31,12 @@ def get_profile_keyboard():
                     text="🎭 Выбор темы",
                     callback_data="themes",
                 )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🚫 Исключить пары",
+                    callback_data="excluded_subjects",
+                )
             ]
         ]
     )

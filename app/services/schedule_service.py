@@ -483,3 +483,24 @@ def get_current_study_date(
     return parsed_dates[-1].strftime(
         "%d.%m.%Y"
     )
+
+
+def get_week_subjects(
+    group: str,
+) -> list[str]:
+
+    lessons = get_week_lessons(
+        group
+    )
+
+    subjects = {
+        lesson.subject.strip()
+        for lesson in lessons
+        if lesson.subject
+        and lesson.subject.strip()
+    }
+
+    return sorted(
+        subjects,
+        key=lambda subject: subject.lower(),
+    )

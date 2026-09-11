@@ -96,6 +96,9 @@ def get_user(
         "schedule_updates": user.schedule_updates,
         "tomorrow_notifications": user.tomorrow_notifications,
         "theme": user.theme,
+        "excluded_subjects": (
+            list(user.excluded_subjects or [])
+        ),
     }
 
     db.close()
@@ -126,6 +129,7 @@ def toggle_schedule_updates(
 
     db.close()
 
+
 def toggle_tomorrow_notifications(
     telegram_id: int,
 ):
@@ -150,6 +154,7 @@ def toggle_tomorrow_notifications(
 
     db.close()
 
+
 def get_users_for_schedule_updates():
 
     db: Session = SessionLocal()
@@ -166,6 +171,7 @@ def get_users_for_schedule_updates():
 
     return users
 
+
 def get_users_for_tomorrow_notifications():
 
     db: Session = SessionLocal()
@@ -181,6 +187,7 @@ def get_users_for_tomorrow_notifications():
     db.close()
 
     return users
+
 
 def get_all_users():
 
@@ -237,6 +244,7 @@ def get_command_stats():
 
     return stats
 
+
 def set_theme(
     telegram_id: int,
     theme: str,
@@ -259,3 +267,50 @@ def set_theme(
         db.commit()
 
     db.close()
+
+
+def toggle_excluded_subject(
+    telegram_id: int,
+    subject: str,
+) -> list[str]:
+
+    db: Session = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(
+                User.telegram_id == telegram_id
+            )
+            .first()
+        )
+
+        if user is None:
+            return []
+
+        excluded = list(
+            user.excluded_subjects or []
+        )
+
+        if subject in excluded:
+
+            excluded.remove(
+                subject
+            )
+
+        else:
+
+            excluded.append(
+                subject
+            )
+
+        user.excluded_subjects = excluded
+
+        db.commit()
+
+        return excluded
+
+    finally:
+
+        db.close()

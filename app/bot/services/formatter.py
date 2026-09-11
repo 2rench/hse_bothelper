@@ -50,6 +50,43 @@ def get_theme(
     )
 
 
+def _get_theme_from_user(
+    user,
+):
+
+    if not user:
+        return default
+
+    return THEMES.get(
+        user.get(
+            "theme",
+            "default",
+        ),
+        default,
+    )
+
+
+def filter_excluded_lessons(
+    lessons,
+    excluded_subjects,
+):
+
+    if not excluded_subjects:
+
+        return lessons
+
+    excluded = set(
+        excluded_subjects
+    )
+
+    return [
+        lesson
+        for lesson in lessons
+        if lesson.subject
+        not in excluded
+    ]
+
+
 def emoji(
     lesson_count,
 ):
@@ -70,12 +107,23 @@ def format_lessons(
     group_by_day=False,
 ):
 
-    theme = get_theme(
-        telegram_id
-    )
+    # ------------------------------------------------
+    # Пустое расписание
+    # ------------------------------------------------
 
     if not lessons:
+
+        theme = get_theme(
+            telegram_id
+        )
+
         return theme["no_lessons"]
+
+    # ------------------------------------------------
+    # СЕССИЯ
+    # ------------------------------------------------
+    # Исключённые предметы на сессию
+    # НЕ распространяются.
 
     if lessons[0].schedule_type == "session":
 
@@ -84,6 +132,51 @@ def format_lessons(
             telegram_id,
         )
 
+    # ------------------------------------------------
+    # Получаем пользователя один раз
+    # ------------------------------------------------
+
+    user = None
+
+    if telegram_id:
+
+        user = get_user(
+            telegram_id
+        )
+
+    theme = _get_theme_from_user(
+        user
+    )
+
+    excluded_subjects = []
+
+    if user:
+
+        excluded_subjects = (
+            user.get(
+                "excluded_subjects",
+                [],
+            )
+            or []
+        )
+
+    # ------------------------------------------------
+    # Исключаем предметы
+    # ------------------------------------------------
+
+    lessons = filter_excluded_lessons(
+        lessons,
+        excluded_subjects,
+    )
+
+    # ------------------------------------------------
+    # После исключений ничего не осталось
+    # ------------------------------------------------
+
+    if not lessons:
+
+        return theme["no_lessons"]
+
     text = ""
 
     if title:
@@ -91,6 +184,10 @@ def format_lessons(
         text += (
             f"{title}\n\n"
         )
+
+    # ------------------------------------------------
+    # По дням
+    # ------------------------------------------------
 
     if group_by_day:
 
@@ -128,6 +225,10 @@ def format_lessons(
             )
 
         return text.rstrip()
+
+    # ------------------------------------------------
+    # Обычный вывод
+    # ------------------------------------------------
 
     text += (
         f"{emoji(len(lessons))} "
