@@ -106,7 +106,6 @@ async def main():
     dp.include_router(notification_open_router)
     dp.include_router(open_day_router)
     dp.include_router(home_router)
-    dp.include_router(help_router)
     dp.include_router(admin_router)
     dp.include_router(sport_router)
     dp.include_router(themes_router)
