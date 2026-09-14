@@ -75,6 +75,10 @@ async def today_handler(
         text
     )
 
+    await message.answer(
+        "🐳 Скрой ненужные пары в «Главное» — «Исключить пары»"
+    )
+
 
 @router.message(
     lambda m: m.text == "📅 Сегодня"

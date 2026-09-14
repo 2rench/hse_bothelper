@@ -88,6 +88,11 @@ async def tomorrow_handler(
     await message.answer(
         text
     )
+
+    await message.answer(
+        "🐳 Скрой ненужные пары в «Главное» — «Исключить пары»"
+    )
+
 @router.message(
     lambda m: m.text == "📆 Завтра"
 )
