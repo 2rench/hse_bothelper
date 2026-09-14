@@ -14,7 +14,6 @@ from aiogram.types import BotCommand
 from dotenv import load_dotenv
 
 from app.bot.handlers.group_select import router as group_router
-from app.bot.handlers.help import router as help_router
 from app.services.scheduler import (
     schedule_loop,
 )
