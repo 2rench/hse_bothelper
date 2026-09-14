@@ -93,6 +93,10 @@ async def send_selected_week(
             msg
         )
 
+    await message.answer(
+        "❌ Скрой ненужные пары в «Главное» — «Исключить пары»"
+    )
+
     if not pin_message:
 
         return
