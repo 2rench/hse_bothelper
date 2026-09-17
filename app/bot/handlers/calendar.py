@@ -82,12 +82,6 @@ def build_keyboard(
                     url=calendar_url,
                 ),
             ],
-            [
-                InlineKeyboardButton(
-                    text="⬅️ Назад в профиль",
-                    callback_data="profile",
-                ),
-            ],
         ]
     )
 
