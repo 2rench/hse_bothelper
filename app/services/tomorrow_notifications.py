@@ -24,84 +24,84 @@ _last_sent_date = None
 async def send_tomorrow_notifications(
     bot: Bot,
 ):
+    pass
+    # global _last_sent_date
 
-    global _last_sent_date
+    # now = datetime.now(
+    #     ZoneInfo("Asia/Yekaterinburg")
+    # )
 
-    now = datetime.now(
-        ZoneInfo("Asia/Yekaterinburg")
-    )
+    # today_key = now.strftime(
+    #     "%d.%m.%Y"
+    # )
 
-    today_key = now.strftime(
-        "%d.%m.%Y"
-    )
+    # if _last_sent_date == today_key:
+    #     return
 
-    if _last_sent_date == today_key:
-        return
+    # # 20:00
+    # if now.hour < 19:
+    #     return
 
-    # 20:00
-    if now.hour < 19:
-        return
+    # tomorrow = (
+    #     now + timedelta(days=1)
+    # ).strftime("%d.%m.%Y")
 
-    tomorrow = (
-        now + timedelta(days=1)
-    ).strftime("%d.%m.%Y")
+    # users = (
+    #     get_users_for_tomorrow_notifications()
+    # )
 
-    users = (
-        get_users_for_tomorrow_notifications()
-    )
+    # for user in users:
 
-    for user in users:
+    #     lessons = get_lessons_by_date(
+    #         user.group_name,
+    #         tomorrow,
+    #     )
 
-        lessons = get_lessons_by_date(
-            user.group_name,
-            tomorrow,
-        )
+    #     if not lessons:
+    #         continue
 
-        if not lessons:
-            continue
+    #     first = lessons[0]
 
-        first = lessons[0]
+    #     is_session = (
+    #         first.schedule_name
+    #         and
+    #         "СЕССИЯ"
+    #         in first.schedule_name.upper()
+    #     )
 
-        is_session = (
-            first.schedule_name
-            and
-            "СЕССИЯ"
-            in first.schedule_name.upper()
-        )
+    #     if is_session:
 
-        if is_session:
+    #         text = (
+    #             "🛎️ Напоминание\n\n"
+    #             f"🥶 Завтра сессия\n"
+    #             f"{tomorrow}"
+    #         )
 
-            text = (
-                "🛎️ Напоминание\n\n"
-                f"🥶 Завтра сессия\n"
-                f"{tomorrow}"
-            )
+    #     else:
+    #         if len(lessons) == 1:
+    #             lesson_text = 'пара'
+    #         elif len(lessons) > 5:
+    #             lesson_text = 'пар'
+    #         else:
+    #             lesson_text = 'пары'
+    #         text = (
+    #             f"🥶 Завтра {len(lessons)} {lesson_text}\n"
+    #             f"{tomorrow}\n"
+    #             f"/tomorrow"
+    #         )
 
-        else:
-            if len(lessons) == 1:
-                lesson_text = 'пара'
-            elif len(lessons) > 5:
-                lesson_text = 'пар'
-            else:
-                lesson_text = 'пары'
-            text = (
-                f"🥶 Завтра {len(lessons)} {lesson_text}\n"
-                f"{tomorrow}\n"
-                f"/tomorrow"
-            )
+    #     try:
 
-        try:
+    #         await bot.send_message(
+    #             user.telegram_id,
+    #             text,
+    #         )
 
-            await bot.send_message(
-                user.telegram_id,
-                text,
-            )
+    #     except Exception as e:
 
-        except Exception as e:
+    #         print(
+    #             "TOMORROW ERROR:",
+    #             e,
+    #         )
 
-            print(
-                "TOMORROW ERROR:",
-                e,
-            )
-
-    _last_sent_date = today_key
+    # _last_sent_date = today_key

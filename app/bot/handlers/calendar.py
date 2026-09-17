@@ -2,7 +2,11 @@ import os
 
 from aiogram import Router
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import (
+    Message,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 
 from app.database.user_repository import (
     get_or_create_calendar_token,
@@ -12,12 +16,13 @@ from app.database.user_repository import (
 router = Router()
 
 
-@router.message(
-    Command("calendar")
-)
-async def calendar_handler(
+async def send_calendar(
     message: Message,
 ):
+    """
+    Отправляет пользователю ссылку на календарь
+    и кнопку для её открытия.
+    """
 
     if message.from_user is None:
         return
@@ -55,11 +60,47 @@ async def calendar_handler(
         f"/calendar/{token}.ics"
     )
 
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="📅 Открыть календарь",
+                    url=calendar_url,
+                )
+            ]
+        ]
+    )
+
     await message.answer(
         "📅 <b>Твой календарь</b>\n\n"
-        "Добавь эту ссылку в приложение "
-        "календаря как подписку:\n\n"
+        "Нажми кнопку ниже, чтобы открыть "
+        "календарь.\n\n"
+        "Также эту ссылку можно добавить "
+        "в приложение календаря как подписку:\n\n"
         f"<code>{calendar_url}</code>\n\n"
         "Расписание будет обновляться "
-        "после изменений в базе."
+        "после изменений в базе.",
+        reply_markup=keyboard,
+    )
+
+
+@router.message(
+    Command("calendar")
+)
+async def calendar_handler(
+    message: Message,
+):
+    await send_calendar(
+        message
+    )
+
+
+@router.message(
+    lambda message: message.text == "📅 Календарь"
+)
+async def calendar_button_handler(
+    message: Message,
+):
+    await send_calendar(
+        message
     )

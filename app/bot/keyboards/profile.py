@@ -31,6 +31,13 @@ def get_profile_keyboard():
                     text="🚫 Исключить пары",
                     callback_data="excluded_subjects",
                 )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📅 Добавить в календарь",
+                    callback_data="calendar",
+                )
+            ]
             ]
         ]
     )
