@@ -37,7 +37,6 @@ def get_profile_keyboard():
                     text="📅 Добавить в календарь",
                     callback_data="calendar",
                 )
-            ]
-            ]
+            ],
         ]
     )

@@ -88,6 +88,10 @@ async def main():
             command="sessions",
             description="Сессия",
         ),
+        BotCommand(
+            command="calendar",
+            description="Добавить в календарь",
+        ),
     ])
 
     await bot.delete_webhook(
