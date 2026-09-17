@@ -34,7 +34,7 @@ def get_profile_keyboard():
             ],
             [
                 InlineKeyboardButton(
-                    text="📅 Добавить в календарь",
+                    text="📅 Календарь",
                     callback_data="calendar",
                 )
             ],
