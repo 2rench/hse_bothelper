@@ -1,9 +1,8 @@
 import os
 
 from aiogram import Router
-from aiogram.types import (
-    CallbackQuery,
-)
+from aiogram.filters import Command
+from aiogram.types import Message
 
 from app.database.user_repository import (
     get_or_create_calendar_token,
@@ -13,27 +12,24 @@ from app.database.user_repository import (
 router = Router()
 
 
-@router.callback_query(
-    lambda c:
-    c.data == "calendar"
+@router.message(
+    Command("calendar")
 )
 async def calendar_handler(
-    callback: CallbackQuery,
+    message: Message,
 ):
 
-    if callback.from_user is None:
-
+    if message.from_user is None:
         return
 
     token = get_or_create_calendar_token(
-        callback.from_user.id
+        message.from_user.id
     )
 
     if token is None:
 
-        await callback.answer(
-            "Пользователь не найден",
-            show_alert=True,
+        await message.answer(
+            "Пользователь не найден."
         )
 
         return
@@ -44,9 +40,8 @@ async def calendar_handler(
 
     if not base_url:
 
-        await callback.answer(
-            "Календарь пока не настроен",
-            show_alert=True,
+        await message.answer(
+            "Календарь пока не настроен."
         )
 
         return
@@ -55,19 +50,16 @@ async def calendar_handler(
         "/"
     )
 
-    url = (
+    calendar_url = (
         f"{base_url}"
         f"/calendar/{token}.ics"
     )
 
-    await callback.message.answer(
-        "📅 <b>Календарь</b>\n\n"
-        "Добавьте эту ссылку в свой календарь "
-        "как подписку:\n\n"
-        f"<code>{url}</code>\n\n"
+    await message.answer(
+        "📅 <b>Твой календарь</b>\n\n"
+        "Добавь эту ссылку в приложение "
+        "календаря как подписку:\n\n"
+        f"<code>{calendar_url}</code>\n\n"
         "Расписание будет обновляться "
-        "автоматически после изменения "
-        "данных в боте."
+        "после изменений в базе."
     )
-
-    await callback.answer()
