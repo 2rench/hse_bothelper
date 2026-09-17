@@ -1,3 +1,5 @@
+import secrets
+
 from sqlalchemy.orm import Session
 
 from app.database.database import SessionLocal
@@ -310,6 +312,90 @@ def toggle_excluded_subject(
         db.commit()
 
         return excluded
+
+    finally:
+
+        db.close()
+
+def get_or_create_calendar_token(
+    telegram_id: int,
+) -> str | None:
+
+    db: Session = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(
+                User.telegram_id == telegram_id
+            )
+            .first()
+        )
+
+        if user is None:
+            return None
+
+        if user.calendar_token:
+
+            return user.calendar_token
+
+        while True:
+
+            token = secrets.token_urlsafe(
+                32
+            )
+
+            exists = (
+                db.query(User)
+                .filter(
+                    User.calendar_token == token
+                )
+                .first()
+            )
+
+            if not exists:
+                break
+
+        user.calendar_token = token
+
+        db.commit()
+
+        return token
+
+    finally:
+
+        db.close()
+
+
+def get_user_by_calendar_token(
+    token: str,
+):
+
+    db: Session = SessionLocal()
+
+    try:
+
+        user = (
+            db.query(User)
+            .filter(
+                User.calendar_token == token
+            )
+            .first()
+        )
+
+        if user is None:
+            return None
+
+        return {
+            "telegram_id": user.telegram_id,
+            "group_name": user.group_name,
+            "excluded_subjects": (
+                list(
+                    user.excluded_subjects or []
+                )
+            ),
+        }
 
     finally:
 

@@ -66,3 +66,9 @@ class User(Base):
         default=list,
         server_default="[]",
     )
+
+    calendar_token = Column(
+        String(64),
+        unique=True,
+        nullable=True,
+    )

@@ -47,6 +47,7 @@ from app.bot.handlers.home import (
     router as home_router
 )
 
+from app.bot.handlers import calendar
 from app.bot.handlers import excluded_subjects
 
 from app.bot.handlers.session_view import router as session_view_router
@@ -101,6 +102,7 @@ async def main():
     dp.include_router(week.router)
     dp.include_router(sessions.router)
     dp.include_router(excluded_subjects.router)
+    dp.include_router(calendar.router)
     dp.include_router(session_view_router)
     dp.include_router(notifications_router)
     dp.include_router(notification_open_router)
