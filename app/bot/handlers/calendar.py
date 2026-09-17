@@ -1,7 +1,5 @@
 import os
 
-from urllib.parse import urlparse
-
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import (
@@ -18,17 +16,12 @@ from app.database.user_repository import (
 router = Router()
 
 
-def build_webcal_url(https_url: str) -> str:
-    parsed = urlparse(https_url)
-    return parsed._replace(scheme="webcal").geturl()
-
-
 async def send_calendar(
     message: Message,
 ):
     """
     Отправляет пользователю ссылку на календарь
-    и кнопки для подписки в разных календарях.
+    и кнопку для её открытия.
     """
 
     if message.from_user is None:
@@ -67,64 +60,21 @@ async def send_calendar(
         f"/calendar/{token}.ics"
     )
 
-    webcal_url = build_webcal_url(
-        calendar_url
-    )
-
-    google_url = (
-        "https://calendar.google.com/calendar/r?"
-        f"cid={webcal_url}"
-    )
-
-    outlook_url = (
-        "https://outlook.live.com/calendar/0/"
-        f"addcalendar/subscribe?url={webcal_url}"
-    )
-
-    yandex_url = (
-        "https://calendar.yandex.ru/"
-        f"?webcal={webcal_url}"
-    )
-
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🍎 Apple / iOS",
-                    url=webcal_url,
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📆 Google Calendar",
-                    url=google_url,
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📧 Outlook",
-                    url=outlook_url,
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🟡 Яндекс.Календарь",
-                    url=yandex_url,
-                ),
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📅 Открыть .ics",
+                    text="📅 Открыть календарь",
                     url=calendar_url,
-                ),
-            ],
+                )
+            ]
         ]
     )
 
     await message.answer(
         "📅 <b>Твой календарь</b>\n\n"
-        "Выбери календарь, в который хочешь "
-        "добавить подписку:\n\n"
+        "Нажми кнопку ниже, чтобы открыть "
+        "календарь.\n\n"
         "Также эту ссылку можно добавить "
         "в приложение календаря как подписку:\n\n"
         f"<code>{calendar_url}</code>\n\n"
