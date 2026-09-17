@@ -19,12 +19,6 @@ router = Router()
 
 
 def build_webcal_url(https_url: str) -> str:
-    """
-    Преобразует https://... в webcal://...
-    Такой формат большинство календарей
-    (iOS, macOS, Outlook) открывают сразу
-    как подписку.
-    """
     parsed = urlparse(https_url)
     return parsed._replace(scheme="webcal").geturl()
 
@@ -77,24 +71,16 @@ async def send_calendar(
         calendar_url
     )
 
-    # Google Calendar принимает ссылку на .ics
-    # через параметр src
     google_url = (
         "https://calendar.google.com/calendar/r?"
-        "cid=webcal%3A%2F%2F"
-        + urlparse(calendar_url)
-        .netloc
-        + urlparse(calendar_url).path
+        f"cid={webcal_url}"
     )
 
-    # Outlook Web
     outlook_url = (
         "https://outlook.live.com/calendar/0/"
-        "addcalendar/subscribe?"
-        f"url={webcal_url}"
+        f"addcalendar/subscribe?url={webcal_url}"
     )
 
-    # Yandex Calendar
     yandex_url = (
         "https://calendar.yandex.ru/"
         f"?webcal={webcal_url}"
@@ -139,8 +125,8 @@ async def send_calendar(
         "📅 <b>Твой календарь</b>\n\n"
         "Выбери календарь, в который хочешь "
         "добавить подписку:\n\n"
-        "Также ссылку можно добавить вручную "
-        "как подписку:\n\n"
+        "Также эту ссылку можно добавить "
+        "в приложение календаря как подписку:\n\n"
         f"<code>{calendar_url}</code>\n\n"
         "Расписание будет обновляться "
         "после изменений в базе.",
