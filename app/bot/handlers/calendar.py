@@ -1,6 +1,6 @@
 import os
 
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import (
     Message,
@@ -20,8 +20,8 @@ async def send_calendar(
     message: Message,
 ):
     """
-    Отправляет пользователю ссылку на календарь
-    и кнопку для её открытия.
+    Отправляет пользователю сообщение
+    с кнопками для подписки на календарь.
     """
 
     if message.from_user is None:
@@ -60,23 +60,69 @@ async def send_calendar(
         f"/calendar/{token}.ics"
     )
 
+    # https → редирект на webcal://
+    # (для Apple, iOS, macOS)
+    subscribe_url = (
+        f"{base_url}"
+        f"/calendar/{token}/subscribe"
+    )
+
+    google_url = (
+        "https://calendar.google.com/calendar/r?"
+        f"cid={calendar_url}"
+    )
+
+    outlook_url = (
+        "https://outlook.live.com/calendar/0/"
+        f"addcalendar/subscribe?url={calendar_url}"
+    )
+
+    yandex_url = (
+        "https://calendar.yandex.ru/"
+        f"?webcal={calendar_url}"
+    )
+
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="📅 Открыть календарь",
+                    text="🍎 Apple / iOS",
+                    url=subscribe_url,
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📆 Google Calendar",
+                    url=google_url,
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📧 Outlook",
+                    url=outlook_url,
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🟡 Яндекс.Календарь",
+                    url=yandex_url,
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text="📅 Открыть .ics",
                     url=calendar_url,
-                )
-            ]
+                ),
+            ],
         ]
     )
 
     await message.answer(
         "📅 <b>Твой календарь</b>\n\n"
-        "Нажми кнопку ниже, чтобы открыть "
-        "календарь.\n\n"
-        "Также эту ссылку можно добавить "
-        "в приложение календаря как подписку:\n\n"
+        "Выбери календарь, в который хочешь "
+        "добавить подписку:\n\n"
+        "Также ссылку можно добавить вручную "
+        "как подписку:\n\n"
         f"<code>{calendar_url}</code>\n\n"
         "Расписание будет обновляться "
         "после изменений в базе.",
@@ -96,7 +142,7 @@ async def calendar_handler(
 
 
 @router.message(
-    lambda message: message.text == "📅 Календарь"
+    F.text == "📅 Календарь"
 )
 async def calendar_button_handler(
     message: Message,

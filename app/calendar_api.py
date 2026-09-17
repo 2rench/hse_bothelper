@@ -1,8 +1,13 @@
+import os
+
 from fastapi import (
     FastAPI,
     HTTPException,
 )
-from fastapi.responses import Response
+from fastapi.responses import (
+    Response,
+    RedirectResponse,
+)
 
 from app.database.user_repository import (
     get_user_by_calendar_token,
@@ -60,4 +65,55 @@ async def calendar(
             ),
             "Cache-Control": "no-cache",
         },
+    )
+
+
+@app.get(
+    "/calendar/{token}/subscribe",
+)
+async def calendar_subscribe(
+    token: str,
+):
+    """
+    Редирект на webcal:// — браузер/система
+    откроет приложение календаря с окном подписки.
+    """
+
+    user = get_user_by_calendar_token(
+        token
+    )
+
+    if user is None:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Calendar not found",
+        )
+
+    base_url = os.getenv(
+        "CALENDAR_BASE_URL",
+        "",
+    ).rstrip("/")
+
+    if not base_url:
+
+        raise HTTPException(
+            status_code=500,
+            detail="CALENDAR_BASE_URL is not set",
+        )
+
+    host = (
+        base_url
+        .replace("https://", "")
+        .replace("http://", "")
+    )
+
+    webcal_url = (
+        f"webcal://{host}"
+        f"/calendar/{token}.ics"
+    )
+
+    return RedirectResponse(
+        url=webcal_url,
+        status_code=302,
     )
