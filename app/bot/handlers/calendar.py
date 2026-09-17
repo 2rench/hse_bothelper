@@ -141,8 +141,8 @@ async def calendar_handler(
     )
 
 
-@router.message(
-    F.text == "📅 Календарь"
+@router.callback_query(
+    lambda c: c.data == "calendar"
 )
 async def calendar_button_handler(
     message: Message,
