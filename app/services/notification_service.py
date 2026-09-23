@@ -8,6 +8,7 @@ from app.bot.keyboards.update_notification import (
     get_update_keyboard,
 )
 
+
 async def send_update_notifications(
     bot,
     updates,
@@ -23,6 +24,20 @@ async def send_update_notifications(
     for user in users:
 
         for update in updates:
+
+            groups = set(
+                update.get(
+                    "groups",
+                    []
+                )
+                or []
+            )
+
+            if (
+                user.group_name
+                not in groups
+            ):
+                continue
 
             if update["type"] == "new":
 
@@ -48,7 +63,10 @@ async def send_update_notifications(
                         update["is_session"],
                     ),
                 )
-                await asyncio.sleep(0.05)
+
+                await asyncio.sleep(
+                    0.05
+                )
 
             except Exception as e:
 

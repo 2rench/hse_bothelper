@@ -1,5 +1,8 @@
 import re
+import hashlib
+import json
 
+from collections import defaultdict
 from pathlib import Path
 
 from sqlalchemy.orm import Session
@@ -59,12 +62,6 @@ def find_existing_file(
     db: Session,
     schedule_key: str,
 ):
-    """
-    Ищет сохранённый файл по постоянному
-    schedule_key, а не по временному
-    URL скачивания.
-    """
-
     files = (
         db.query(ScheduleFile)
         .all()
@@ -79,6 +76,71 @@ def find_existing_file(
             return file
 
     return None
+
+
+def get_group_signatures(
+    schedule_key: str,
+) -> dict[str, str]:
+
+    db: Session = SessionLocal()
+
+    try:
+
+        lessons = (
+            db.query(Lesson)
+            .filter(
+                Lesson.schedule_key == schedule_key
+            )
+            .all()
+        )
+
+    finally:
+
+        db.close()
+
+    grouped = defaultdict(list)
+
+    for lesson in lessons:
+
+        grouped[
+            lesson.group_name
+        ].append(
+            (
+                lesson.day or "",
+                lesson.date or "",
+                lesson.lesson_number or "",
+                lesson.lesson_time or "",
+                lesson.subject or "",
+                lesson.lesson_type or "",
+                lesson.teacher or "",
+                lesson.room or "",
+                lesson.building or "",
+                bool(lesson.is_online),
+            )
+        )
+
+    signatures = {}
+
+    for group_name, group_lessons in grouped.items():
+
+        group_lessons.sort()
+
+        payload = json.dumps(
+            group_lessons,
+            ensure_ascii=False,
+            separators=(
+                ",",
+                ":",
+            ),
+        )
+
+        signatures[group_name] = (
+            hashlib.sha256(
+                payload.encode("utf-8")
+            ).hexdigest()
+        )
+
+    return signatures
 
 
 def check_updates():
@@ -126,11 +188,6 @@ def check_updates():
             schedule_key,
         )
 
-        # Один и тот же schedule_key
-        # уже существует.
-        #
-        # Скачиваем файл, чтобы сравнить
-        # его реальный hash.
         content = download_file(
             item["url"]
         )
@@ -138,10 +195,6 @@ def check_updates():
         current_hash = calculate_hash(
             content
         )
-
-        # -------------------------------------------------
-        # НОВЫЙ ФАЙЛ
-        # -------------------------------------------------
 
         if existing is None:
 
@@ -169,6 +222,12 @@ def check_updates():
 
             if success:
 
+                groups = sorted(
+                    get_group_signatures(
+                        schedule_key
+                    ).keys()
+                )
+
                 db.add(
                     ScheduleFile(
                         file_name=item["name"],
@@ -190,6 +249,7 @@ def check_updates():
                             "сессия"
                             in name
                         ),
+                        "groups": groups,
                     }
                 )
 
@@ -197,23 +257,21 @@ def check_updates():
 
             continue
 
-        # -------------------------------------------------
-        # ФАЙЛ НЕ ИЗМЕНИЛСЯ
-        # -------------------------------------------------
-
         if existing.file_hash == current_hash:
 
             db.close()
 
             continue
 
-        # -------------------------------------------------
-        # ФАЙЛ ИЗМЕНИЛСЯ
-        # -------------------------------------------------
-
         print(
             "UPDATED:",
             item["name"]
+        )
+
+        old_group_signatures = (
+            get_group_signatures(
+                schedule_key
+            )
         )
 
         saved_path = save_file(
@@ -231,8 +289,36 @@ def check_updates():
 
             if success:
 
-                # Обновляем информацию
-                # о сохранённом файле.
+                new_group_signatures = (
+                    get_group_signatures(
+                        schedule_key
+                    )
+                )
+
+                all_groups = (
+                    set(
+                        old_group_signatures
+                    )
+                    |
+                    set(
+                        new_group_signatures
+                    )
+                )
+
+                changed_groups = sorted(
+                    group
+                    for group in all_groups
+                    if (
+                        old_group_signatures.get(
+                            group
+                        )
+                        !=
+                        new_group_signatures.get(
+                            group
+                        )
+                    )
+                )
+
                 existing.file_name = (
                     item["name"]
                 )
@@ -258,19 +344,22 @@ def check_updates():
                     item["name"]
                 )
 
-                updates.append(
-                    {
-                        "type": "updated",
-                        "name": item["name"],
-                        "week": extract_week_number(
-                            item["name"]
-                        ),
-                        "is_session": (
-                            "сессия"
-                            in name
-                        ),
-                    }
-                )
+                if changed_groups:
+
+                    updates.append(
+                        {
+                            "type": "updated",
+                            "name": item["name"],
+                            "week": extract_week_number(
+                                item["name"]
+                            ),
+                            "is_session": (
+                                "сессия"
+                                in name
+                            ),
+                            "groups": changed_groups,
+                        }
+                    )
 
         except Exception as error:
 
@@ -290,10 +379,6 @@ def check_updates():
             )
 
             db.close()
-
-    # -----------------------------------------------------
-    # УДАЛЕНИЕ РАСПИСАНИЙ, КОТОРЫХ БОЛЬШЕ НЕТ
-    # -----------------------------------------------------
 
     db = SessionLocal()
 
