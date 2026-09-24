@@ -158,10 +158,12 @@ function setAppearance(appearance) {
 
 
 function showScreen(screen) {
-    Object.entries(screenIds).forEach(([key, id]) => {
+    const targetId = screenIds[screen];
+
+    Object.values(screenIds).forEach(id => {
         const element = $(id);
         if (!element) return;
-        element.classList.toggle("active", key === screen);
+        element.classList.toggle("active", id === targetId);
     });
 
     const bottomNav = document.querySelector(".bottom-nav");
