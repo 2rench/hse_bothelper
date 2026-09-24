@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Literal
 from urllib.parse import parse_qsl
-from zoneinfo import ZoneInfo
 
 from fastapi import (
     FastAPI,
@@ -38,7 +37,9 @@ from app.database.user_repository import (
 
 from app.services.schedule_service import (
     get_lessons_by_date,
-    get_week_lessons,
+    get_week_lessons_by_number,
+    get_available_week_numbers,
+    get_current_schedule_week,
 )
 
 from app.database.session_repository import (
@@ -48,10 +49,6 @@ from app.database.session_repository import (
 
 from app.bot.services.formatter import (
     THEMES,
-)
-
-from app.bot.services.formatter import (
-    get_theme,
 )
 
 
@@ -64,8 +61,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CALENDAR_BASE_URL = os.getenv(
     "CALENDAR_BASE_URL"
 )
-
-MSK = ZoneInfo("Europe/Moscow")
 
 
 app = FastAPI(
@@ -82,10 +77,10 @@ app.mount(
 
 THEME_NAMES = {
     "default": "Классика",
-    "lux": "Люкс",
-    "clean": "Мягкий",
-    "brat": "Контраст",
-    "it": "Техно",
+    "luxury": "Люкс",
+    "clean_girl": "Мягкий",
+    "brother": "Контраст",
+    "it_style": "Техно",
     "english": "Английский",
     "french": "Французский",
     "chinese": "Китайский",
@@ -94,10 +89,10 @@ THEME_NAMES = {
 
 THEME_SYMBOLS = {
     "default": "○",
-    "lux": "✦",
-    "clean": "♡",
-    "brat": "⚡",
-    "it": ">_",
+    "luxury": "✦",
+    "clean_girl": "♡",
+    "brother": "⚡",
+    "it_style": ">_",
     "english": "A",
     "french": "É",
     "chinese": "文",
@@ -460,6 +455,48 @@ async def bootstrap(
     }
 
 
+@app.get("/api/weeks")
+async def weeks(
+    request: Request,
+):
+
+    telegram_id = get_telegram_id(
+        request
+    )
+
+    group = get_user_group(
+        telegram_id
+    )
+
+    if not group:
+
+        return {
+            "weeks": [],
+            "current_week": None,
+            "default_week": None,
+        }
+
+    weeks = get_available_week_numbers(
+        group
+    )
+
+    current_week = get_current_schedule_week(
+        group
+    )
+
+    default_week = (
+        current_week
+        if current_week in weeks
+        else (weeks[0] if weeks else None)
+    )
+
+    return {
+        "weeks": weeks,
+        "current_week": current_week,
+        "default_week": default_week,
+    }
+
+
 @app.get("/api/schedule")
 async def schedule(
     request: Request,
@@ -468,6 +505,7 @@ async def schedule(
         "tomorrow",
         "week",
     ] = "today",
+    week: int | None = None,
 ):
 
     telegram_id = get_telegram_id(
@@ -498,7 +536,7 @@ async def schedule(
 
     if view == "today":
 
-        date = datetime.now(MSK).strftime(
+        date = datetime.now().strftime(
             "%d.%m.%Y"
         )
 
@@ -516,7 +554,7 @@ async def schedule(
     elif view == "tomorrow":
 
         date = (
-            datetime.now(MSK)
+            datetime.now()
             + timedelta(days=1)
         ).strftime(
             "%d.%m.%Y"
@@ -535,11 +573,28 @@ async def schedule(
 
     else:
 
-        lessons = (
-            get_week_lessons(
-                group
-            )
+        current_week = get_current_schedule_week(
+            group
         )
+
+        target_week = (
+            week
+            if week is not None
+            else current_week
+        )
+
+        lessons = []
+
+        if target_week is not None:
+
+            lessons = (
+                get_week_lessons_by_number(
+                    group,
+                    target_week,
+                )
+            )
+
+        week = target_week
 
         empty_message = (
             "На этой неделе пар нет."
@@ -555,6 +610,7 @@ async def schedule(
     return {
         "view": view,
         "group": group,
+        "week": week if view == "week" else None,
         "lessons": [
             serialize_lesson(
                 lesson
@@ -654,9 +710,20 @@ async def excluded_subjects(
         telegram_id
     )
 
-    lessons = get_week_lessons(
+    current_week = get_current_schedule_week(
         group
     )
+
+    lessons = []
+
+    if current_week is not None:
+
+        lessons = (
+            get_week_lessons_by_number(
+                group,
+                current_week,
+            )
+        )
 
     subjects = sorted(
         {

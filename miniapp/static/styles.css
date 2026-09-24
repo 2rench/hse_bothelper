@@ -52,18 +52,18 @@ html {
     --accent-soft: rgba(242, 243, 245, 0.08);
 }
 
-:root[data-display-theme="lux"] { --accent: #A5516F; --accent-fg: #FFFFFF; --accent-soft: rgba(165, 81, 111, 0.10); }
-:root[data-display-theme="clean"] { --accent: #4F7A64; --accent-fg: #FFFFFF; --accent-soft: rgba(79, 122, 100, 0.10); }
-:root[data-display-theme="brat"] { --accent: #C95832; --accent-fg: #FFFFFF; --accent-soft: rgba(201, 88, 50, 0.10); }
-:root[data-display-theme="it"] { --accent: #3D6FDB; --accent-fg: #FFFFFF; --accent-soft: rgba(61, 111, 219, 0.10); }
+:root[data-display-theme="luxury"] { --accent: #A5516F; --accent-fg: #FFFFFF; --accent-soft: rgba(165, 81, 111, 0.10); }
+:root[data-display-theme="clean_girl"] { --accent: #4F7A64; --accent-fg: #FFFFFF; --accent-soft: rgba(79, 122, 100, 0.10); }
+:root[data-display-theme="brother"] { --accent: #C95832; --accent-fg: #FFFFFF; --accent-soft: rgba(201, 88, 50, 0.10); }
+:root[data-display-theme="it_style"] { --accent: #3D6FDB; --accent-fg: #FFFFFF; --accent-soft: rgba(61, 111, 219, 0.10); }
 :root[data-display-theme="english"] { --accent: #4E62A0; --accent-fg: #FFFFFF; --accent-soft: rgba(78, 98, 160, 0.10); }
 :root[data-display-theme="french"] { --accent: #6E5DA8; --accent-fg: #FFFFFF; --accent-soft: rgba(110, 93, 168, 0.10); }
 :root[data-display-theme="chinese"] { --accent: #B14A3E; --accent-fg: #FFFFFF; --accent-soft: rgba(177, 74, 62, 0.10); }
 
-:root[data-mode="dark"][data-display-theme="lux"] { --accent: #D890AD; --accent-fg: #17191C; --accent-soft: rgba(216, 144, 173, 0.14); }
-:root[data-mode="dark"][data-display-theme="clean"] { --accent: #8FBCA3; --accent-fg: #17191C; --accent-soft: rgba(143, 188, 163, 0.14); }
-:root[data-mode="dark"][data-display-theme="brat"] { --accent: #EB8B62; --accent-fg: #17191C; --accent-soft: rgba(235, 139, 98, 0.14); }
-:root[data-mode="dark"][data-display-theme="it"] { --accent: #6E97EE; --accent-fg: #17191C; --accent-soft: rgba(110, 151, 238, 0.14); }
+:root[data-mode="dark"][data-display-theme="luxury"] { --accent: #D890AD; --accent-fg: #17191C; --accent-soft: rgba(216, 144, 173, 0.14); }
+:root[data-mode="dark"][data-display-theme="clean_girl"] { --accent: #8FBCA3; --accent-fg: #17191C; --accent-soft: rgba(143, 188, 163, 0.14); }
+:root[data-mode="dark"][data-display-theme="brother"] { --accent: #EB8B62; --accent-fg: #17191C; --accent-soft: rgba(235, 139, 98, 0.14); }
+:root[data-mode="dark"][data-display-theme="it_style"] { --accent: #6E97EE; --accent-fg: #17191C; --accent-soft: rgba(110, 151, 238, 0.14); }
 :root[data-mode="dark"][data-display-theme="english"] { --accent: #8094CB; --accent-fg: #17191C; --accent-soft: rgba(128, 148, 203, 0.14); }
 :root[data-mode="dark"][data-display-theme="french"] { --accent: #A392D6; --accent-fg: #17191C; --accent-soft: rgba(163, 146, 214, 0.14); }
 :root[data-mode="dark"][data-display-theme="chinese"] { --accent: #DD7C70; --accent-fg: #17191C; --accent-soft: rgba(221, 124, 112, 0.14); }
@@ -224,6 +224,48 @@ h1 {
 .icon-button:active {
     transform: scale(0.94);
     background: var(--surface-2);
+}
+
+.week-picker {
+    margin-bottom: 14px;
+    padding: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+}
+
+.week-picker-title {
+    margin: 0 4px 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.week-picker-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.week-chip {
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 150ms ease;
+}
+
+.week-chip:active {
+    transform: scale(0.96);
+}
+
+.week-chip.active {
+    background: var(--accent);
+    color: var(--accent-fg);
 }
 
 .schedule-container {

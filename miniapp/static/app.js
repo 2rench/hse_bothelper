@@ -10,6 +10,10 @@ const state = {
     appearance: "light",
     sessions: [],
     currentSession: null,
+    weeks: [],
+    currentWeek: null,
+    defaultWeek: null,
+    selectedWeek: null,
 };
 
 
@@ -291,6 +295,54 @@ function updateScheduleHeader(view) {
 }
 
 
+async function loadWeeks() {
+    try {
+        const data = await api("/api/weeks");
+        state.weeks = data.weeks || [];
+        state.currentWeek = data.current_week;
+        state.defaultWeek = data.default_week;
+    } catch (error) {
+        state.weeks = [];
+        state.currentWeek = null;
+        state.defaultWeek = null;
+    }
+}
+
+
+function renderWeekPicker() {
+    const picker = $("weekPicker");
+    const list = $("weekPickerList");
+
+    if (!state.weeks || state.weeks.length <= 1) {
+        picker.hidden = true;
+        list.innerHTML = "";
+        return;
+    }
+
+    picker.hidden = false;
+
+    list.innerHTML = state.weeks
+        .map(week => {
+            const active = week === state.selectedWeek;
+            const label = week === state.currentWeek
+                ? `${week} · текущая`
+                : String(week);
+
+            return `
+                <button
+                    type="button"
+                    class="week-chip ${active ? "active" : ""}"
+                    data-action="select-week"
+                    data-week="${week}"
+                >
+                    ${escapeHtml(label)}
+                </button>
+            `;
+        })
+        .join("");
+}
+
+
 async function loadSchedule(view) {
     state.view = view;
 
@@ -302,6 +354,28 @@ async function loadSchedule(view) {
     container.innerHTML = `<div class="loading">Загружаем расписание…</div>`;
 
     try {
+        if (view === "week") {
+            if (!state.weeks.length) {
+                await loadWeeks();
+            }
+
+            if (state.selectedWeek == null) {
+                state.selectedWeek = state.defaultWeek;
+            }
+
+            renderWeekPicker();
+
+            const query = state.selectedWeek != null
+                ? `/api/schedule?view=week&week=${state.selectedWeek}`
+                : `/api/schedule?view=week`;
+
+            const data = await api(query);
+            renderSchedule(data);
+            return;
+        }
+
+        $("weekPicker").hidden = true;
+
         const data = await api(`/api/schedule?view=${view}`);
         renderSchedule(data);
     } catch (error) {
@@ -695,6 +769,15 @@ document.addEventListener("click", async event => {
 
     if (action === "theme") {
         await changeTheme(actionButton.dataset.theme);
+        return;
+    }
+
+    if (action === "select-week") {
+        const week = Number(actionButton.dataset.week);
+        if (week === state.selectedWeek) return;
+        haptic();
+        state.selectedWeek = week;
+        await loadSchedule("week");
         return;
     }
 
