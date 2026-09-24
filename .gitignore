@@ -13,4 +13,7 @@ files/downloaded/
 files/*.json
 
 .idea/
-.DS_Store
+.DS_Storevenv/
+__pycache__/
+*.pyc
+.env

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    >
+
+    <meta
+        name="theme-color"
+        content="#f5f5f3"
+    >
+
+    <title>HSE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://telegram.org/js/telegram-web-app.js?63"></script>
+
+    <link
+        rel="stylesheet"
+        href="/static/styles.css"
+    >
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <header class="topbar">
+        <div>
+            <div class="brand">HSE</div>
+            <div
+                class="topbar-subtitle"
+                id="topbarSubtitle"
+            >
+                Расписание
+            </div>
+        </div>
+
+        <button
+            class="avatar"
+            id="avatarButton"
+            type="button"
+        >
+            H
+        </button>
+    </header>
+
+
+    <main class="content">
+
+        <section
+            class="screen active"
+            id="screenSchedule"
+        >
+            <div class="screen-heading">
+
+                <div>
+                    <div
+                        class="eyebrow"
+                        id="scheduleEyebrow"
+                    >
+                        СЕГОДНЯ
+                    </div>
+
+                    <h1 id="scheduleTitle">
+                        Расписание
+                    </h1>
+                </div>
+
+                <button
+                    class="icon-button"
+                    id="refreshButton"
+                    type="button"
+                >
+                    ↻
+                </button>
+
+            </div>
+
+            <div
+                id="scheduleContainer"
+                class="schedule-container"
+            ></div>
+        </section>
+
+
+        <section
+            class="screen"
+            id="screenSessions"
+        >
+
+            <div class="screen-heading">
+                <div>
+                    <div class="eyebrow">
+                        РАЗДЕЛ
+                    </div>
+
+                    <h1>
+                        Сессия
+                    </h1>
+                </div>
+            </div>
+
+            <div
+                id="sessionsContainer"
+                class="sessions-list"
+            ></div>
+
+            <div
+                id="sessionLessonsContainer"
+                class="schedule-container"
+            ></div>
+
+        </section>
+
+
+        <section
+            class="screen"
+            id="screenProfile"
+        >
+
+            <div class="profile-hero">
+
+                <div
+                    class="profile-avatar"
+                    id="profileAvatar"
+                >
+                    H
+                </div>
+
+                <div>
+
+                    <div
+                        class="eyebrow"
+                        id="profileGreeting"
+                    >
+                        ПРОФИЛЬ
+                    </div>
+
+                    <h1 id="profileName">
+                        HSE
+                    </h1>
+
+                    <div
+                        class="profile-group"
+                        id="profileGroup"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="section-title">
+                Настройки
+            </div>
+
+
+            <div class="settings-card">
+
+                <button
+                    class="settings-row"
+                    data-action="excluded"
+                    type="button"
+                >
+                    <span class="settings-icon">
+                        ×
+                    </span>
+
+                    <span class="settings-copy">
+                        <strong>
+                            Исключить пары
+                        </strong>
+
+                        <small>
+                            Управление скрытыми предметами
+                        </small>
+                    </span>
+
+                    <span class="settings-arrow">
+                        →
+                    </span>
+                </button>
+
+
+                <button
+                    class="settings-row"
+                    data-action="calendar"
+                    type="button"
+                >
+                    <span class="settings-icon">
+                        ○
+                    </span>
+
+                    <span class="settings-copy">
+                        <strong>
+                            Календарь
+                        </strong>
+
+                        <small>
+                            Подписка на расписание
+                        </small>
+                    </span>
+
+                    <span class="settings-arrow">
+                        →
+                    </span>
+                </button>
+
+            </div>
+
+
+            <div class="section-title">
+                Уведомления
+            </div>
+
+
+            <div class="settings-card">
+
+                <button
+                    class="settings-row"
+                    id="scheduleUpdatesButton"
+                    data-action="toggle-notification"
+                    data-field="schedule_updates"
+                    type="button"
+                >
+                    <span class="settings-icon">
+                        ↗
+                    </span>
+
+                    <span class="settings-copy">
+                        <strong>
+                            Изменения расписания
+                        </strong>
+
+                        <small>
+                            Уведомления о новых изменениях
+                        </small>
+                    </span>
+
+                    <span
+                        class="toggle-value"
+                        id="scheduleUpdatesValue"
+                    >
+                        —
+                    </span>
+                </button>
+
+
+                <button
+                    class="settings-row"
+                    id="tomorrowButton"
+                    data-action="toggle-notification"
+                    data-field="tomorrow_notifications"
+                    type="button"
+                >
+                    <span class="settings-icon">
+                        ◐
+                    </span>
+
+                    <span class="settings-copy">
+                        <strong>
+                            Завтрашнее расписание
+                        </strong>
+
+                        <small>
+                            Напоминание о парах
+                        </small>
+                    </span>
+
+                    <span
+                        class="toggle-value"
+                        id="tomorrowValue"
+                    >
+                        —
+                    </span>
+                </button>
+
+            </div>
+
+
+            <div class="section-title">
+                Оформление
+            </div>
+
+
+            <div class="settings-card appearance-card">
+
+                <div class="appearance-title">
+                    Интерфейс
+                </div>
+
+                <div
+                    class="segmented"
+                    id="appearanceControl"
+                >
+
+                    <button
+                        type="button"
+                        data-appearance="light"
+                    >
+                        Светлая
+                    </button>
+
+                    <button
+                        type="button"
+                        data-appearance="dark"
+                    >
+                        Тёмная
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="themes-grid"
+                id="themesGrid"
+            ></div>
+
+        </section>
+
+
+        <section
+            class="screen"
+            id="screenExcluded"
+        >
+
+            <div class="screen-heading">
+
+                <div>
+                    <div class="eyebrow">
+                        ПРОФИЛЬ
+                    </div>
+
+                    <h1>
+                        Исключить пары
+                    </h1>
+                </div>
+
+            </div>
+
+            <p class="screen-description">
+                Нажми на предмет, чтобы скрыть его
+                из сегодняшнего, завтрашнего и
+                недельного расписания.
+            </p>
+
+            <div
+                class="excluded-grid"
+                id="excludedGrid"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <nav class="bottom-nav">
+
+        <button
+            class="nav-item active"
+            data-view="today"
+            type="button"
+        >
+            <span>○</span>
+            <small>Сегодня</small>
+        </button>
+
+        <button
+            class="nav-item"
+            data-view="tomorrow"
+            type="button"
+        >
+            <span>◐</span>
+            <small>Завтра</small>
+        </button>
+
+        <button
+            class="nav-item"
+            data-view="week"
+            type="button"
+        >
+            <span>▤</span>
+            <small>Неделя</small>
+        </button>
+
+        <button
+            class="nav-item"
+            data-view="sessions"
+            type="button"
+        >
+            <span>△</span>
+            <small>Сессия</small>
+        </button>
+
+        <button
+            class="nav-item"
+            data-view="profile"
+            type="button"
+        >
+            <span>◉</span>
+            <small>Профиль</small>
+        </button>
+
+    </nav>
+
+</div>
+
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>

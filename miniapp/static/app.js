@@ -1,0 +1,1482 @@
+const tg = window.Telegram.WebApp;
+
+
+const state = {
+    identity: null,
+    profile: null,
+    theme: null,
+    themes: [],
+    view: "today",
+    appearance: "light",
+    sessions: [],
+    currentSession: null,
+};
+
+
+const screenIds = {
+    today: "screenSchedule",
+    tomorrow: "screenSchedule",
+    week: "screenSchedule",
+    sessions: "screenSessions",
+    profile: "screenProfile",
+    excluded: "screenExcluded",
+};
+
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function haptic() {
+    try {
+        tg.HapticFeedback.impactOccurred(
+            "light"
+        );
+    } catch (error) {
+        // Telegram client may not support haptics.
+    }
+}
+
+
+function showToast(text) {
+
+    const toast = $("toast");
+
+    toast.textContent = text;
+
+    toast.classList.add(
+        "visible"
+    );
+
+    window.clearTimeout(
+        showToast.timer
+    );
+
+    showToast.timer = setTimeout(
+        () => {
+            toast.classList.remove(
+                "visible"
+            );
+        },
+        1800
+    );
+}
+
+
+async function api(
+    url,
+    options = {},
+) {
+
+    const headers = {
+        ...(options.headers || {}),
+        "X-Telegram-Init-Data":
+            tg.initData || "",
+    };
+
+    if (
+        options.body
+        && !headers["Content-Type"]
+    ) {
+        headers["Content-Type"] =
+            "application/json";
+    }
+
+    const response = await fetch(
+        url,
+        {
+            ...options,
+            headers,
+        }
+    );
+
+    let data = null;
+
+    try {
+        data = await response.json();
+    } catch (error) {
+        data = {};
+    }
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.detail
+            || "Ошибка запроса"
+        );
+    }
+
+    return data;
+}
+
+
+function getSavedAppearance() {
+
+    const saved =
+        localStorage.getItem(
+            "hse-appearance"
+        );
+
+    if (
+        saved === "light"
+        || saved === "dark"
+    ) {
+        return saved;
+    }
+
+    return tg.colorScheme === "dark"
+        ? "dark"
+        : "light";
+}
+
+
+function applyAppearance() {
+
+    state.appearance =
+        state.appearance
+        || getSavedAppearance();
+
+    document.documentElement.dataset.mode =
+        state.appearance;
+
+    document.documentElement.dataset.displayTheme =
+        state.profile?.theme
+        || "default";
+
+    document
+        .querySelectorAll(
+            "[data-appearance]"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.appearance
+                    === state.appearance
+                );
+            }
+        );
+}
+
+
+function setAppearance(
+    appearance
+) {
+
+    state.appearance =
+        appearance;
+
+    localStorage.setItem(
+        "hse-appearance",
+        appearance
+    );
+
+    applyAppearance();
+
+    haptic();
+}
+
+
+function showScreen(
+    screen
+) {
+
+    Object.entries(
+        screenIds
+    ).forEach(
+        ([key, id]) => {
+
+            const element = $(
+                id
+            );
+
+            element.classList.toggle(
+                "active",
+                key === screen
+            );
+        }
+    );
+
+    const bottomNav =
+        document.querySelector(
+            ".bottom-nav"
+        );
+
+    const isNested =
+        screen === "excluded";
+
+    bottomNav.style.display =
+        isNested
+            ? "none"
+            : "";
+
+    if (isNested) {
+        tg.BackButton.show();
+    } else {
+        tg.BackButton.hide();
+    }
+}
+
+
+function setActiveNav(
+    view
+) {
+
+    document
+        .querySelectorAll(
+            ".nav-item"
+        )
+        .forEach(
+            button => {
+
+                button.classList.toggle(
+                    "active",
+                    button.dataset.view
+                    === view
+                );
+            }
+        );
+}
+
+
+async function loadBootstrap() {
+
+    const data = await api(
+        "/api/bootstrap"
+    );
+
+    state.identity =
+        data.identity;
+
+    state.profile =
+        data.user;
+
+    state.theme =
+        data.theme;
+
+    state.themes =
+        data.themes;
+
+    renderProfile();
+
+    renderThemes();
+
+    applyAppearance();
+}
+
+
+function renderProfile() {
+
+    const firstName =
+        state.identity?.first_name
+        || "Студент";
+
+    const group =
+        state.profile?.group_name
+        || "Группа не выбрана";
+
+    $("profileName").textContent =
+        firstName;
+
+    $("profileGreeting").textContent =
+        "ПРОФИЛЬ";
+
+    $("profileGroup").textContent =
+        group;
+
+    $("topbarSubtitle").textContent =
+        group === "Группа не выбрана"
+            ? "Расписание"
+            : group;
+
+    const avatarLetter =
+        firstName
+            .trim()
+            .charAt(0)
+            .toUpperCase()
+        || "H";
+
+    $("avatarButton")
+        .textContent =
+        avatarLetter;
+
+    $("profileAvatar")
+        .textContent =
+        avatarLetter;
+
+    renderNotificationValues();
+}
+
+
+function renderNotificationValues() {
+
+    const updates =
+        state.profile?.schedule_updates;
+
+    const tomorrow =
+        state.profile?.tomorrow_notifications;
+
+    const updatesElement =
+        $("scheduleUpdatesValue");
+
+    const tomorrowElement =
+        $("tomorrowValue");
+
+    updatesElement.textContent =
+        updates
+            ? "ВКЛ"
+            : "ВЫКЛ";
+
+    tomorrowElement.textContent =
+        tomorrow
+            ? "ВКЛ"
+            : "ВЫКЛ";
+
+    updatesElement.classList.toggle(
+        "active",
+        Boolean(updates)
+    );
+
+    tomorrowElement.classList.toggle(
+        "active",
+        Boolean(tomorrow)
+    );
+}
+
+
+function renderThemes() {
+
+    const container =
+        $("themesGrid");
+
+    container.innerHTML = "";
+
+    state.themes.forEach(
+        theme => {
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+            button.type = "button";
+
+            button.className =
+                "theme-card";
+
+            button.dataset.action =
+                "theme";
+
+            button.dataset.theme =
+                theme.id;
+
+            if (
+                theme.id
+                === state.profile.theme
+            ) {
+                button.classList.add(
+                    "active"
+                );
+            }
+
+            button.innerHTML = `
+                <div class="theme-symbol">
+                    ${escapeHtml(
+                        theme.symbol
+                    )}
+                </div>
+
+                <div class="theme-name">
+                    ${escapeHtml(
+                        theme.name
+                    )}
+                </div>
+
+                <div class="theme-id">
+                    ${escapeHtml(
+                        theme.id
+                    )}
+                </div>
+            `;
+
+            container.appendChild(
+                button
+            );
+        }
+    );
+}
+
+
+function updateScheduleHeader(
+    view
+) {
+
+    const titles = {
+        today: "Сегодня",
+        tomorrow: "Завтра",
+        week: "Неделя",
+    };
+
+    const eyebrows = {
+        today: "СЕГОДНЯ",
+        tomorrow: "ЗАВТРА",
+        week: "7 ДНЕЙ",
+    };
+
+    $("scheduleTitle")
+        .textContent =
+        titles[view];
+
+    $("scheduleEyebrow")
+        .textContent =
+        eyebrows[view];
+}
+
+
+async function loadSchedule(
+    view
+) {
+
+    state.view = view;
+
+    showScreen(
+        view
+    );
+
+    setActiveNav(
+        view
+    );
+
+    updateScheduleHeader(
+        view
+    );
+
+    const container =
+        $("scheduleContainer");
+
+    container.innerHTML = `
+        <div class="loading">
+            Загружаем расписание…
+        </div>
+    `;
+
+    try {
+
+        const data =
+            await api(
+                `/api/schedule?view=${view}`
+            );
+
+        renderSchedule(
+            data
+        );
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">
+                    !
+                </div>
+                <p>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </p>
+            </div>
+        `;
+    }
+}
+
+
+function renderSchedule(
+    data
+) {
+
+    const container =
+        $("scheduleContainer");
+
+    if (!data.lessons.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-symbol">
+                    ${escapeHtml(
+                        state.theme?.tokens?.lesson
+                        || "○"
+                    )}
+                </div>
+
+                <p>
+                    ${escapeHtml(
+                        data.empty_message
+                    )}
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    if (
+        data.view === "week"
+    ) {
+
+        renderWeek(
+            data.lessons
+        );
+
+        return;
+    }
+
+    container.innerHTML =
+        data.lessons
+            .map(
+                lessonCard
+            )
+            .join("");
+}
+
+
+function renderWeek(
+    lessons
+) {
+
+    const grouped = {};
+
+    lessons.forEach(
+        lesson => {
+
+            const key =
+                `${lesson.day}|${lesson.date}`;
+
+            if (!grouped[key]) {
+                grouped[key] = [];
+            }
+
+            grouped[key].push(
+                lesson
+            );
+        }
+    );
+
+    const container =
+        $("scheduleContainer");
+
+    container.innerHTML =
+        Object.entries(
+            grouped
+        )
+            .map(
+                ([key, dayLessons]) => {
+
+                    const [
+                        day,
+                        date,
+                    ] = key.split("|");
+
+                    return `
+                        <section
+                            class="day-section"
+                        >
+
+                            <div class="day-title">
+                                ${escapeHtml(
+                                    day
+                                )}
+                                ·
+                                ${escapeHtml(
+                                    date
+                                )}
+                            </div>
+
+                            <div
+                                class="schedule-container"
+                            >
+                                ${dayLessons
+                                    .map(
+                                        lessonCard
+                                    )
+                                    .join("")
+                                }
+                            </div>
+
+                        </section>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+function lessonCard(
+    lesson
+) {
+
+    const tokens =
+        state.theme?.tokens
+        || {};
+
+    const meta = [];
+
+    if (
+        lesson.lesson_type
+    ) {
+        meta.push(
+            `
+            <span class="meta-chip accent">
+                ${escapeHtml(
+                    tokens.type || "•"
+                )}
+                ${escapeHtml(
+                    lesson.lesson_type
+                )}
+            </span>
+            `
+        );
+    }
+
+    if (
+        lesson.teacher
+    ) {
+        meta.push(
+            `
+            <span class="meta-chip">
+                ${escapeHtml(
+                    lesson.teacher
+                )}
+            </span>
+            `
+        );
+    }
+
+    if (
+        lesson.room
+    ) {
+
+        let roomText =
+            lesson.room;
+
+        if (
+            lesson.building
+        ) {
+
+            roomText +=
+                ` · ${lesson.building}`;
+        }
+
+        meta.push(
+            `
+            <span class="meta-chip">
+                ${escapeHtml(
+                    tokens.room || "•"
+                )}
+                ${escapeHtml(
+                    roomText
+                )}
+            </span>
+            `
+        );
+    }
+
+    if (
+        lesson.is_online
+    ) {
+
+        meta.push(
+            `
+            <span class="meta-chip accent">
+                ${escapeHtml(
+                    tokens.online
+                    || "Онлайн"
+                )}
+            </span>
+            `
+        );
+    }
+
+    return `
+        <article class="lesson-card">
+
+            <div class="lesson-top">
+
+                <div>
+
+                    <div class="lesson-time">
+                        ${escapeHtml(
+                            lesson.lesson_time
+                            || "—"
+                        )}
+                    </div>
+
+                    <div class="lesson-number">
+                        ${escapeHtml(
+                            lesson.lesson_number
+                            || ""
+                        )}
+                        пара
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="lesson-subject">
+
+                ${escapeHtml(
+                    tokens.subject || "•"
+                )}
+                ${escapeHtml(
+                    lesson.subject
+                )}
+
+            </div>
+
+
+            ${
+                meta.length
+                    ? `
+                        <div class="lesson-meta">
+                            ${meta.join("")}
+                        </div>
+                    `
+                    : ""
+            }
+
+        </article>
+    `;
+}
+
+
+async function openSessions() {
+
+    showScreen(
+        "sessions"
+    );
+
+    setActiveNav(
+        "sessions"
+    );
+
+    $("sessionsContainer")
+        .innerHTML = `
+            <div class="loading">
+                Загружаем…
+            </div>
+        `;
+
+    $("sessionLessonsContainer")
+        .innerHTML = "";
+
+    try {
+
+        const data =
+            await api(
+                "/api/sessions"
+            );
+
+        state.sessions =
+            data.sessions;
+
+        renderSessions();
+
+    } catch (error) {
+
+        $("sessionsContainer")
+            .innerHTML = `
+                <div class="empty-state">
+                    <p>
+                        ${escapeHtml(
+                            error.message
+                        )}
+                    </p>
+                </div>
+            `;
+    }
+}
+
+
+function renderSessions() {
+
+    const container =
+        $("sessionsContainer");
+
+    if (
+        !state.sessions.length
+    ) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">
+                    —
+                </div>
+                <p>
+                    Сессий пока нет.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        state.sessions
+            .map(
+                (session, index) => `
+                    <button
+                        type="button"
+                        class="session-button ${
+                            state.currentSession
+                            === session
+                                ? "active"
+                                : ""
+                        }"
+                        data-action="session"
+                        data-session="${escapeAttribute(
+                            session
+                        )}"
+                    >
+                        ${escapeHtml(
+                            session
+                        )}
+                    </button>
+                `
+            )
+            .join("");
+}
+
+
+async function openSession(
+    session
+) {
+
+    state.currentSession =
+        session;
+
+    renderSessions();
+
+    const container =
+        $("sessionLessonsContainer");
+
+    container.innerHTML = `
+        <div class="loading">
+            Загружаем…
+        </div>
+    `;
+
+    try {
+
+        const data =
+            await api(
+                `/api/sessions/${encodeURIComponent(
+                    session
+                )}`
+            );
+
+        if (
+            !data.lessons.length
+        ) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>
+                        Для этой сессии
+                        расписания нет.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            data.lessons
+                .map(
+                    lessonCard
+                )
+                .join("");
+
+    } catch (error) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>
+                    ${escapeHtml(
+                        error.message
+                    )}
+                </p>
+            </div>
+        `;
+    }
+}
+
+
+async function openExcluded() {
+
+    showScreen(
+        "excluded"
+    );
+
+    try {
+
+        const data =
+            await api(
+                "/api/excluded-subjects"
+            );
+
+        renderExcluded(
+            data
+        );
+
+    } catch (error) {
+
+        $("excludedGrid")
+            .innerHTML = `
+                <div class="empty-state">
+                    <p>
+                        ${escapeHtml(
+                            error.message
+                        )}
+                    </p>
+                </div>
+            `;
+    }
+}
+
+
+function renderExcluded(
+    data
+) {
+
+    const container =
+        $("excludedGrid");
+
+    if (!data.subjects.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">
+                    —
+                </div>
+                <p>
+                    На этой неделе предметов нет.
+                </p>
+            </div>
+        `;
+
+        return;
+    }
+
+    const excluded =
+        new Set(
+            data.excluded
+        );
+
+    container.innerHTML =
+        data.subjects
+            .map(
+                subject => {
+
+                    const active =
+                        excluded.has(
+                            subject
+                        );
+
+                    return `
+                        <button
+                            type="button"
+                            class="excluded-item ${
+                                active
+                                    ? "active"
+                                    : ""
+                            }"
+                            data-action="toggle-excluded"
+                            data-subject="${escapeAttribute(
+                                subject
+                            )}"
+                        >
+
+                            <span class="subject-name">
+                                ${escapeHtml(
+                                    subject
+                                )}
+                            </span>
+
+                            <span class="subject-mark">
+                                ${
+                                    active
+                                        ? "×"
+                                        : "＋"
+                                }
+                            </span>
+
+                        </button>
+                    `;
+                }
+            )
+            .join("");
+}
+
+
+async function toggleExcluded(
+    subject
+) {
+
+    haptic();
+
+    try {
+
+        const data =
+            await api(
+                "/api/excluded-subjects/toggle",
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        subject,
+                    }),
+                }
+            );
+
+        const current =
+            await api(
+                "/api/excluded-subjects"
+            );
+
+        state.profile
+            .excluded_subjects =
+            data.excluded;
+
+        renderExcluded(
+            current
+        );
+
+        showToast(
+            data.excluded.includes(
+                subject
+            )
+                ? "Пара исключена"
+                : "Пара снова включена"
+        );
+
+    } catch (error) {
+
+        showToast(
+            error.message
+        );
+    }
+}
+
+
+async function changeTheme(
+    theme
+) {
+
+    if (
+        theme === state.profile.theme
+    ) {
+        return;
+    }
+
+    haptic();
+
+    try {
+
+        const data =
+            await api(
+                "/api/theme",
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        theme,
+                    }),
+                }
+            );
+
+        state.profile.theme =
+            theme;
+
+        state.theme =
+            data.theme;
+
+        renderThemes();
+
+        applyAppearance();
+
+        showToast(
+            `Оформление: ${data.theme.name}`
+        );
+
+    } catch (error) {
+
+        showToast(
+            error.message
+        );
+    }
+}
+
+
+async function toggleNotification(
+    field
+) {
+
+    haptic();
+
+    try {
+
+        const data =
+            await api(
+                "/api/notifications/toggle",
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        field,
+                    }),
+                }
+            );
+
+        state.profile
+            .schedule_updates =
+            data.schedule_updates;
+
+        state.profile
+            .tomorrow_notifications =
+            data.tomorrow_notifications;
+
+        renderNotificationValues();
+
+    } catch (error) {
+
+        showToast(
+            error.message
+        );
+    }
+}
+
+
+async function openCalendar() {
+
+    try {
+
+        const data =
+            await api(
+                "/api/calendar"
+            );
+
+        tg.openLink(
+            data.https_url
+        );
+
+    } catch (error) {
+
+        showToast(
+            error.message
+        );
+    }
+}
+
+
+document.addEventListener(
+    "click",
+    async event => {
+
+        const nav =
+            event.target.closest(
+                ".nav-item"
+            );
+
+        if (nav) {
+
+            const view =
+                nav.dataset.view;
+
+            haptic();
+
+            if (
+                view === "sessions"
+            ) {
+
+                await openSessions();
+
+                return;
+            }
+
+            if (
+                view === "profile"
+            ) {
+
+                showScreen(
+                    "profile"
+                );
+
+                setActiveNav(
+                    "profile"
+                );
+
+                return;
+            }
+
+            await loadSchedule(
+                view
+            );
+
+            return;
+        }
+
+
+        const appearance =
+            event.target.closest(
+                "[data-appearance]"
+            );
+
+        if (appearance) {
+
+            setAppearance(
+                appearance.dataset
+                    .appearance
+            );
+
+            return;
+        }
+
+
+        const actionButton =
+            event.target.closest(
+                "[data-action]"
+            );
+
+        if (!actionButton) {
+            return;
+        }
+
+        const action =
+            actionButton.dataset
+                .action;
+
+        if (
+            action === "excluded"
+        ) {
+
+            haptic();
+
+            await openExcluded();
+
+            return;
+        }
+
+
+        if (
+            action === "calendar"
+        ) {
+
+            haptic();
+
+            await openCalendar();
+
+            return;
+        }
+
+
+        if (
+            action === "theme"
+        ) {
+
+            await changeTheme(
+                actionButton.dataset
+                    .theme
+            );
+
+            return;
+        }
+
+
+        if (
+            action === "session"
+        ) {
+
+            haptic();
+
+            await openSession(
+                actionButton.dataset
+                    .session
+            );
+
+            return;
+        }
+
+
+        if (
+            action === "toggle-excluded"
+        ) {
+
+            await toggleExcluded(
+                actionButton.dataset
+                    .subject
+            );
+
+            return;
+        }
+
+
+        if (
+            action ===
+            "toggle-notification"
+        ) {
+
+            await toggleNotification(
+                actionButton.dataset
+                    .field
+            );
+        }
+    }
+);
+
+
+$("refreshButton")
+    .addEventListener(
+        "click",
+        async () => {
+
+            haptic();
+
+            await loadSchedule(
+                state.view
+            );
+        }
+    );
+
+
+$("avatarButton")
+    .addEventListener(
+        "click",
+        () => {
+
+            showScreen(
+                "profile"
+            );
+
+            setActiveNav(
+                "profile"
+            );
+        }
+    );
+
+
+tg.BackButton.onClick(
+    () => {
+
+        showScreen(
+            "profile"
+        );
+
+        setActiveNav(
+            "profile"
+        );
+    }
+);
+
+
+tg.onEvent(
+    "themeChanged",
+    () => {
+
+        if (
+            !localStorage.getItem(
+                "hse-appearance"
+            )
+        ) {
+
+            state.appearance =
+                tg.colorScheme
+                === "dark"
+                    ? "dark"
+                    : "light";
+
+            applyAppearance();
+        }
+    }
+);
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
+}
+
+
+function escapeAttribute(
+    value
+) {
+    return escapeHtml(
+        value
+    );
+}
+
+
+async function init() {
+
+    tg.ready();
+
+    tg.expand();
+
+    state.appearance =
+        getSavedAppearance();
+
+    applyAppearance();
+
+    try {
+
+        await loadBootstrap();
+
+        await loadSchedule(
+            "today"
+        );
+
+    } catch (error) {
+
+        $("scheduleContainer")
+            .innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-symbol">
+                        !
+                    </div>
+                    <p>
+                        ${escapeHtml(
+                            error.message
+                        )}
+                    </p>
+                </div>
+            `;
+    }
+}
+
+
+init();
