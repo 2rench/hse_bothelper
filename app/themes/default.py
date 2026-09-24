@@ -9,7 +9,7 @@ THEME = {
 
     "subject": "🎾",
 
-    "type": "😴",
+    "type": "⚡",
 
     "room": "🏫",
 

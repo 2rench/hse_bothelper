@@ -1,5 +1,5 @@
 THEME = {
-    "no_lessons": "🎉 No classes today",
+    "no_lessons": "🎉 No classes",
 
     "pairs": "Classes",
 
