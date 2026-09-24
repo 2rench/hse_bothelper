@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Literal
 from urllib.parse import parse_qsl
+from zoneinfo import ZoneInfo
 
 from fastapi import (
     FastAPI,
@@ -64,6 +65,8 @@ CALENDAR_BASE_URL = os.getenv(
     "CALENDAR_BASE_URL"
 )
 
+MSK = ZoneInfo("Europe/Moscow")
+
 
 app = FastAPI(
     title="HSE Mini App",
@@ -78,14 +81,14 @@ app.mount(
 
 
 THEME_NAMES = {
-    "default": "Standard",
-    "lux": "Luxury Girl",
-    "clean": "Clean Girl",
-    "brat": "Brother",
-    "it": "IT",
-    "english": "English",
-    "french": "French",
-    "chinese": "Chinese",
+    "default": "Классика",
+    "lux": "Люкс",
+    "clean": "Мягкий",
+    "brat": "Контраст",
+    "it": "Техно",
+    "english": "Английский",
+    "french": "Французский",
+    "chinese": "Китайский",
 }
 
 
@@ -119,10 +122,6 @@ class NotificationToggleRequest(BaseModel):
 def validate_init_data(
     init_data: str,
 ) -> dict:
-    """
-    Проверяет Telegram Mini App initData
-    и возвращает данные пользователя.
-    """
 
     if not BOT_TOKEN:
         raise HTTPException(
@@ -499,7 +498,7 @@ async def schedule(
 
     if view == "today":
 
-        date = datetime.now().strftime(
+        date = datetime.now(MSK).strftime(
             "%d.%m.%Y"
         )
 
@@ -517,7 +516,7 @@ async def schedule(
     elif view == "tomorrow":
 
         date = (
-            datetime.now()
+            datetime.now(MSK)
             + timedelta(days=1)
         ).strftime(
             "%d.%m.%Y"

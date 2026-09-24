@@ -1,4 +1,4 @@
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp || {};
 
 
 const state = {
@@ -30,69 +30,39 @@ function $(id) {
 
 function haptic() {
     try {
-        tg.HapticFeedback.impactOccurred(
-            "light"
-        );
+        tg.HapticFeedback.impactOccurred("light");
     } catch (error) {
-        // Telegram client may not support haptics.
+        // ignore
     }
 }
 
 
 function showToast(text) {
-
     const toast = $("toast");
-
     toast.textContent = text;
+    toast.classList.add("visible");
 
-    toast.classList.add(
-        "visible"
-    );
-
-    window.clearTimeout(
-        showToast.timer
-    );
-
+    window.clearTimeout(showToast.timer);
     showToast.timer = setTimeout(
-        () => {
-            toast.classList.remove(
-                "visible"
-            );
-        },
+        () => toast.classList.remove("visible"),
         1800
     );
 }
 
 
-async function api(
-    url,
-    options = {},
-) {
-
+async function api(url, options = {}) {
     const headers = {
         ...(options.headers || {}),
-        "X-Telegram-Init-Data":
-            tg.initData || "",
+        "X-Telegram-Init-Data": tg.initData || "",
     };
 
-    if (
-        options.body
-        && !headers["Content-Type"]
-    ) {
-        headers["Content-Type"] =
-            "application/json";
+    if (options.body && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
     }
 
-    const response = await fetch(
-        url,
-        {
-            ...options,
-            headers,
-        }
-    );
+    const response = await fetch(url, { ...options, headers });
 
     let data = null;
-
     try {
         data = await response.json();
     } catch (error) {
@@ -100,191 +70,148 @@ async function api(
     }
 
     if (!response.ok) {
-
-        throw new Error(
-            data.detail
-            || "Ошибка запроса"
-        );
+        const message =
+            data?.detail ||
+            `Ошибка ${response.status}`;
+        const err = new Error(message);
+        err.status = response.status;
+        throw err;
     }
 
     return data;
 }
 
 
+function setupInsets() {
+    try {
+        const insets = tg.contentSafeAreaInset || {};
+        const top = insets.top || 56;
+        const bottom = insets.bottom || 0;
+        const root = document.documentElement;
+        root.style.setProperty("--inset-top", `${top}px`);
+        root.style.setProperty("--inset-bottom", `${bottom}px`);
+    } catch (error) {
+        // ignore
+    }
+}
+
+
 function getSavedAppearance() {
+    const saved = localStorage.getItem("hse-appearance");
 
-    const saved =
-        localStorage.getItem(
-            "hse-appearance"
-        );
-
-    if (
-        saved === "light"
-        || saved === "dark"
-    ) {
+    if (saved === "light" || saved === "dark") {
         return saved;
     }
 
-    return tg.colorScheme === "dark"
-        ? "dark"
-        : "light";
+    return tg.colorScheme === "dark" ? "dark" : "light";
 }
 
 
 function applyAppearance() {
+    state.appearance = state.appearance || getSavedAppearance();
 
-    state.appearance =
-        state.appearance
-        || getSavedAppearance();
-
-    document.documentElement.dataset.mode =
-        state.appearance;
-
+    document.documentElement.dataset.mode = state.appearance;
     document.documentElement.dataset.displayTheme =
-        state.profile?.theme
-        || "default";
+        state.profile?.theme || "default";
 
     document
-        .querySelectorAll(
-            "[data-appearance]"
-        )
-        .forEach(
-            button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.appearance
-                    === state.appearance
-                );
-            }
-        );
-}
-
-
-function setAppearance(
-    appearance
-) {
-
-    state.appearance =
-        appearance;
-
-    localStorage.setItem(
-        "hse-appearance",
-        appearance
-    );
-
-    applyAppearance();
-
-    haptic();
-}
-
-
-function showScreen(
-    screen
-) {
-
-    Object.entries(
-        screenIds
-    ).forEach(
-        ([key, id]) => {
-
-            const element = $(
-                id
-            );
-
-            element.classList.toggle(
+        .querySelectorAll("[data-appearance]")
+        .forEach(button => {
+            button.classList.toggle(
                 "active",
-                key === screen
+                button.dataset.appearance === state.appearance
             );
+        });
+
+    syncTelegramChrome();
+}
+
+
+function syncTelegramChrome() {
+    try {
+        const bg = getComputedStyle(document.documentElement)
+            .getPropertyValue("--bg")
+            .trim();
+
+        if (bg && typeof tg.setHeaderColor === "function") {
+            tg.setHeaderColor(bg);
         }
-    );
-
-    const bottomNav =
-        document.querySelector(
-            ".bottom-nav"
-        );
-
-    const isNested =
-        screen === "excluded";
-
-    bottomNav.style.display =
-        isNested
-            ? "none"
-            : "";
-
-    if (isNested) {
-        tg.BackButton.show();
-    } else {
-        tg.BackButton.hide();
+        if (bg && typeof tg.setBackgroundColor === "function") {
+            tg.setBackgroundColor(bg);
+        }
+    } catch (error) {
+        // ignore
     }
 }
 
 
-function setActiveNav(
-    view
-) {
+function setAppearance(appearance) {
+    state.appearance = appearance;
+    localStorage.setItem("hse-appearance", appearance);
+    applyAppearance();
+    haptic();
+}
 
+
+function showScreen(screen) {
+    Object.entries(screenIds).forEach(([key, id]) => {
+        const element = $(id);
+        if (!element) return;
+        element.classList.toggle("active", key === screen);
+    });
+
+    const bottomNav = document.querySelector(".bottom-nav");
+    const isNested = screen === "excluded";
+
+    if (bottomNav) {
+        bottomNav.style.display = isNested ? "none" : "";
+    }
+
+    try {
+        if (isNested) {
+            tg.BackButton?.show();
+        } else {
+            tg.BackButton?.hide();
+        }
+    } catch (error) {
+        // ignore
+    }
+}
+
+
+function setActiveNav(view) {
     document
-        .querySelectorAll(
-            ".nav-item"
-        )
-        .forEach(
-            button => {
-
-                button.classList.toggle(
-                    "active",
-                    button.dataset.view
-                    === view
-                );
-            }
-        );
+        .querySelectorAll(".nav-item")
+        .forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.view === view
+            );
+        });
 }
 
 
 async function loadBootstrap() {
+    const data = await api("/api/bootstrap");
 
-    const data = await api(
-        "/api/bootstrap"
-    );
-
-    state.identity =
-        data.identity;
-
-    state.profile =
-        data.user;
-
-    state.theme =
-        data.theme;
-
-    state.themes =
-        data.themes;
+    state.identity = data.identity;
+    state.profile = data.user;
+    state.theme = data.theme;
+    state.themes = data.themes;
 
     renderProfile();
-
     renderThemes();
-
     applyAppearance();
 }
 
 
 function renderProfile() {
+    const firstName = state.identity?.first_name || "Студент";
+    const group = state.profile?.group_name || "Группа не выбрана";
 
-    const firstName =
-        state.identity?.first_name
-        || "Студент";
-
-    const group =
-        state.profile?.group_name
-        || "Группа не выбрана";
-
-    $("profileName").textContent =
-        firstName;
-
-    $("profileGreeting").textContent =
-        "ПРОФИЛЬ";
-
-    $("profileGroup").textContent =
-        group;
+    $("profileName").textContent = firstName;
+    $("profileGreeting").textContent = "ПРОФИЛЬ";
+    $("profileGroup").textContent = group;
 
     $("topbarSubtitle").textContent =
         group === "Группа не выбрана"
@@ -292,127 +219,61 @@ function renderProfile() {
             : group;
 
     const avatarLetter =
-        firstName
-            .trim()
-            .charAt(0)
-            .toUpperCase()
-        || "H";
+        (firstName.trim().charAt(0) || "H").toUpperCase();
 
-    $("avatarButton")
-        .textContent =
-        avatarLetter;
-
-    $("profileAvatar")
-        .textContent =
-        avatarLetter;
+    $("avatarButton").textContent = avatarLetter;
+    $("profileAvatar").textContent = avatarLetter;
 
     renderNotificationValues();
 }
 
 
 function renderNotificationValues() {
+    const updates = state.profile?.schedule_updates;
+    const tomorrow = state.profile?.tomorrow_notifications;
 
-    const updates =
-        state.profile?.schedule_updates;
+    const updatesElement = $("scheduleUpdatesValue");
+    const tomorrowElement = $("tomorrowValue");
 
-    const tomorrow =
-        state.profile?.tomorrow_notifications;
+    updatesElement.textContent = updates ? "ВКЛ" : "ВЫКЛ";
+    tomorrowElement.textContent = tomorrow ? "ВКЛ" : "ВЫКЛ";
 
-    const updatesElement =
-        $("scheduleUpdatesValue");
-
-    const tomorrowElement =
-        $("tomorrowValue");
-
-    updatesElement.textContent =
-        updates
-            ? "ВКЛ"
-            : "ВЫКЛ";
-
-    tomorrowElement.textContent =
-        tomorrow
-            ? "ВКЛ"
-            : "ВЫКЛ";
-
-    updatesElement.classList.toggle(
-        "active",
-        Boolean(updates)
-    );
-
-    tomorrowElement.classList.toggle(
-        "active",
-        Boolean(tomorrow)
-    );
+    updatesElement.classList.toggle("active", Boolean(updates));
+    tomorrowElement.classList.toggle("active", Boolean(tomorrow));
 }
 
 
 function renderThemes() {
-
-    const container =
-        $("themesGrid");
-
+    const container = $("themesGrid");
     container.innerHTML = "";
 
-    state.themes.forEach(
-        theme => {
+    state.themes.forEach(theme => {
+        const button = document.createElement("button");
 
-            const button =
-                document.createElement(
-                    "button"
-                );
+        button.type = "button";
+        button.className = "theme-card";
+        button.dataset.action = "theme";
+        button.dataset.theme = theme.id;
 
-            button.type = "button";
-
-            button.className =
-                "theme-card";
-
-            button.dataset.action =
-                "theme";
-
-            button.dataset.theme =
-                theme.id;
-
-            if (
-                theme.id
-                === state.profile.theme
-            ) {
-                button.classList.add(
-                    "active"
-                );
-            }
-
-            button.innerHTML = `
-                <div class="theme-symbol">
-                    ${escapeHtml(
-                        theme.symbol
-                    )}
-                </div>
-
-                <div class="theme-name">
-                    ${escapeHtml(
-                        theme.name
-                    )}
-                </div>
-
-                <div class="theme-id">
-                    ${escapeHtml(
-                        theme.id
-                    )}
-                </div>
-            `;
-
-            container.appendChild(
-                button
-            );
+        if (theme.id === state.profile.theme) {
+            button.classList.add("active");
         }
-    );
+
+        button.innerHTML = `
+            <div class="theme-symbol">
+                ${escapeHtml(theme.symbol)}
+            </div>
+            <div class="theme-name">
+                ${escapeHtml(theme.name)}
+            </div>
+        `;
+
+        container.appendChild(button);
+    });
 }
 
 
-function updateScheduleHeader(
-    view
-) {
-
+function updateScheduleHeader(view) {
     const titles = {
         today: "Сегодня",
         tomorrow: "Завтра",
@@ -425,491 +286,231 @@ function updateScheduleHeader(
         week: "7 ДНЕЙ",
     };
 
-    $("scheduleTitle")
-        .textContent =
-        titles[view];
-
-    $("scheduleEyebrow")
-        .textContent =
-        eyebrows[view];
+    $("scheduleTitle").textContent = titles[view] || "Расписание";
+    $("scheduleEyebrow").textContent = eyebrows[view] || "";
 }
 
 
-async function loadSchedule(
-    view
-) {
-
+async function loadSchedule(view) {
     state.view = view;
 
-    showScreen(
-        view
-    );
+    showScreen(view);
+    setActiveNav(view);
+    updateScheduleHeader(view);
 
-    setActiveNav(
-        view
-    );
-
-    updateScheduleHeader(
-        view
-    );
-
-    const container =
-        $("scheduleContainer");
-
-    container.innerHTML = `
-        <div class="loading">
-            Загружаем расписание…
-        </div>
-    `;
+    const container = $("scheduleContainer");
+    container.innerHTML = `<div class="loading">Загружаем расписание…</div>`;
 
     try {
-
-        const data =
-            await api(
-                `/api/schedule?view=${view}`
-            );
-
-        renderSchedule(
-            data
-        );
-
+        const data = await api(`/api/schedule?view=${view}`);
+        renderSchedule(data);
     } catch (error) {
-
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-symbol">
-                    !
-                </div>
-                <p>
-                    ${escapeHtml(
-                        error.message
-                    )}
-                </p>
+                <div class="empty-symbol">!</div>
+                <p>${escapeHtml(error.message)}</p>
             </div>
         `;
     }
 }
 
 
-function renderSchedule(
-    data
-) {
+function renderSchedule(data) {
+    const container = $("scheduleContainer");
 
-    const container =
-        $("scheduleContainer");
-
-    if (!data.lessons.length) {
-
+    if (!data.lessons || !data.lessons.length) {
         container.innerHTML = `
             <div class="empty-state">
-
                 <div class="empty-symbol">
-                    ${escapeHtml(
-                        state.theme?.tokens?.lesson
-                        || "○"
-                    )}
+                    ${escapeHtml(state.theme?.tokens?.lesson || "○")}
                 </div>
-
-                <p>
-                    ${escapeHtml(
-                        data.empty_message
-                    )}
-                </p>
-
+                <p>${escapeHtml(data.empty_message || "Пар нет")}</p>
             </div>
         `;
-
         return;
     }
 
-    if (
-        data.view === "week"
-    ) {
-
-        renderWeek(
-            data.lessons
-        );
-
+    if (data.view === "week") {
+        renderWeek(data.lessons);
         return;
     }
 
-    container.innerHTML =
-        data.lessons
-            .map(
-                lessonCard
-            )
-            .join("");
+    container.innerHTML = data.lessons.map(lessonCard).join("");
 }
 
 
-function renderWeek(
-    lessons
-) {
-
+function renderWeek(lessons) {
     const grouped = {};
 
-    lessons.forEach(
-        lesson => {
+    lessons.forEach(lesson => {
+        const key = `${lesson.day}|${lesson.date}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(lesson);
+    });
 
-            const key =
-                `${lesson.day}|${lesson.date}`;
+    const container = $("scheduleContainer");
 
-            if (!grouped[key]) {
-                grouped[key] = [];
-            }
+    container.innerHTML = Object.entries(grouped)
+        .map(([key, dayLessons]) => {
+            const [day, date] = key.split("|");
 
-            grouped[key].push(
-                lesson
-            );
-        }
-    );
-
-    const container =
-        $("scheduleContainer");
-
-    container.innerHTML =
-        Object.entries(
-            grouped
-        )
-            .map(
-                ([key, dayLessons]) => {
-
-                    const [
-                        day,
-                        date,
-                    ] = key.split("|");
-
-                    return `
-                        <section
-                            class="day-section"
-                        >
-
-                            <div class="day-title">
-                                ${escapeHtml(
-                                    day
-                                )}
-                                ·
-                                ${escapeHtml(
-                                    date
-                                )}
-                            </div>
-
-                            <div
-                                class="schedule-container"
-                            >
-                                ${dayLessons
-                                    .map(
-                                        lessonCard
-                                    )
-                                    .join("")
-                                }
-                            </div>
-
-                        </section>
-                    `;
-                }
-            )
-            .join("");
+            return `
+                <section class="day-section">
+                    <div class="day-title">
+                        ${escapeHtml(day)} · ${escapeHtml(date)}
+                    </div>
+                    <div class="schedule-container">
+                        ${dayLessons.map(lessonCard).join("")}
+                    </div>
+                </section>
+            `;
+        })
+        .join("");
 }
 
 
-function lessonCard(
-    lesson
-) {
-
-    const tokens =
-        state.theme?.tokens
-        || {};
-
+function lessonCard(lesson) {
+    const tokens = state.theme?.tokens || {};
     const meta = [];
 
-    if (
-        lesson.lesson_type
-    ) {
-        meta.push(
-            `
+    if (lesson.lesson_type) {
+        meta.push(`
             <span class="meta-chip accent">
-                ${escapeHtml(
-                    tokens.type || "•"
-                )}
-                ${escapeHtml(
-                    lesson.lesson_type
-                )}
+                ${escapeHtml(tokens.type || "•")}
+                ${escapeHtml(lesson.lesson_type)}
             </span>
-            `
-        );
+        `);
     }
 
-    if (
-        lesson.teacher
-    ) {
-        meta.push(
-            `
+    if (lesson.teacher) {
+        meta.push(`
             <span class="meta-chip">
-                ${escapeHtml(
-                    lesson.teacher
-                )}
+                ${escapeHtml(lesson.teacher)}
             </span>
-            `
-        );
+        `);
     }
 
-    if (
-        lesson.room
-    ) {
-
-        let roomText =
-            lesson.room;
-
-        if (
-            lesson.building
-        ) {
-
-            roomText +=
-                ` · ${lesson.building}`;
-        }
-
-        meta.push(
-            `
+    if (lesson.room) {
+        let roomText = lesson.room;
+        if (lesson.building) roomText += ` · ${lesson.building}`;
+        meta.push(`
             <span class="meta-chip">
-                ${escapeHtml(
-                    tokens.room || "•"
-                )}
-                ${escapeHtml(
-                    roomText
-                )}
+                ${escapeHtml(tokens.room || "•")}
+                ${escapeHtml(roomText)}
             </span>
-            `
-        );
+        `);
     }
 
-    if (
-        lesson.is_online
-    ) {
-
-        meta.push(
-            `
+    if (lesson.is_online) {
+        meta.push(`
             <span class="meta-chip accent">
-                ${escapeHtml(
-                    tokens.online
-                    || "Онлайн"
-                )}
+                ${escapeHtml(tokens.online || "Онлайн")}
             </span>
-            `
-        );
+        `);
     }
 
     return `
         <article class="lesson-card">
-
             <div class="lesson-top">
-
                 <div>
-
                     <div class="lesson-time">
-                        ${escapeHtml(
-                            lesson.lesson_time
-                            || "—"
-                        )}
+                        ${escapeHtml(lesson.lesson_time || "—")}
                     </div>
-
                     <div class="lesson-number">
-                        ${escapeHtml(
-                            lesson.lesson_number
-                            || ""
-                        )}
-                        пара
+                        ${escapeHtml(lesson.lesson_number || "")} пара
                     </div>
-
                 </div>
-
             </div>
-
 
             <div class="lesson-subject">
-
-                ${escapeHtml(
-                    tokens.subject || "•"
-                )}
-                ${escapeHtml(
-                    lesson.subject
-                )}
-
+                ${escapeHtml(tokens.subject || "•")}
+                ${escapeHtml(lesson.subject)}
             </div>
 
-
-            ${
-                meta.length
-                    ? `
-                        <div class="lesson-meta">
-                            ${meta.join("")}
-                        </div>
-                    `
-                    : ""
-            }
-
+            ${meta.length ? `<div class="lesson-meta">${meta.join("")}</div>` : ""}
         </article>
     `;
 }
 
 
 async function openSessions() {
+    showScreen("sessions");
+    setActiveNav("sessions");
 
-    showScreen(
-        "sessions"
-    );
-
-    setActiveNav(
-        "sessions"
-    );
-
-    $("sessionsContainer")
-        .innerHTML = `
-            <div class="loading">
-                Загружаем…
-            </div>
-        `;
-
-    $("sessionLessonsContainer")
-        .innerHTML = "";
+    $("sessionsContainer").innerHTML =
+        `<div class="loading">Загружаем…</div>`;
+    $("sessionLessonsContainer").innerHTML = "";
 
     try {
-
-        const data =
-            await api(
-                "/api/sessions"
-            );
-
-        state.sessions =
-            data.sessions;
-
+        const data = await api("/api/sessions");
+        state.sessions = data.sessions;
         renderSessions();
-
     } catch (error) {
-
-        $("sessionsContainer")
-            .innerHTML = `
-                <div class="empty-state">
-                    <p>
-                        ${escapeHtml(
-                            error.message
-                        )}
-                    </p>
-                </div>
-            `;
+        $("sessionsContainer").innerHTML = `
+            <div class="empty-state">
+                <p>${escapeHtml(error.message)}</p>
+            </div>
+        `;
     }
 }
 
 
 function renderSessions() {
+    const container = $("sessionsContainer");
 
-    const container =
-        $("sessionsContainer");
-
-    if (
-        !state.sessions.length
-    ) {
-
+    if (!state.sessions.length) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-symbol">
-                    —
-                </div>
-                <p>
-                    Сессий пока нет.
-                </p>
+                <div class="empty-symbol">—</div>
+                <p>Сессий пока нет.</p>
             </div>
         `;
-
         return;
     }
 
-    container.innerHTML =
-        state.sessions
-            .map(
-                (session, index) => `
-                    <button
-                        type="button"
-                        class="session-button ${
-                            state.currentSession
-                            === session
-                                ? "active"
-                                : ""
-                        }"
-                        data-action="session"
-                        data-session="${escapeAttribute(
-                            session
-                        )}"
-                    >
-                        ${escapeHtml(
-                            session
-                        )}
-                    </button>
-                `
-            )
-            .join("");
+    container.innerHTML = state.sessions
+        .map(session => `
+            <button
+                type="button"
+                class="session-button ${
+                    state.currentSession === session ? "active" : ""
+                }"
+                data-action="session"
+                data-session="${escapeAttribute(session)}"
+            >
+                ${escapeHtml(session)}
+            </button>
+        `)
+        .join("");
 }
 
 
-async function openSession(
-    session
-) {
-
-    state.currentSession =
-        session;
-
+async function openSession(session) {
+    state.currentSession = session;
     renderSessions();
 
-    const container =
-        $("sessionLessonsContainer");
-
-    container.innerHTML = `
-        <div class="loading">
-            Загружаем…
-        </div>
-    `;
+    const container = $("sessionLessonsContainer");
+    container.innerHTML = `<div class="loading">Загружаем…</div>`;
 
     try {
+        const data = await api(
+            `/api/sessions/${encodeURIComponent(session)}`
+        );
 
-        const data =
-            await api(
-                `/api/sessions/${encodeURIComponent(
-                    session
-                )}`
-            );
-
-        if (
-            !data.lessons.length
-        ) {
-
+        if (!data.lessons.length) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <p>
-                        Для этой сессии
-                        расписания нет.
-                    </p>
+                    <p>Для этой сессии расписания нет.</p>
                 </div>
             `;
-
             return;
         }
 
-        container.innerHTML =
-            data.lessons
-                .map(
-                    lessonCard
-                )
-                .join("");
-
+        container.innerHTML = data.lessons.map(lessonCard).join("");
     } catch (error) {
-
         container.innerHTML = `
             <div class="empty-state">
-                <p>
-                    ${escapeHtml(
-                        error.message
-                    )}
-                </p>
+                <p>${escapeHtml(error.message)}</p>
             </div>
         `;
     }
@@ -917,564 +518,282 @@ async function openSession(
 
 
 async function openExcluded() {
-
-    showScreen(
-        "excluded"
-    );
+    showScreen("excluded");
 
     try {
-
-        const data =
-            await api(
-                "/api/excluded-subjects"
-            );
-
-        renderExcluded(
-            data
-        );
-
+        const data = await api("/api/excluded-subjects");
+        renderExcluded(data);
     } catch (error) {
-
-        $("excludedGrid")
-            .innerHTML = `
-                <div class="empty-state">
-                    <p>
-                        ${escapeHtml(
-                            error.message
-                        )}
-                    </p>
-                </div>
-            `;
+        $("excludedGrid").innerHTML = `
+            <div class="empty-state">
+                <p>${escapeHtml(error.message)}</p>
+            </div>
+        `;
     }
 }
 
 
-function renderExcluded(
-    data
-) {
-
-    const container =
-        $("excludedGrid");
+function renderExcluded(data) {
+    const container = $("excludedGrid");
 
     if (!data.subjects.length) {
-
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-symbol">
-                    —
-                </div>
-                <p>
-                    На этой неделе предметов нет.
-                </p>
+                <div class="empty-symbol">—</div>
+                <p>На этой неделе предметов нет.</p>
             </div>
         `;
-
         return;
     }
 
-    const excluded =
-        new Set(
-            data.excluded
-        );
+    const excluded = new Set(data.excluded);
 
-    container.innerHTML =
-        data.subjects
-            .map(
-                subject => {
+    container.innerHTML = data.subjects
+        .map(subject => {
+            const active = excluded.has(subject);
 
-                    const active =
-                        excluded.has(
-                            subject
-                        );
-
-                    return `
-                        <button
-                            type="button"
-                            class="excluded-item ${
-                                active
-                                    ? "active"
-                                    : ""
-                            }"
-                            data-action="toggle-excluded"
-                            data-subject="${escapeAttribute(
-                                subject
-                            )}"
-                        >
-
-                            <span class="subject-name">
-                                ${escapeHtml(
-                                    subject
-                                )}
-                            </span>
-
-                            <span class="subject-mark">
-                                ${
-                                    active
-                                        ? "×"
-                                        : "＋"
-                                }
-                            </span>
-
-                        </button>
-                    `;
-                }
-            )
-            .join("");
+            return `
+                <button
+                    type="button"
+                    class="excluded-item ${active ? "active" : ""}"
+                    data-action="toggle-excluded"
+                    data-subject="${escapeAttribute(subject)}"
+                >
+                    <span class="subject-name">${escapeHtml(subject)}</span>
+                    <span class="subject-mark">${active ? "×" : "＋"}</span>
+                </button>
+            `;
+        })
+        .join("");
 }
 
 
-async function toggleExcluded(
-    subject
-) {
-
+async function toggleExcluded(subject) {
     haptic();
 
     try {
-
-        const data =
-            await api(
-                "/api/excluded-subjects/toggle",
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        subject,
-                    }),
-                }
-            );
-
-        const current =
-            await api(
-                "/api/excluded-subjects"
-            );
-
-        state.profile
-            .excluded_subjects =
-            data.excluded;
-
-        renderExcluded(
-            current
+        const data = await api(
+            "/api/excluded-subjects/toggle",
+            {
+                method: "POST",
+                body: JSON.stringify({ subject }),
+            }
         );
 
+        const current = await api("/api/excluded-subjects");
+
+        state.profile.excluded_subjects = data.excluded;
+        renderExcluded(current);
+
         showToast(
-            data.excluded.includes(
-                subject
-            )
+            data.excluded.includes(subject)
                 ? "Пара исключена"
                 : "Пара снова включена"
         );
-
     } catch (error) {
-
-        showToast(
-            error.message
-        );
+        showToast(error.message);
     }
 }
 
 
-async function changeTheme(
-    theme
-) {
-
-    if (
-        theme === state.profile.theme
-    ) {
-        return;
-    }
+async function changeTheme(theme) {
+    if (theme === state.profile.theme) return;
 
     haptic();
 
     try {
+        const data = await api("/api/theme", {
+            method: "POST",
+            body: JSON.stringify({ theme }),
+        });
 
-        const data =
-            await api(
-                "/api/theme",
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        theme,
-                    }),
-                }
-            );
-
-        state.profile.theme =
-            theme;
-
-        state.theme =
-            data.theme;
+        state.profile.theme = theme;
+        state.theme = data.theme;
 
         renderThemes();
-
         applyAppearance();
-
-        showToast(
-            `Оформление: ${data.theme.name}`
-        );
-
+        showToast(`Оформление: ${data.theme.name}`);
     } catch (error) {
-
-        showToast(
-            error.message
-        );
+        showToast(error.message);
     }
 }
 
 
-async function toggleNotification(
-    field
-) {
-
+async function toggleNotification(field) {
     haptic();
 
     try {
+        const data = await api("/api/notifications/toggle", {
+            method: "POST",
+            body: JSON.stringify({ field }),
+        });
 
-        const data =
-            await api(
-                "/api/notifications/toggle",
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        field,
-                    }),
-                }
-            );
-
-        state.profile
-            .schedule_updates =
-            data.schedule_updates;
-
-        state.profile
-            .tomorrow_notifications =
-            data.tomorrow_notifications;
+        state.profile.schedule_updates = data.schedule_updates;
+        state.profile.tomorrow_notifications = data.tomorrow_notifications;
 
         renderNotificationValues();
-
     } catch (error) {
-
-        showToast(
-            error.message
-        );
+        showToast(error.message);
     }
 }
 
 
 async function openCalendar() {
-
     try {
-
-        const data =
-            await api(
-                "/api/calendar"
-            );
-
-        tg.openLink(
-            data.https_url
-        );
-
+        const data = await api("/api/calendar");
+        tg.openLink?.(data.https_url) || window.open(data.https_url, "_blank");
     } catch (error) {
-
-        showToast(
-            error.message
-        );
+        showToast(error.message);
     }
 }
 
 
-document.addEventListener(
-    "click",
-    async event => {
+document.addEventListener("click", async event => {
+    const nav = event.target.closest(".nav-item");
 
-        const nav =
-            event.target.closest(
-                ".nav-item"
-            );
+    if (nav) {
+        const view = nav.dataset.view;
+        haptic();
 
-        if (nav) {
-
-            const view =
-                nav.dataset.view;
-
-            haptic();
-
-            if (
-                view === "sessions"
-            ) {
-
-                await openSessions();
-
-                return;
-            }
-
-            if (
-                view === "profile"
-            ) {
-
-                showScreen(
-                    "profile"
-                );
-
-                setActiveNav(
-                    "profile"
-                );
-
-                return;
-            }
-
-            await loadSchedule(
-                view
-            );
-
+        if (view === "sessions") {
+            await openSessions();
             return;
         }
 
-
-        const appearance =
-            event.target.closest(
-                "[data-appearance]"
-            );
-
-        if (appearance) {
-
-            setAppearance(
-                appearance.dataset
-                    .appearance
-            );
-
+        if (view === "profile") {
+            showScreen("profile");
+            setActiveNav("profile");
             return;
         }
 
-
-        const actionButton =
-            event.target.closest(
-                "[data-action]"
-            );
-
-        if (!actionButton) {
-            return;
-        }
-
-        const action =
-            actionButton.dataset
-                .action;
-
-        if (
-            action === "excluded"
-        ) {
-
-            haptic();
-
-            await openExcluded();
-
-            return;
-        }
-
-
-        if (
-            action === "calendar"
-        ) {
-
-            haptic();
-
-            await openCalendar();
-
-            return;
-        }
-
-
-        if (
-            action === "theme"
-        ) {
-
-            await changeTheme(
-                actionButton.dataset
-                    .theme
-            );
-
-            return;
-        }
-
-
-        if (
-            action === "session"
-        ) {
-
-            haptic();
-
-            await openSession(
-                actionButton.dataset
-                    .session
-            );
-
-            return;
-        }
-
-
-        if (
-            action === "toggle-excluded"
-        ) {
-
-            await toggleExcluded(
-                actionButton.dataset
-                    .subject
-            );
-
-            return;
-        }
-
-
-        if (
-            action ===
-            "toggle-notification"
-        ) {
-
-            await toggleNotification(
-                actionButton.dataset
-                    .field
-            );
-        }
+        await loadSchedule(view);
+        return;
     }
-);
 
-
-$("refreshButton")
-    .addEventListener(
-        "click",
-        async () => {
-
-            haptic();
-
-            await loadSchedule(
-                state.view
-            );
-        }
-    );
-
-
-$("avatarButton")
-    .addEventListener(
-        "click",
-        () => {
-
-            showScreen(
-                "profile"
-            );
-
-            setActiveNav(
-                "profile"
-            );
-        }
-    );
-
-
-tg.BackButton.onClick(
-    () => {
-
-        showScreen(
-            "profile"
-        );
-
-        setActiveNav(
-            "profile"
-        );
+    const appearance = event.target.closest("[data-appearance]");
+    if (appearance) {
+        setAppearance(appearance.dataset.appearance);
+        return;
     }
-);
+
+    const actionButton = event.target.closest("[data-action]");
+    if (!actionButton) return;
+
+    const action = actionButton.dataset.action;
+
+    if (action === "excluded") {
+        haptic();
+        await openExcluded();
+        return;
+    }
+
+    if (action === "calendar") {
+        haptic();
+        await openCalendar();
+        return;
+    }
+
+    if (action === "theme") {
+        await changeTheme(actionButton.dataset.theme);
+        return;
+    }
+
+    if (action === "session") {
+        haptic();
+        await openSession(actionButton.dataset.session);
+        return;
+    }
+
+    if (action === "toggle-excluded") {
+        await toggleExcluded(actionButton.dataset.subject);
+        return;
+    }
+
+    if (action === "toggle-notification") {
+        await toggleNotification(actionButton.dataset.field);
+    }
+});
 
 
-tg.onEvent(
-    "themeChanged",
-    () => {
+$("refreshButton").addEventListener("click", async () => {
+    haptic();
+    await loadSchedule(state.view);
+});
 
-        if (
-            !localStorage.getItem(
-                "hse-appearance"
-            )
-        ) {
 
-            state.appearance =
-                tg.colorScheme
-                === "dark"
-                    ? "dark"
-                    : "light";
+$("avatarButton").addEventListener("click", () => {
+    showScreen("profile");
+    setActiveNav("profile");
+});
 
+
+try {
+    tg.BackButton?.onClick(() => {
+        showScreen("profile");
+        setActiveNav("profile");
+    });
+
+    tg.onEvent?.("themeChanged", () => {
+        if (!localStorage.getItem("hse-appearance")) {
+            state.appearance = tg.colorScheme === "dark"
+                ? "dark"
+                : "light";
             applyAppearance();
         }
-    }
-);
-
-
-function escapeHtml(
-    value
-) {
-
-    return String(
-        value ?? ""
-    )
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
+    });
+} catch (error) {
+    // ignore
 }
 
 
-function escapeAttribute(
-    value
-) {
-    return escapeHtml(
-        value
-    );
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function escapeAttribute(value) {
+    return escapeHtml(value);
 }
 
 
 async function init() {
+    try {
+        tg.ready?.();
+        tg.expand?.();
+    } catch (error) {
+        // ignore
+    }
 
-    tg.ready();
+    setupInsets();
 
-    tg.expand();
-
-    state.appearance =
-        getSavedAppearance();
-
+    state.appearance = getSavedAppearance();
     applyAppearance();
 
     try {
-
         await loadBootstrap();
-
-        await loadSchedule(
-            "today"
-        );
-
+        await loadSchedule("today");
     } catch (error) {
+        const message = error.message || "Не удалось загрузить данные";
 
-        $("scheduleContainer")
-            .innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-symbol">
-                        !
-                    </div>
-                    <p>
-                        ${escapeHtml(
-                            error.message
-                        )}
-                    </p>
-                </div>
-            `;
+        let hint = "";
+        if (error.status === 404 || /not found/i.test(message)) {
+            hint = "Откройте бота в Telegram и выберите учебную группу, чтобы Mini App подтянул расписание.";
+        } else if (error.status === 401 || /initdata/i.test(message)) {
+            hint = "Откройте Mini App из Telegram — по прямой ссылке авторизация недоступна.";
+        }
+
+        $("scheduleContainer").innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">!</div>
+                <p>${escapeHtml(message)}</p>
+                ${hint ? `<p class="empty-hint">${escapeHtml(hint)}</p>` : ""}
+            </div>
+        `;
     }
 }
 
