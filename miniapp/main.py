@@ -548,7 +548,8 @@ async def schedule(
         )
 
         empty_message = (
-            "На сегодня пар нет."
+            f"На сегодня пар нет. "
+            f"[date={date}, group={group!r}, found={len(lessons)}]"
         )
 
     elif view == "tomorrow":
@@ -568,7 +569,8 @@ async def schedule(
         )
 
         empty_message = (
-            "На завтра пар нет."
+            f"На завтра пар нет. "
+            f"[date={date}, group={group!r}, found={len(lessons)}]"
         )
 
     else:

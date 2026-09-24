@@ -607,38 +607,39 @@ async function openExcluded() {
 }
 
 
-function renderExcluded(data) {
-    const container = $("excludedGrid");
+function renderSchedule(data) {
+    const container = $("scheduleContainer");
 
-    if (!data.subjects.length) {
+    const debugLine = `
+        <p style="font-size:11px;color:#999;margin-top:12px;font-family:monospace">
+            view=${escapeHtml(String(data.view ?? "?"))} ·
+            group=${escapeHtml(String(data.group ?? "—"))} ·
+            count=${Array.isArray(data.lessons) ? data.lessons.length : "null"} ·
+            excluded=${escapeHtml(String(state.profile?.excluded_subjects?.length ?? "?"))}
+        </p>
+    `;
+
+    if (!data.lessons || !data.lessons.length) {
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-symbol">—</div>
-                <p>На этой неделе предметов нет.</p>
+                <div class="empty-symbol">
+                    ${escapeHtml(state.theme?.tokens?.lesson || "○")}
+                </div>
+                <p>${escapeHtml(data.empty_message || "Пар нет")}</p>
+                ${debugLine}
             </div>
         `;
         return;
     }
 
-    const excluded = new Set(data.excluded);
+    if (data.view === "week") {
+        renderWeek(data.lessons);
+        return;
+    }
 
-    container.innerHTML = data.subjects
-        .map(subject => {
-            const active = excluded.has(subject);
-
-            return `
-                <button
-                    type="button"
-                    class="excluded-item ${active ? "active" : ""}"
-                    data-action="toggle-excluded"
-                    data-subject="${escapeAttribute(subject)}"
-                >
-                    <span class="subject-name">${escapeHtml(subject)}</span>
-                    <span class="subject-mark">${active ? "×" : "＋"}</span>
-                </button>
-            `;
-        })
-        .join("");
+    container.innerHTML =
+        data.lessons.map(lessonCard).join("") +
+        `<div class="empty-state" style="padding:12px;margin-top:8px">${debugLine}</div>`;
 }
 
 
