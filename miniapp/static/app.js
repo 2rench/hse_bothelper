@@ -216,7 +216,6 @@ function renderProfile() {
     const group = state.profile?.group_name || "Группа не выбрана";
 
     $("profileName").textContent = firstName;
-    $("profileGreeting").textContent = "ПРОФИЛЬ";
     $("profileGroup").textContent = group;
 
     $("topbarSubtitle").textContent =
@@ -286,14 +285,23 @@ function updateScheduleHeader(view) {
         week: "Неделя",
     };
 
-    const eyebrows = {
-        today: "СЕГОДНЯ",
-        tomorrow: "ЗАВТРА",
-        week: "7 ДНЕЙ",
-    };
-
     $("scheduleTitle").textContent = titles[view] || "Расписание";
-    $("scheduleEyebrow").textContent = eyebrows[view] || "";
+}
+
+
+function renderGreeting(greeting, view) {
+    const bar = $("greetingBar");
+
+    if (!bar) return;
+
+    if (view !== "today" || !greeting) {
+        bar.hidden = true;
+        bar.textContent = "";
+        return;
+    }
+
+    bar.hidden = false;
+    bar.textContent = greeting;
 }
 
 
@@ -372,6 +380,7 @@ async function loadSchedule(view) {
                 : `/api/schedule?view=week`;
 
             const data = await api(query);
+            renderGreeting(null, view);
             renderSchedule(data);
             return;
         }
@@ -379,8 +388,11 @@ async function loadSchedule(view) {
         $("weekPicker").hidden = true;
 
         const data = await api(`/api/schedule?view=${view}`);
+        renderGreeting(data.greeting, view);
         renderSchedule(data);
     } catch (error) {
+        renderGreeting(null, view);
+
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-symbol">!</div>
@@ -609,6 +621,41 @@ async function openExcluded() {
 }
 
 
+function renderExcluded(data) {
+    const container = $("excludedGrid");
+
+    if (!data.subjects.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">—</div>
+                <p>На этой неделе предметов нет.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const excluded = new Set(data.excluded);
+
+    container.innerHTML = data.subjects
+        .map(subject => {
+            const active = excluded.has(subject);
+
+            return `
+                <button
+                    type="button"
+                    class="excluded-item ${active ? "active" : ""}"
+                    data-action="toggle-excluded"
+                    data-subject="${escapeAttribute(subject)}"
+                >
+                    <span class="subject-name">${escapeHtml(subject)}</span>
+                    <span class="subject-mark">${active ? "×" : "＋"}</span>
+                </button>
+            `;
+        })
+        .join("");
+}
+
+
 async function toggleExcluded(subject) {
     haptic();
 
@@ -654,6 +701,10 @@ async function changeTheme(theme) {
         renderThemes();
         applyAppearance();
         showToast(`Оформление: ${data.theme.name}`);
+
+        if (state.view === "today") {
+            await loadSchedule("today");
+        }
     } catch (error) {
         showToast(error.message);
     }

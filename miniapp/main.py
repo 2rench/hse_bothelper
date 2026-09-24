@@ -99,6 +99,130 @@ THEME_SYMBOLS = {
 }
 
 
+GIRL_THEMES = {
+    "luxury",
+    "clean_girl",
+}
+
+BOY_THEMES = {
+    "brother",
+    "it_style",
+}
+
+LANGUAGE_THEMES = {
+    "english": "en",
+    "french": "fr",
+    "chinese": "zh",
+}
+
+
+GREETINGS_GIRL_RU = [
+    "Выглядишь супер",
+    "Ты сегодня особенно хороша",
+    "Сияешь ярче солнца",
+    "Красотка, день будет отличным",
+    "Улыбнись — тебе идёт",
+]
+
+GREETINGS_BOY_RU = [
+    "Доброе утро",
+    "Добрый день",
+    "Добрый вечер",
+    "Доброй ночи",
+]
+
+GREETINGS_EN = {
+    "morning": "Good morning",
+    "day": "Good afternoon",
+    "evening": "Good evening",
+    "night": "Good night",
+}
+
+GREETINGS_FR = {
+    "morning": "Bonjour",
+    "day": "Bon après-midi",
+    "evening": "Bonsoir",
+    "night": "Bonne nuit",
+}
+
+GREETINGS_ZH = {
+    "morning": "早上好",
+    "day": "下午好",
+    "evening": "晚上好",
+    "night": "晚安",
+}
+
+
+def _time_of_day() -> str:
+    hour = datetime.now().hour
+
+    if 5 <= hour < 12:
+        return "morning"
+    if 12 <= hour < 17:
+        return "day"
+    if 17 <= hour < 23:
+        return "evening"
+    return "night"
+
+
+def _pick_variant(seed: int, variants: list) -> str:
+    if not variants:
+        return ""
+    return variants[seed % len(variants)]
+
+
+def build_greeting(
+    theme_id: str,
+    telegram_id: int,
+) -> str:
+
+    part_of_day = _time_of_day()
+
+    if theme_id in LANGUAGE_THEMES:
+
+        lang = LANGUAGE_THEMES[theme_id]
+
+        if lang == "en":
+            return GREETINGS_EN[part_of_day]
+        if lang == "fr":
+            return GREETINGS_FR[part_of_day]
+        if lang == "zh":
+            return GREETINGS_ZH[part_of_day]
+
+    if theme_id in GIRL_THEMES:
+
+        if part_of_day == "night":
+            return _pick_variant(
+                telegram_id,
+                GREETINGS_GIRL_RU,
+            )
+
+        return _pick_variant(
+            telegram_id,
+            GREETINGS_GIRL_RU,
+        )
+
+    if theme_id in BOY_THEMES:
+
+        return GREETINGS_BOY_RU[
+            {
+                "morning": 0,
+                "day": 1,
+                "evening": 2,
+                "night": 3,
+            }[part_of_day]
+        ]
+
+    return GREETINGS_BOY_RU[
+        {
+            "morning": 0,
+            "day": 1,
+            "evening": 2,
+            "night": 3,
+        }[part_of_day]
+    ]
+
+
 class ThemeRequest(BaseModel):
     theme: str
 
@@ -607,10 +731,23 @@ async def schedule(
         not in excluded
     ]
 
+    greeting = None
+
+    if view == "today":
+
+        greeting = build_greeting(
+            user.get(
+                "theme",
+                "default",
+            ),
+            telegram_id,
+        )
+
     return {
         "view": view,
         "group": group,
         "week": week if view == "week" else None,
+        "greeting": greeting,
         "lessons": [
             serialize_lesson(
                 lesson
