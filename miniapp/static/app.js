@@ -609,42 +609,6 @@ async function openExcluded() {
 }
 
 
-function renderSchedule(data) {
-    const container = $("scheduleContainer");
-
-    const debugLine = `
-        <p style="font-size:11px;color:#999;margin-top:12px;font-family:monospace">
-            view=${escapeHtml(String(data.view ?? "?"))} ·
-            group=${escapeHtml(String(data.group ?? "—"))} ·
-            count=${Array.isArray(data.lessons) ? data.lessons.length : "null"} ·
-            excluded=${escapeHtml(String(state.profile?.excluded_subjects?.length ?? "?"))}
-        </p>
-    `;
-
-    if (!data.lessons || !data.lessons.length) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-symbol">
-                    ${escapeHtml(state.theme?.tokens?.lesson || "○")}
-                </div>
-                <p>${escapeHtml(data.empty_message || "Пар нет")}</p>
-                ${debugLine}
-            </div>
-        `;
-        return;
-    }
-
-    if (data.view === "week") {
-        renderWeek(data.lessons);
-        return;
-    }
-
-    container.innerHTML =
-        data.lessons.map(lessonCard).join("") +
-        `<div class="empty-state" style="padding:12px;margin-top:8px">${debugLine}</div>`;
-}
-
-
 async function toggleExcluded(subject) {
     haptic();
 
