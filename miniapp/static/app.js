@@ -633,11 +633,36 @@ function renderWeekPicker() {
 function computeTimeRange(lessons) {
     if (!lessons || !lessons.length) return null;
 
+    const SEPARATORS = /[-–—−]/;
+
     const parse = value => {
-        const parts = String(value || "").split("-");
+        const text = String(value || "").trim();
+
+        if (!text) {
+            return { start: "", end: "" };
+        }
+
+        const parts = text.split(SEPARATORS);
+
+        if (parts.length >= 2) {
+            return {
+                start: parts[0].trim(),
+                end: parts[parts.length - 1].trim(),
+            };
+        }
+
+        const times = text.match(/\d{1,2}:\d{2}/g);
+
+        if (times && times.length >= 2) {
+            return {
+                start: times[0],
+                end: times[times.length - 1],
+            };
+        }
+
         return {
-            start: (parts[0] || "").trim(),
-            end: (parts[1] || "").trim(),
+            start: times && times[0] ? times[0] : "",
+            end: "",
         };
     };
 
