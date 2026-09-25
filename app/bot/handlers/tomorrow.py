@@ -90,7 +90,7 @@ async def tomorrow_handler(
     )
 
     await message.answer(
-        "🐍 Теперь можно смотреть в MiniAPP — кнопка «открыть»"
+        "🐍 Теперь можно смотреть в MiniAPP — кнопка «расписание»"
     )
 
 @router.message(
