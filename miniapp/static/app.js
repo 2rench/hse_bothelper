@@ -484,6 +484,40 @@ async function loadBootstrap() {
     renderThemes();
     applyTranslations();
     applyAppearance();
+
+    rerenderCurrentSchedule();
+}
+
+
+function rerenderCurrentSchedule() {
+    const data = state.lastSchedule;
+
+    if (!data) return;
+
+    const container = $("scheduleContainer");
+
+    if (!container) return;
+
+    if (!data.lessons || !data.lessons.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">
+                    ${escapeHtml(state.theme?.tokens?.lesson || "○")}
+                </div>
+                <p>${escapeHtml(emptyMessageFor(data.view))}</p>
+            </div>
+        `;
+        return;
+    }
+
+    if (data.view === "week") {
+        renderWeek(data.lessons);
+        return;
+    }
+
+    container.innerHTML =
+        renderTimeRange(data.lessons) +
+        data.lessons.map(lessonCard).join("");
 }
 
 
