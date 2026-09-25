@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 import os
+import random
 import time
 
 from datetime import datetime, timedelta
@@ -122,14 +123,17 @@ GREETINGS_GIRL_RU = [
     "Сияешь ярче солнца",
     "Красотка, день будет отличным",
     "Улыбнись — тебе идёт",
+    "Неотразима, как всегда",
+    "Прекрасна в каждой детали",
+    "Умница и красавица",
 ]
 
-GREETINGS_BOY_RU = [
-    "Доброе утро",
-    "Добрый день",
-    "Добрый вечер",
-    "Доброй ночи",
-]
+GREETINGS_BOY_RU = {
+    "morning": "Доброе утро",
+    "day": "Добрый день",
+    "evening": "Добрый вечер",
+    "night": "Доброй ночи",
+}
 
 GREETINGS_EN = {
     "morning": "Good morning",
@@ -154,6 +158,7 @@ GREETINGS_ZH = {
 
 
 def _time_of_day() -> str:
+
     hour = datetime.now().hour
 
     if 5 <= hour < 12:
@@ -163,12 +168,6 @@ def _time_of_day() -> str:
     if 17 <= hour < 23:
         return "evening"
     return "night"
-
-
-def _pick_variant(seed: int, variants: list) -> str:
-    if not variants:
-        return ""
-    return variants[seed % len(variants)]
 
 
 def build_greeting(
@@ -191,35 +190,12 @@ def build_greeting(
 
     if theme_id in GIRL_THEMES:
 
-        if part_of_day == "night":
-            return _pick_variant(
-                telegram_id,
-                GREETINGS_GIRL_RU,
-            )
-
-        return _pick_variant(
-            telegram_id,
-            GREETINGS_GIRL_RU,
+        return random.choice(
+            GREETINGS_GIRL_RU
         )
 
-    if theme_id in BOY_THEMES:
-
-        return GREETINGS_BOY_RU[
-            {
-                "morning": 0,
-                "day": 1,
-                "evening": 2,
-                "night": 3,
-            }[part_of_day]
-        ]
-
     return GREETINGS_BOY_RU[
-        {
-            "morning": 0,
-            "day": 1,
-            "evening": 2,
-            "night": 3,
-        }[part_of_day]
+        part_of_day
     ]
 
 

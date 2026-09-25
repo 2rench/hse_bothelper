@@ -41,6 +41,7 @@
             <div
                 class="topbar-subtitle"
                 id="topbarSubtitle"
+                data-i18n="schedule"
             >
                 Расписание
             </div>
@@ -95,7 +96,10 @@
                 class="week-picker"
                 hidden
             >
-                <div class="week-picker-title">
+                <div
+                    class="week-picker-title"
+                    data-i18n="week"
+                >
                     Неделя
                 </div>
 
@@ -119,7 +123,7 @@
 
             <div class="screen-heading">
                 <div>
-                    <h1>
+                    <h1 data-i18n="sessions">
                         Сессия
                     </h1>
                 </div>
@@ -170,12 +174,15 @@
             </div>
 
 
-            <div class="section-title">
+            <div
+                class="section-title"
+                data-i18n="settings"
+            >
                 Настройки
             </div>
 
 
-            <div class="settings-card">
+            <div class="settings-card glass">
 
                 <button
                     class="settings-row"
@@ -190,11 +197,11 @@
                     </span>
 
                     <span class="settings-copy">
-                        <strong>
+                        <strong data-i18n="excludePairs">
                             Исключить пары
                         </strong>
 
-                        <small>
+                        <small data-i18n="excludePairsHint">
                             Управление скрытыми предметами
                         </small>
                     </span>
@@ -220,11 +227,11 @@
                     </span>
 
                     <span class="settings-copy">
-                        <strong>
+                        <strong data-i18n="calendar">
                             Календарь
                         </strong>
 
-                        <small>
+                        <small data-i18n="calendarHint">
                             Подписка на расписание
                         </small>
                     </span>
@@ -237,12 +244,15 @@
             </div>
 
 
-            <div class="section-title">
+            <div
+                class="section-title"
+                data-i18n="notifications"
+            >
                 Уведомления
             </div>
 
 
-            <div class="settings-card">
+            <div class="settings-card glass">
 
                 <button
                     class="settings-row"
@@ -259,11 +269,11 @@
                     </span>
 
                     <span class="settings-copy">
-                        <strong>
+                        <strong data-i18n="scheduleUpdates">
                             Изменения расписания
                         </strong>
 
-                        <small>
+                        <small data-i18n="scheduleUpdatesHint">
                             Уведомления о новых изменениях
                         </small>
                     </span>
@@ -291,11 +301,11 @@
                     </span>
 
                     <span class="settings-copy">
-                        <strong>
+                        <strong data-i18n="tomorrowNotif">
                             Завтрашнее расписание
                         </strong>
 
-                        <small>
+                        <small data-i18n="tomorrowNotifHint">
                             Напоминание о парах
                         </small>
                     </span>
@@ -311,14 +321,20 @@
             </div>
 
 
-            <div class="section-title">
+            <div
+                class="section-title"
+                data-i18n="appearance"
+            >
                 Оформление
             </div>
 
 
-            <div class="settings-card appearance-card">
+            <div class="settings-card appearance-card glass">
 
-                <div class="appearance-title">
+                <div
+                    class="appearance-title"
+                    data-i18n="interface"
+                >
                     Интерфейс
                 </div>
 
@@ -330,6 +346,7 @@
                     <button
                         type="button"
                         data-appearance="light"
+                        data-i18n="light"
                     >
                         Светлая
                     </button>
@@ -337,6 +354,7 @@
                     <button
                         type="button"
                         data-appearance="dark"
+                        data-i18n="dark"
                     >
                         Тёмная
                     </button>
@@ -346,7 +364,10 @@
             </div>
 
 
-            <div class="section-title">
+            <div
+                class="section-title"
+                data-i18n="theme"
+            >
                 Тема
             </div>
 
@@ -367,17 +388,20 @@
             <div class="screen-heading">
 
                 <div>
-                    <h1>
+                    <h1 data-i18n="excludePairs">
                         Исключить пары
                     </h1>
                 </div>
 
             </div>
 
-            <p class="screen-description">
+            <p
+                class="screen-description"
+                data-i18n="excludedDescription"
+            >
                 Нажми на предмет, чтобы скрыть его
                 из сегодняшнего, завтрашнего и
-                недельного расписания
+                недельного расписания.
             </p>
 
             <div
@@ -390,7 +414,7 @@
     </main>
 
 
-    <nav class="bottom-nav">
+    <nav class="bottom-nav glass-nav">
 
         <button
             class="nav-item active"
@@ -402,7 +426,7 @@
                 <line x1="3" y1="10" x2="21" y2="10"/>
                 <circle cx="12" cy="16" r="1.6" fill="currentColor" stroke="none"/>
             </svg>
-            <small>Сегодня</small>
+            <small data-i18n="today">Сегодня</small>
         </button>
 
         <button
@@ -415,7 +439,7 @@
                 <line x1="3" y1="10" x2="21" y2="10"/>
                 <path d="M9 16l3 3 4-4"/>
             </svg>
-            <small>Завтра</small>
+            <small data-i18n="tomorrow">Завтра</small>
         </button>
 
         <button
@@ -430,7 +454,7 @@
                 <line x1="13" y1="14" x2="13" y2="18"/>
                 <line x1="17" y1="14" x2="17" y2="18"/>
             </svg>
-            <small>Неделя</small>
+            <small data-i18n="week">Неделя</small>
         </button>
 
         <button
@@ -443,7 +467,7 @@
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H19"/>
                 <line x1="9" y1="8" x2="15" y2="8"/>
             </svg>
-            <small>Сессия</small>
+            <small data-i18n="sessions">Сессия</small>
         </button>
 
         <button
@@ -455,7 +479,7 @@
                 <circle cx="12" cy="8" r="3.6"/>
                 <path d="M4.5 20c1-4 4-6 7.5-6s6.5 2 7.5 6"/>
             </svg>
-            <small>Профиль</small>
+            <small data-i18n="profile">Профиль</small>
         </button>
 
     </nav>

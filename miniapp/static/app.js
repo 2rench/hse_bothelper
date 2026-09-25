@@ -1,6 +1,209 @@
 const tg = window.Telegram?.WebApp || {};
 
 
+const TRANSLATIONS = {
+    ru: {
+        today: "Сегодня",
+        tomorrow: "Завтра",
+        week: "Неделя",
+        sessions: "Сессия",
+        profile: "Профиль",
+        loading: "Загружаем расписание…",
+        loadingShort: "Загружаем…",
+        noToday: "На сегодня пар нет.",
+        noTomorrow: "На завтра пар нет.",
+        noWeek: "На этой неделе пар нет.",
+        noLessons: "Пар нет.",
+        chooseGroup: "Сначала выбери группу.",
+        settings: "Настройки",
+        notifications: "Уведомления",
+        appearance: "Оформление",
+        theme: "Тема",
+        interface: "Интерфейс",
+        light: "Светлая",
+        dark: "Тёмная",
+        excludePairs: "Исключить пары",
+        excludePairsHint: "Управление скрытыми предметами",
+        calendar: "Календарь",
+        calendarHint: "Подписка на расписание",
+        scheduleUpdates: "Изменения расписания",
+        scheduleUpdatesHint: "Уведомления о новых изменениях",
+        tomorrowNotif: "Завтрашнее расписание",
+        tomorrowNotifHint: "Напоминание о парах",
+        on: "ВКЛ",
+        off: "ВЫКЛ",
+        startAt: "Начнёшь в",
+        endAt: "закончишь в",
+        noSessions: "Сессий пока нет.",
+        noSessionLessons: "Для этой сессии расписания нет.",
+        noSubjectsWeek: "На этой неделе предметов нет.",
+        excludedDescription: "Нажми на предмет, чтобы скрыть его из сегодняшнего, завтрашнего и недельного расписания.",
+        groupNotSelected: "Группа не выбрана",
+        student: "Студент",
+        schedule: "Расписание",
+        current: "текущая",
+        loadError: "Не удалось загрузить данные",
+        hintGroup: "Откройте бота в Telegram и выберите учебную группу, чтобы Mini App подтянул расписание.",
+        hintAuth: "Откройте Mini App из Telegram — по прямой ссылке авторизация недоступна.",
+        pairExcluded: "Пара исключена",
+        pairIncluded: "Пара снова включена",
+        themeChanged: "Оформление:",
+        error: "Ошибка",
+    },
+    en: {
+        today: "Today",
+        tomorrow: "Tomorrow",
+        week: "Week",
+        sessions: "Session",
+        profile: "Profile",
+        loading: "Loading schedule…",
+        loadingShort: "Loading…",
+        noToday: "No classes today.",
+        noTomorrow: "No classes tomorrow.",
+        noWeek: "No classes this week.",
+        noLessons: "No classes.",
+        chooseGroup: "Choose your group first.",
+        settings: "Settings",
+        notifications: "Notifications",
+        appearance: "Appearance",
+        theme: "Theme",
+        interface: "Interface",
+        light: "Light",
+        dark: "Dark",
+        excludePairs: "Exclude classes",
+        excludePairsHint: "Manage hidden subjects",
+        calendar: "Calendar",
+        calendarHint: "Schedule subscription",
+        scheduleUpdates: "Schedule changes",
+        scheduleUpdatesHint: "Notifications about changes",
+        tomorrowNotif: "Tomorrow's schedule",
+        tomorrowNotifHint: "Class reminder",
+        on: "ON",
+        off: "OFF",
+        startAt: "Start at",
+        endAt: "end at",
+        noSessions: "No sessions yet.",
+        noSessionLessons: "No classes for this session.",
+        noSubjectsWeek: "No subjects this week.",
+        excludedDescription: "Tap a subject to hide it from the schedule.",
+        groupNotSelected: "Group not selected",
+        student: "Student",
+        schedule: "Schedule",
+        current: "current",
+        loadError: "Failed to load data",
+        hintGroup: "Open the bot in Telegram and choose your group first.",
+        hintAuth: "Open the Mini App from Telegram — direct link has no auth.",
+        pairExcluded: "Class excluded",
+        pairIncluded: "Class restored",
+        themeChanged: "Theme:",
+        error: "Error",
+    },
+    fr: {
+        today: "Aujourd'hui",
+        tomorrow: "Demain",
+        week: "Semaine",
+        sessions: "Session",
+        profile: "Profil",
+        loading: "Chargement…",
+        loadingShort: "Chargement…",
+        noToday: "Pas de cours aujourd'hui.",
+        noTomorrow: "Pas de cours demain.",
+        noWeek: "Pas de cours cette semaine.",
+        noLessons: "Pas de cours.",
+        chooseGroup: "Choisis d'abord un groupe.",
+        settings: "Paramètres",
+        notifications: "Notifications",
+        appearance: "Apparence",
+        theme: "Thème",
+        interface: "Interface",
+        light: "Clair",
+        dark: "Sombre",
+        excludePairs: "Exclure des cours",
+        excludePairsHint: "Gérer les matières masquées",
+        calendar: "Calendrier",
+        calendarHint: "Abonnement à l'emploi du temps",
+        scheduleUpdates: "Modifications",
+        scheduleUpdatesHint: "Notifications des changements",
+        tomorrowNotif: "Cours de demain",
+        tomorrowNotifHint: "Rappel des cours",
+        on: "ON",
+        off: "OFF",
+        startAt: "Début à",
+        endAt: "fin à",
+        noSessions: "Aucune session.",
+        noSessionLessons: "Pas de cours pour cette session.",
+        noSubjectsWeek: "Aucune matière cette semaine.",
+        excludedDescription: "Appuie sur une matière pour la masquer.",
+        groupNotSelected: "Groupe non choisi",
+        student: "Étudiant",
+        schedule: "Emploi du temps",
+        current: "actuelle",
+        loadError: "Échec du chargement",
+        hintGroup: "Ouvre le bot dans Telegram et choisis ton groupe.",
+        hintAuth: "Ouvre la Mini App depuis Telegram.",
+        pairExcluded: "Cours exclu",
+        pairIncluded: "Cours rétabli",
+        themeChanged: "Thème :",
+        error: "Erreur",
+    },
+    zh: {
+        today: "今天",
+        tomorrow: "明天",
+        week: "本周",
+        sessions: "考试周",
+        profile: "个人中心",
+        loading: "加载中…",
+        loadingShort: "加载中…",
+        noToday: "今天没有课。",
+        noTomorrow: "明天没有课。",
+        noWeek: "本周没有课。",
+        noLessons: "没有课。",
+        chooseGroup: "请先选择班级。",
+        settings: "设置",
+        notifications: "通知",
+        appearance: "外观",
+        theme: "主题",
+        interface: "界面",
+        light: "浅色",
+        dark: "深色",
+        excludePairs: "排除课程",
+        excludePairsHint: "管理隐藏的科目",
+        calendar: "日历",
+        calendarHint: "订阅课程表",
+        scheduleUpdates: "课程表变化",
+        scheduleUpdatesHint: "变更通知",
+        tomorrowNotif: "明天的课程",
+        tomorrowNotifHint: "课程提醒",
+        on: "开",
+        off: "关",
+        startAt: "开始于",
+        endAt: "结束于",
+        noSessions: "暂无考试。",
+        noSessionLessons: "该考试周没有课程。",
+        noSubjectsWeek: "本周没有科目。",
+        excludedDescription: "点击科目以从课程表中隐藏。",
+        groupNotSelected: "未选择班级",
+        student: "学生",
+        schedule: "课程表",
+        current: "当前",
+        loadError: "加载失败",
+        hintGroup: "请在 Telegram 中打开机器人并选择班级。",
+        hintAuth: "请从 Telegram 打开小程序。",
+        pairExcluded: "已排除",
+        pairIncluded: "已恢复",
+        themeChanged: "主题：",
+        error: "错误",
+    },
+};
+
+
+const LANGUAGE_THEMES = {
+    english: "en",
+    french: "fr",
+    chinese: "zh",
+};
+
+
 const state = {
     identity: null,
     profile: null,
@@ -29,6 +232,63 @@ const screenIds = {
 
 function $(id) {
     return document.getElementById(id);
+}
+
+
+function currentLang() {
+    const theme = state.profile?.theme || "default";
+
+    if (LANGUAGE_THEMES[theme]) {
+        return LANGUAGE_THEMES[theme];
+    }
+
+    return "ru";
+}
+
+
+function t(key) {
+    const lang = currentLang();
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
+    return dict[key] ?? TRANSLATIONS.ru[key] ?? key;
+}
+
+
+function pluralPairs(n) {
+    const lang = currentLang();
+
+    if (lang === "en") {
+        return n === 1 ? "class" : "classes";
+    }
+    if (lang === "fr") {
+        return "cours";
+    }
+    if (lang === "zh") {
+        return "节课";
+    }
+
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+
+    if (mod10 === 1 && mod100 !== 11) return "пара";
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "пары";
+    return "пар";
+}
+
+
+function applyTranslations() {
+    const lang = currentLang();
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        const dict = TRANSLATIONS[lang] || TRANSLATIONS.ru;
+        const value = dict[key] ?? TRANSLATIONS.ru[key];
+        if (value != null) {
+            el.textContent = value;
+        }
+    });
+
+    renderProfile();
 }
 
 
@@ -64,7 +324,14 @@ async function api(url, options = {}) {
         headers["Content-Type"] = "application/json";
     }
 
-    const response = await fetch(url, { ...options, headers });
+    const separator = url.includes("?") ? "&" : "?";
+    const bustedUrl = `${url}${separator}_t=${Date.now()}`;
+
+    const response = await fetch(bustedUrl, {
+        ...options,
+        headers,
+        cache: "no-store",
+    });
 
     let data = null;
     try {
@@ -74,9 +341,7 @@ async function api(url, options = {}) {
     }
 
     if (!response.ok) {
-        const message =
-            data?.detail ||
-            `Ошибка ${response.status}`;
+        const message = data?.detail || `${t("error")} ${response.status}`;
         const err = new Error(message);
         err.status = response.status;
         throw err;
@@ -207,27 +472,37 @@ async function loadBootstrap() {
 
     renderProfile();
     renderThemes();
+    applyTranslations();
     applyAppearance();
 }
 
 
 function renderProfile() {
-    const firstName = state.identity?.first_name || "Студент";
-    const group = state.profile?.group_name || "Группа не выбрана";
+    const firstName = state.identity?.first_name || t("student");
+    const group = state.profile?.group_name || t("groupNotSelected");
 
-    $("profileName").textContent = firstName;
-    $("profileGroup").textContent = group;
+    const nameEl = $("profileName");
+    const groupEl = $("profileGroup");
+    const subtitleEl = $("topbarSubtitle");
 
-    $("topbarSubtitle").textContent =
-        group === "Группа не выбрана"
-            ? "Расписание"
-            : group;
+    if (nameEl) nameEl.textContent = firstName;
+    if (groupEl) groupEl.textContent = group;
+
+    if (subtitleEl) {
+        subtitleEl.textContent =
+            group === t("groupNotSelected")
+                ? t("schedule")
+                : group;
+    }
 
     const avatarLetter =
         (firstName.trim().charAt(0) || "H").toUpperCase();
 
-    $("avatarButton").textContent = avatarLetter;
-    $("profileAvatar").textContent = avatarLetter;
+    const avatarBtn = $("avatarButton");
+    const avatarProfile = $("profileAvatar");
+
+    if (avatarBtn) avatarBtn.textContent = avatarLetter;
+    if (avatarProfile) avatarProfile.textContent = avatarLetter;
 
     renderNotificationValues();
 }
@@ -240,8 +515,10 @@ function renderNotificationValues() {
     const updatesElement = $("scheduleUpdatesValue");
     const tomorrowElement = $("tomorrowValue");
 
-    updatesElement.textContent = updates ? "ВКЛ" : "ВЫКЛ";
-    tomorrowElement.textContent = tomorrow ? "ВКЛ" : "ВЫКЛ";
+    if (!updatesElement || !tomorrowElement) return;
+
+    updatesElement.textContent = updates ? t("on") : t("off");
+    tomorrowElement.textContent = tomorrow ? t("on") : t("off");
 
     updatesElement.classList.toggle("active", Boolean(updates));
     tomorrowElement.classList.toggle("active", Boolean(tomorrow));
@@ -280,12 +557,12 @@ function renderThemes() {
 
 function updateScheduleHeader(view) {
     const titles = {
-        today: "Сегодня",
-        tomorrow: "Завтра",
-        week: "Неделя",
+        today: t("today"),
+        tomorrow: t("tomorrow"),
+        week: t("week"),
     };
 
-    $("scheduleTitle").textContent = titles[view] || "Расписание";
+    $("scheduleTitle").textContent = titles[view] || t("schedule");
 }
 
 
@@ -335,7 +612,7 @@ function renderWeekPicker() {
         .map(week => {
             const active = week === state.selectedWeek;
             const label = week === state.currentWeek
-                ? `${week} · текущая`
+                ? `${week} · ${t("current")}`
                 : String(week);
 
             return `
@@ -353,6 +630,55 @@ function renderWeekPicker() {
 }
 
 
+function computeTimeRange(lessons) {
+    if (!lessons || !lessons.length) return null;
+
+    const parse = value => {
+        const parts = String(value || "").split("-");
+        return {
+            start: (parts[0] || "").trim(),
+            end: (parts[1] || "").trim(),
+        };
+    };
+
+    const first = parse(lessons[0].lesson_time);
+    const last = parse(lessons[lessons.length - 1].lesson_time);
+
+    if (!first.start || !last.end) return null;
+
+    return {
+        start: first.start,
+        end: last.end,
+        count: lessons.length,
+    };
+}
+
+
+function renderTimeRange(lessons) {
+    const range = computeTimeRange(lessons);
+
+    if (!range) return "";
+
+    return `
+        <div class="time-range">
+            <span>${escapeHtml(t("startAt"))} <strong>${escapeHtml(range.start)}</strong></span>
+            <span class="dot">·</span>
+            <span>${escapeHtml(t("endAt"))} <strong>${escapeHtml(range.end)}</strong></span>
+            <span class="dot">·</span>
+            <span><strong>${range.count}</strong> ${escapeHtml(pluralPairs(range.count))}</span>
+        </div>
+    `;
+}
+
+
+function emptyMessageFor(view) {
+    if (view === "today") return t("noToday");
+    if (view === "tomorrow") return t("noTomorrow");
+    if (view === "week") return t("noWeek");
+    return t("noLessons");
+}
+
+
 async function loadSchedule(view) {
     state.view = view;
 
@@ -361,7 +687,7 @@ async function loadSchedule(view) {
     updateScheduleHeader(view);
 
     const container = $("scheduleContainer");
-    container.innerHTML = `<div class="loading">Загружаем расписание…</div>`;
+    container.innerHTML = `<div class="loading">${escapeHtml(t("loading"))}</div>`;
 
     try {
         if (view === "week") {
@@ -412,7 +738,7 @@ function renderSchedule(data) {
                 <div class="empty-symbol">
                     ${escapeHtml(state.theme?.tokens?.lesson || "○")}
                 </div>
-                <p>${escapeHtml(data.empty_message || "Пар нет")}</p>
+                <p>${escapeHtml(emptyMessageFor(data.view))}</p>
             </div>
         `;
         return;
@@ -423,7 +749,11 @@ function renderSchedule(data) {
         return;
     }
 
-    container.innerHTML = data.lessons.map(lessonCard).join("");
+    const range = renderTimeRange(data.lessons);
+
+    container.innerHTML =
+        range +
+        data.lessons.map(lessonCard).join("");
 }
 
 
@@ -505,7 +835,7 @@ function lessonCard(lesson) {
                         ${escapeHtml(lesson.lesson_time || "—")}
                     </div>
                     <div class="lesson-number">
-                        ${escapeHtml(lesson.lesson_number || "")} пара
+                        ${escapeHtml(lesson.lesson_number || "")}
                     </div>
                 </div>
             </div>
@@ -526,7 +856,7 @@ async function openSessions() {
     setActiveNav("sessions");
 
     $("sessionsContainer").innerHTML =
-        `<div class="loading">Загружаем…</div>`;
+        `<div class="loading">${escapeHtml(t("loadingShort"))}</div>`;
     $("sessionLessonsContainer").innerHTML = "";
 
     try {
@@ -550,7 +880,7 @@ function renderSessions() {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-symbol">—</div>
-                <p>Сессий пока нет.</p>
+                <p>${escapeHtml(t("noSessions"))}</p>
             </div>
         `;
         return;
@@ -578,7 +908,7 @@ async function openSession(session) {
     renderSessions();
 
     const container = $("sessionLessonsContainer");
-    container.innerHTML = `<div class="loading">Загружаем…</div>`;
+    container.innerHTML = `<div class="loading">${escapeHtml(t("loadingShort"))}</div>`;
 
     try {
         const data = await api(
@@ -588,7 +918,7 @@ async function openSession(session) {
         if (!data.lessons.length) {
             container.innerHTML = `
                 <div class="empty-state">
-                    <p>Для этой сессии расписания нет.</p>
+                    <p>${escapeHtml(t("noSessionLessons"))}</p>
                 </div>
             `;
             return;
@@ -628,7 +958,7 @@ function renderExcluded(data) {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-symbol">—</div>
-                <p>На этой неделе предметов нет.</p>
+                <p>${escapeHtml(t("noSubjectsWeek"))}</p>
             </div>
         `;
         return;
@@ -675,8 +1005,8 @@ async function toggleExcluded(subject) {
 
         showToast(
             data.excluded.includes(subject)
-                ? "Пара исключена"
-                : "Пара снова включена"
+                ? t("pairExcluded")
+                : t("pairIncluded")
         );
     } catch (error) {
         showToast(error.message);
@@ -700,10 +1030,16 @@ async function changeTheme(theme) {
 
         renderThemes();
         applyAppearance();
-        showToast(`Оформление: ${data.theme.name}`);
+        applyTranslations();
+        updateScheduleHeader(state.view);
+        showToast(`${t("themeChanged")} ${data.theme.name}`);
 
-        if (state.view === "today") {
-            await loadSchedule("today");
+        if (
+            state.view === "today" ||
+            state.view === "tomorrow" ||
+            state.view === "week"
+        ) {
+            await loadSchedule(state.view);
         }
     } catch (error) {
         showToast(error.message);
@@ -875,27 +1211,46 @@ async function init() {
     state.appearance = getSavedAppearance();
     applyAppearance();
 
-    try {
-        await loadBootstrap();
-        await loadSchedule("today");
-    } catch (error) {
-        const message = error.message || "Не удалось загрузить данные";
+    const container = $("scheduleContainer");
+    if (container) {
+        container.innerHTML = `<div class="loading">${escapeHtml(t("loading"))}</div>`;
+    }
+
+    const tasks = [
+        loadBootstrap().catch(error => ({ __error: error, __from: "bootstrap" })),
+        loadSchedule("today").catch(error => ({ __error: error, __from: "schedule" })),
+    ];
+
+    const results = await Promise.all(tasks);
+
+    const bootstrapFailure = results.find(
+        r => r && r.__from === "bootstrap" && r.__error
+    );
+
+    if (bootstrapFailure) {
+        const error = bootstrapFailure.__error;
+        const message = error.message || t("loadError");
 
         let hint = "";
         if (error.status === 404 || /not found/i.test(message)) {
-            hint = "Откройте бота в Telegram и выберите учебную группу, чтобы Mini App подтянул расписание.";
+            hint = t("hintGroup");
         } else if (error.status === 401 || /initdata/i.test(message)) {
-            hint = "Откройте Mini App из Telegram — по прямой ссылке авторизация недоступна.";
+            hint = t("hintAuth");
         }
 
-        $("scheduleContainer").innerHTML = `
-            <div class="empty-state">
-                <div class="empty-symbol">!</div>
-                <p>${escapeHtml(message)}</p>
-                ${hint ? `<p class="empty-hint">${escapeHtml(hint)}</p>` : ""}
-            </div>
-        `;
+        if (container) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-symbol">!</div>
+                    <p>${escapeHtml(message)}</p>
+                    ${hint ? `<p class="empty-hint">${escapeHtml(hint)}</p>` : ""}
+                </div>
+            `;
+        }
+        return;
     }
+
+    loadWeeks().catch(() => {});
 }
 
 
