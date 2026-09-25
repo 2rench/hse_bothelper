@@ -835,7 +835,7 @@ function lessonCard(lesson) {
                         ${escapeHtml(lesson.lesson_time || "—")}
                     </div>
                     <div class="lesson-number">
-                        ${escapeHtml(lesson.lesson_number || "")}
+                        ${escapeHtml(lesson.lesson_number || "")} ${escapeHtml(pluralPairs(1))}
                     </div>
                 </div>
             </div>

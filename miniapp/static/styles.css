@@ -10,10 +10,10 @@ html {
 :root {
     color-scheme: light;
 
-    --bg: #EEF1F6;
-    --surface: rgba(255, 255, 255, 0.62);
+    --bg: #F5F6F7;
+    --surface: rgba(255, 255, 255, 0.72);
     --surface-solid: #FFFFFF;
-    --surface-2: rgba(240, 241, 243, 0.7);
+    --surface-2: rgba(240, 241, 243, 0.85);
     --text: #14161A;
     --text-2: #4E535A;
     --muted: #8A9096;
@@ -23,11 +23,11 @@ html {
     --accent-fg: #FFFFFF;
     --accent-soft: rgba(20, 22, 26, 0.06);
 
-    --glass-bg: rgba(255, 255, 255, 0.62);
-    --glass-bg-strong: rgba(255, 255, 255, 0.78);
-    --glass-border: rgba(255, 255, 255, 0.75);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85);
-    --glass-shadow: 0 10px 40px rgba(20, 22, 26, 0.06);
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg-strong: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.9);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --glass-shadow: 0 8px 28px rgba(20, 22, 26, 0.05);
 
     --radius-sm: 10px;
     --radius-md: 14px;
@@ -45,9 +45,9 @@ html {
     color-scheme: dark;
 
     --bg: #0B0D10;
-    --surface: rgba(24, 26, 29, 0.62);
+    --surface: rgba(24, 26, 29, 0.72);
     --surface-solid: #181A1D;
-    --surface-2: rgba(32, 34, 38, 0.7);
+    --surface-2: rgba(32, 34, 38, 0.85);
     --text: #F2F3F5;
     --text-2: #B0B5BC;
     --muted: #71777E;
@@ -57,11 +57,11 @@ html {
     --accent-fg: #14161A;
     --accent-soft: rgba(242, 243, 245, 0.08);
 
-    --glass-bg: rgba(24, 26, 29, 0.58);
-    --glass-bg-strong: rgba(24, 26, 29, 0.78);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    --glass-shadow: 0 14px 44px rgba(0, 0, 0, 0.35);
+    --glass-bg: rgba(24, 26, 29, 0.68);
+    --glass-bg-strong: rgba(24, 26, 29, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
 }
 
 :root[data-display-theme="luxury"] { --accent: #A5516F; --accent-fg: #FFFFFF; --accent-soft: rgba(165, 81, 111, 0.12); }
@@ -83,28 +83,16 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
+    background: var(--bg);
     color: var(--text);
     font-family: var(--font-body);
     font-size: 15px;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--bg);
-    background-image:
-        radial-gradient(circle at 12% 8%, rgba(120, 150, 255, 0.18), transparent 42%),
-        radial-gradient(circle at 88% 14%, rgba(255, 150, 200, 0.14), transparent 46%),
-        radial-gradient(circle at 50% 96%, rgba(150, 255, 200, 0.12), transparent 52%);
-    background-attachment: fixed;
     transition:
         background-color 240ms ease,
         color 240ms ease;
-}
-
-:root[data-mode="dark"] body {
-    background-image:
-        radial-gradient(circle at 12% 8%, rgba(70, 100, 220, 0.24), transparent 42%),
-        radial-gradient(circle at 88% 14%, rgba(200, 80, 150, 0.18), transparent 46%),
-        radial-gradient(circle at 50% 96%, rgba(60, 140, 120, 0.18), transparent 52%);
 }
 
 button {
@@ -145,7 +133,7 @@ button {
         20px
         14px;
     background:
-        color-mix(in srgb, var(--bg) 70%, transparent);
+        color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
 }
@@ -766,7 +754,7 @@ h1 {
         6px 8px
         calc(var(--inset-bottom) + max(6px, env(safe-area-inset-bottom, 0px)));
     background:
-        color-mix(in srgb, var(--bg) 65%, transparent);
+        color-mix(in srgb, var(--bg) 78%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-top: 1px solid var(--glass-border);

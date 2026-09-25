@@ -15,7 +15,10 @@ from fastapi import (
     HTTPException,
     Request,
 )
-from fastapi.responses import FileResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -121,11 +124,11 @@ GREETINGS_GIRL_RU = [
     "Выглядишь супер",
     "Ты сегодня особенно хороша",
     "Сияешь ярче солнца",
-    "Красотка, день будет отличным",
+    "День становится лучше",
     "Улыбнись — тебе идёт",
     "Неотразима, как всегда",
     "Прекрасна в каждой детали",
-    "Умница и красавица",
+    "На меня смотрит красотка",
 ]
 
 GREETINGS_BOY_RU = {
@@ -494,8 +497,41 @@ def serialize_theme(
 @app.get("/")
 async def index():
 
-    return FileResponse(
-        STATIC_DIR / "index.html"
+    html_path = STATIC_DIR / "index.html"
+    css_path = STATIC_DIR / "styles.css"
+    js_path = STATIC_DIR / "app.js"
+
+    html = html_path.read_text(
+        encoding="utf-8"
+    )
+
+    try:
+        css_ver = int(css_path.stat().st_mtime)
+    except OSError:
+        css_ver = 0
+
+    try:
+        js_ver = int(js_path.stat().st_mtime)
+    except OSError:
+        js_ver = 0
+
+    html = html.replace(
+        "/static/styles.css",
+        f"/static/styles.css?v={css_ver}",
+    )
+
+    html = html.replace(
+        "/static/app.js",
+        f"/static/app.js?v={js_ver}",
+    )
+
+    return HTMLResponse(
+        html,
+        headers={
+            "Cache-Control": "no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
     )
 
 
