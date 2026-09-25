@@ -34,7 +34,7 @@ html {
     --radius-lg: 18px;
     --radius-xl: 22px;
 
-    --inset-top: 56px;
+    --inset-top: 12px;
     --inset-bottom: 0px;
 
     --font-display: "Unbounded", "Gilroy", "Montserrat", system-ui, sans-serif;
@@ -129,9 +129,9 @@ button {
     align-items: center;
     gap: 12px;
     padding:
-        calc(var(--inset-top) + 16px)
+        calc(var(--inset-top) + 6px)
         20px
-        14px;
+        12px;
     background:
         color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
@@ -332,6 +332,18 @@ h1 {
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--glass-shadow), var(--glass-highlight);
+    transition:
+        border-color 200ms ease,
+        box-shadow 200ms ease,
+        background-color 200ms ease;
+}
+
+.lesson-card.current {
+    border: 1.5px solid var(--accent);
+    box-shadow:
+        var(--glass-shadow),
+        var(--glass-highlight),
+        0 0 0 4px var(--accent-soft);
 }
 
 .lesson-top {
@@ -354,6 +366,18 @@ h1 {
     color: var(--muted);
     font-size: 12px;
     font-weight: 500;
+}
+
+.lesson-badge {
+    align-self: flex-start;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 .lesson-subject {

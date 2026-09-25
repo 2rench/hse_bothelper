@@ -48,6 +48,7 @@ const TRANSLATIONS = {
         pairExcluded: "Пара исключена",
         pairIncluded: "Пара снова включена",
         themeChanged: "Оформление:",
+        now: "Идёт сейчас",
         error: "Ошибка",
     },
     en: {
@@ -96,6 +97,7 @@ const TRANSLATIONS = {
         pairExcluded: "Class excluded",
         pairIncluded: "Class restored",
         themeChanged: "Theme:",
+        now: "Now",
         error: "Error",
     },
     fr: {
@@ -144,6 +146,7 @@ const TRANSLATIONS = {
         pairExcluded: "Cours exclu",
         pairIncluded: "Cours rétabli",
         themeChanged: "Thème :",
+        now: "En cours",
         error: "Erreur",
     },
     zh: {
@@ -192,6 +195,7 @@ const TRANSLATIONS = {
         pairExcluded: "已排除",
         pairIncluded: "已恢复",
         themeChanged: "主题：",
+        now: "正在进行",
         error: "错误",
     },
 };
@@ -217,6 +221,7 @@ const state = {
     currentWeek: null,
     defaultWeek: null,
     selectedWeek: null,
+    lastSchedule: null,
 };
 
 
@@ -354,13 +359,18 @@ async function api(url, options = {}) {
 function setupInsets() {
     try {
         const insets = tg.contentSafeAreaInset || {};
-        const top = insets.top || 56;
-        const bottom = insets.bottom || 0;
+        const safeTop = insets.top || 0;
+        const safeBottom = insets.bottom || 0;
+
+        const top = Math.max(safeTop, 12);
+        const bottom = safeBottom;
+
         const root = document.documentElement;
         root.style.setProperty("--inset-top", `${top}px`);
         root.style.setProperty("--inset-bottom", `${bottom}px`);
     } catch (error) {
-        // ignore
+        document.documentElement.style.setProperty("--inset-top", "12px");
+        document.documentElement.style.setProperty("--inset-bottom", "0px");
     }
 }
 
@@ -630,50 +640,72 @@ function renderWeekPicker() {
 }
 
 
+function parseTimeToMinutes(value) {
+    const match = String(value || "").match(/(\d{1,2}):(\d{2})/);
+
+    if (!match) return null;
+
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+
+    return hours * 60 + minutes;
+}
+
+
+function parseLessonRange(value) {
+    const text = String(value || "").trim();
+
+    if (!text) return null;
+
+    const matches = text.match(/\d{1,2}:\d{2}/g);
+
+    if (!matches || matches.length < 2) return null;
+
+    const start = parseTimeToMinutes(matches[0]);
+    const end = parseTimeToMinutes(matches[matches.length - 1]);
+
+    if (start == null || end == null) return null;
+
+    return { start, end };
+}
+
+
+function nowMinutes() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+
+function isLessonNow(lesson) {
+    const range = parseLessonRange(lesson.lesson_time);
+
+    if (!range) return false;
+
+    const current = nowMinutes();
+
+    return current >= range.start && current <= range.end;
+}
+
+
 function computeTimeRange(lessons) {
     if (!lessons || !lessons.length) return null;
 
-    const SEPARATORS = /[-–—−]/;
+    const first = parseLessonRange(lessons[0].lesson_time);
+    const last = parseLessonRange(lessons[lessons.length - 1].lesson_time);
 
-    const parse = value => {
-        const text = String(value || "").trim();
+    if (!first || !last) return null;
 
-        if (!text) {
-            return { start: "", end: "" };
-        }
-
-        const parts = text.split(SEPARATORS);
-
-        if (parts.length >= 2) {
-            return {
-                start: parts[0].trim(),
-                end: parts[parts.length - 1].trim(),
-            };
-        }
-
-        const times = text.match(/\d{1,2}:\d{2}/g);
-
-        if (times && times.length >= 2) {
-            return {
-                start: times[0],
-                end: times[times.length - 1],
-            };
-        }
-
-        return {
-            start: times && times[0] ? times[0] : "",
-            end: "",
-        };
+    const format = minutes => {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     };
 
-    const first = parse(lessons[0].lesson_time);
-    const last = parse(lessons[lessons.length - 1].lesson_time);
-
-    if (!first.start || !last.end) return null;
-
     return {
-        start: first.start,
-        end: last.end,
+        start: format(first.start),
+        end: format(last.end),
         count: lessons.length,
     };
 }
@@ -755,6 +787,8 @@ async function loadSchedule(view) {
 
 
 function renderSchedule(data) {
+    state.lastSchedule = data;
+
     const container = $("scheduleContainer");
 
     if (!data.lessons || !data.lessons.length) {
@@ -815,6 +849,7 @@ function renderWeek(lessons) {
 function lessonCard(lesson) {
     const tokens = state.theme?.tokens || {};
     const meta = [];
+    const isNow = isLessonNow(lesson);
 
     if (lesson.lesson_type) {
         meta.push(`
@@ -853,7 +888,7 @@ function lessonCard(lesson) {
     }
 
     return `
-        <article class="lesson-card">
+        <article class="lesson-card ${isNow ? "current" : ""}">
             <div class="lesson-top">
                 <div>
                     <div class="lesson-time">
@@ -863,6 +898,12 @@ function lessonCard(lesson) {
                         ${escapeHtml(lesson.lesson_number || "")} ${escapeHtml(pluralPairs(1))}
                     </div>
                 </div>
+
+                ${isNow ? `
+                    <span class="lesson-badge">
+                        ${escapeHtml(t("now"))}
+                    </span>
+                ` : ""}
             </div>
 
             <div class="lesson-subject">
@@ -1277,6 +1318,36 @@ async function init() {
 
     loadWeeks().catch(() => {});
 }
+
+
+setInterval(() => {
+    if (
+        state.view !== "today" &&
+        state.view !== "tomorrow" &&
+        state.view !== "week"
+    ) {
+        return;
+    }
+
+    const data = state.lastSchedule;
+
+    if (!data) return;
+
+    const container = $("scheduleContainer");
+
+    if (!container) return;
+
+    if (!data.lessons || !data.lessons.length) return;
+
+    if (data.view === "week") {
+        renderWeek(data.lessons);
+        return;
+    }
+
+    container.innerHTML =
+        renderTimeRange(data.lessons) +
+        data.lessons.map(lessonCard).join("");
+}, 60000);
 
 
 init();
