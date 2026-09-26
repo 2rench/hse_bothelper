@@ -515,9 +515,18 @@ function rerenderCurrentSchedule() {
         return;
     }
 
+    const shouldHighlight =
+        data.view === "today";
+
     container.innerHTML =
         renderTimeRange(data.lessons) +
-        data.lessons.map(lessonCard).join("");
+        data.lessons
+            .map(lesson =>
+                lessonCard(lesson, {
+                    highlightNow: shouldHighlight,
+                })
+            )
+            .join("");
 }
 
 
@@ -844,9 +853,18 @@ function renderSchedule(data) {
 
     const range = renderTimeRange(data.lessons);
 
+    const shouldHighlight =
+        data.view === "today";
+
     container.innerHTML =
         range +
-        data.lessons.map(lessonCard).join("");
+        data.lessons
+            .map(lesson =>
+                lessonCard(lesson, {
+                    highlightNow: shouldHighlight,
+                })
+            )
+            .join("");
 }
 
 
@@ -880,10 +898,10 @@ function renderWeek(lessons) {
 }
 
 
-function lessonCard(lesson) {
+function lessonCard(lesson, options = {}) {
     const tokens = state.theme?.tokens || {};
     const meta = [];
-    const isNow = isLessonNow(lesson);
+    const isNow = options.highlightNow === true && isLessonNow(lesson);
 
     if (lesson.lesson_type) {
         meta.push(`
@@ -1378,9 +1396,18 @@ setInterval(() => {
         return;
     }
 
+    const shouldHighlight =
+        data.view === "today";
+
     container.innerHTML =
         renderTimeRange(data.lessons) +
-        data.lessons.map(lessonCard).join("");
+        data.lessons
+            .map(lesson =>
+                lessonCard(lesson, {
+                    highlightNow: shouldHighlight,
+                })
+            )
+            .join("");
 }, 60000);
 
 
