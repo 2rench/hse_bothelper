@@ -10,9 +10,9 @@ const TRANSLATIONS = {
         profile: "Профиль",
         loading: "Загружаем расписание…",
         loadingShort: "Загружаем…",
-        noToday: "На сегодня пар нет.",
-        noTomorrow: "На завтра пар нет.",
-        noWeek: "На этой неделе пар нет.",
+        noToday: "На сегодня пар нет",
+        noTomorrow: "На завтра пар нет",
+        noWeek: "На этой неделе пар нет",
         noLessons: "Пар нет.",
         chooseGroup: "Сначала выбери группу.",
         settings: "Настройки",
@@ -32,11 +32,11 @@ const TRANSLATIONS = {
         tomorrowNotifHint: "Напоминание о парах",
         on: "ВКЛ",
         off: "ВЫКЛ",
-        startAt: "Начнёшь в",
+        startAt: "начнёшь в",
         endAt: "закончишь в",
-        noSessions: "Сессий пока нет.",
-        noSessionLessons: "Для этой сессии расписания нет.",
-        noSubjectsWeek: "На этой неделе предметов нет.",
+        noSessions: "Сессий пока нет",
+        noSessionLessons: "Для этой сессии расписания нет",
+        noSubjectsWeek: "На этой неделе предметов нет",
         excludedDescription: "Нажми на предмет, чтобы скрыть его из сегодняшнего, завтрашнего и недельного расписания.",
         groupNotSelected: "Группа не выбрана",
         student: "Студент",
@@ -209,8 +209,8 @@ const LANGUAGE_THEMES = {
 
 
 const FEEDBACK_KEY = "hse-feedback";
-const FEEDBACK_SHOW_AFTER_MS = 30 * 1000;
-const FEEDBACK_MIN_VISITS = 2;
+const FEEDBACK_SHOW_AFTER_MS = 1300;
+const FEEDBACK_MIN_VISITS = 1;
 const FEEDBACK_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 
 
