@@ -208,6 +208,12 @@ const LANGUAGE_THEMES = {
 };
 
 
+const FEEDBACK_KEY = "hse-feedback";
+const FEEDBACK_SHOW_AFTER_MS = 30 * 1000;
+const FEEDBACK_MIN_VISITS = 2;
+const FEEDBACK_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+
 const state = {
     identity: null,
     profile: null,
@@ -515,8 +521,7 @@ function rerenderCurrentSchedule() {
         return;
     }
 
-    const shouldHighlight =
-        data.view === "today";
+    const shouldHighlight = data.view === "today";
 
     container.innerHTML =
         renderTimeRange(data.lessons) +
@@ -851,13 +856,10 @@ function renderSchedule(data) {
         return;
     }
 
-    const range = renderTimeRange(data.lessons);
-
-    const shouldHighlight =
-        data.view === "today";
+    const shouldHighlight = data.view === "today";
 
     container.innerHTML =
-        range +
+        renderTimeRange(data.lessons) +
         data.lessons
             .map(lesson =>
                 lessonCard(lesson, {
@@ -889,7 +891,7 @@ function renderWeek(lessons) {
                         ${escapeHtml(day)} · ${escapeHtml(date)}
                     </div>
                     <div class="schedule-container">
-                        ${dayLessons.map(lessonCard).join("")}
+                        ${dayLessons.map(lesson => lessonCard(lesson)).join("")}
                     </div>
                 </section>
             `;
@@ -1042,7 +1044,9 @@ async function openSession(session) {
             return;
         }
 
-        container.innerHTML = data.lessons.map(lessonCard).join("");
+        container.innerHTML = data.lessons
+            .map(lesson => lessonCard(lesson))
+            .join("");
     } catch (error) {
         container.innerHTML = `
             <div class="empty-state">
@@ -1194,7 +1198,113 @@ async function openCalendar() {
 }
 
 
+function feedbackState() {
+    try {
+        const raw = localStorage.getItem(FEEDBACK_KEY);
+        if (!raw) return { answered: false, visits: 0, dismissedAt: 0 };
+        return JSON.parse(raw);
+    } catch (error) {
+        return { answered: false, visits: 0, dismissedAt: 0 };
+    }
+}
+
+
+function saveFeedbackState(next) {
+    try {
+        localStorage.setItem(FEEDBACK_KEY, JSON.stringify(next));
+    } catch (error) {
+        // ignore
+    }
+}
+
+
+function shouldShowFeedback() {
+    const s = feedbackState();
+
+    if (s.answered) return false;
+
+    if ((s.visits || 0) < FEEDBACK_MIN_VISITS) return false;
+
+    const now = Date.now();
+
+    if (
+        s.dismissedAt
+        && now - s.dismissedAt < FEEDBACK_DISMISS_COOLDOWN_MS
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+
+function registerVisit() {
+    const s = feedbackState();
+    s.visits = (s.visits || 0) + 1;
+    saveFeedbackState(s);
+}
+
+
+function scheduleFeedback() {
+    if (!shouldShowFeedback()) return;
+
+    setTimeout(() => {
+        const el = $("feedback");
+        if (!el) return;
+        el.hidden = false;
+    }, FEEDBACK_SHOW_AFTER_MS);
+}
+
+
+async function submitFeedback(score) {
+    try {
+        await api("/api/feedback", {
+            method: "POST",
+            body: JSON.stringify({ score }),
+        });
+
+        const s = feedbackState();
+        s.answered = true;
+        saveFeedbackState(s);
+
+        const el = $("feedback");
+        if (el) el.hidden = true;
+
+        showToast("Спасибо!");
+    } catch (error) {
+        showToast(error.message);
+    }
+}
+
+
+function dismissFeedback() {
+    const s = feedbackState();
+    s.dismissedAt = Date.now();
+    saveFeedbackState(s);
+
+    const el = $("feedback");
+    if (el) el.hidden = true;
+}
+
+
 document.addEventListener("click", async event => {
+    const feedbackBtn = event.target.closest("[data-action='feedback']");
+    if (feedbackBtn) {
+        const score = Number(feedbackBtn.dataset.score);
+        if (score >= 1 && score <= 5) {
+            haptic();
+            await submitFeedback(score);
+        }
+        return;
+    }
+
+    const feedbackClose = event.target.closest("[data-action='feedback-close']");
+    if (feedbackClose) {
+        haptic();
+        dismissFeedback();
+        return;
+    }
+
     const nav = event.target.closest(".nav-item");
 
     if (nav) {
@@ -1368,6 +1478,9 @@ async function init() {
         return;
     }
 
+    registerVisit();
+    scheduleFeedback();
+
     loadWeeks().catch(() => {});
 }
 
@@ -1396,8 +1509,7 @@ setInterval(() => {
         return;
     }
 
-    const shouldHighlight =
-        data.view === "today";
+    const shouldHighlight = data.view === "today";
 
     container.innerHTML =
         renderTimeRange(data.lessons) +

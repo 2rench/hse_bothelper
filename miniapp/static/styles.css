@@ -129,9 +129,9 @@ button {
     align-items: center;
     gap: 12px;
     padding:
-        calc(var(--inset-top) + 6px)
+        calc(var(--inset-top) + 2px)
         20px
-        12px;
+        8px;
     background:
         color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
@@ -144,16 +144,16 @@ button {
 
 .brand {
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.04em;
     line-height: 1.1;
 }
 
 .topbar-subtitle {
-    margin-top: 4px;
+    margin-top: 2px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -161,16 +161,16 @@ button {
 }
 
 .avatar {
-    flex: 0 0 40px;
-    width: 40px;
-    height: 40px;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
     display: grid;
     place-items: center;
     border-radius: 50%;
     background: var(--accent);
     color: var(--accent-fg);
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     transition: transform 150ms ease;
     box-shadow: var(--glass-shadow);
@@ -244,14 +244,7 @@ h1 {
 }
 
 .week-picker {
-    margin-bottom: 14px;
-    padding: 12px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--glass-shadow), var(--glass-highlight);
+    margin: 0 4px 16px;
 }
 
 .week-picker-title {
@@ -355,7 +348,7 @@ h1 {
 
 .lesson-time {
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
@@ -842,4 +835,83 @@ h1 {
     .themes-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+}
+.feedback {
+    position: fixed;
+    left: 50%;
+    bottom: calc(96px + var(--inset-bottom));
+    transform: translateX(-50%);
+    z-index: 90;
+    width: min(440px, calc(100% - 24px));
+    animation: feedbackIn 320ms ease;
+}
+
+@keyframes feedbackIn {
+    from { opacity: 0; transform: translate(-50%, 24px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.feedback-inner {
+    position: relative;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    text-align: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow), var(--glass-highlight);
+}
+
+.feedback-text {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+}
+
+.feedback-scale {
+    display: flex;
+    gap: 6px;
+}
+
+.feedback-chip {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 150ms ease;
+}
+
+.feedback-chip:active {
+    transform: scale(0.94);
+}
+
+.feedback-chip.active {
+    background: var(--accent);
+    color: var(--accent-fg);
+}
+
+.feedback-close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+}
+
+.feedback-close:active {
+    background: var(--surface-2);
 }

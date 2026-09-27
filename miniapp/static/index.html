@@ -97,13 +97,6 @@
                 hidden
             >
                 <div
-                    class="week-picker-title"
-                    data-i18n="week"
-                >
-                    Неделя
-                </div>
-
-                <div
                     id="weekPickerList"
                     class="week-picker-list"
                 ></div>
@@ -485,7 +478,35 @@
     </nav>
 
 </div>
-
+<div
+    class="feedback"
+    id="feedback"
+    hidden
+>
+    <div class="feedback-inner">
+        <div
+            class="feedback-text"
+            data-i18n="feedbackQuestion"
+        >
+            Как тебе приложение?
+        </div>
+        <div class="feedback-scale">
+            <button type="button" class="feedback-chip" data-action="feedback" data-score="1">1</button>
+            <button type="button" class="feedback-chip" data-action="feedback" data-score="2">2</button>
+            <button type="button" class="feedback-chip" data-action="feedback" data-score="3">3</button>
+            <button type="button" class="feedback-chip" data-action="feedback" data-score="4">4</button>
+            <button type="button" class="feedback-chip" data-action="feedback" data-score="5">5</button>
+        </div>
+        <button
+            type="button"
+            class="feedback-close"
+            data-action="feedback-close"
+            aria-label="Close"
+        >
+            ×
+        </button>
+    </div>
+</div>
 
 <div
     class="toast"

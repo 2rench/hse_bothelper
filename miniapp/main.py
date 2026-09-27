@@ -210,6 +210,10 @@ class ExcludedSubjectRequest(BaseModel):
     subject: str
 
 
+class FeedbackRequest(BaseModel):
+    score: int
+
+
 class NotificationToggleRequest(BaseModel):
     field: Literal[
         "schedule_updates",
@@ -1087,4 +1091,32 @@ async def calendar(
     return {
         "https_url": https_url,
         "webcal_url": webcal_url,
+    }
+
+@app.post("/api/feedback")
+async def feedback(
+    payload: FeedbackRequest,
+    request: Request,
+):
+
+    telegram_id = get_telegram_id(
+        request
+    )
+
+    if payload.score < 1 or payload.score > 5:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Score must be 1-5",
+        )
+
+    print(
+        f"[feedback] user={telegram_id} "
+        f"score={payload.score} "
+        f"time={datetime.now().isoformat()}",
+        flush=True,
+    )
+
+    return {
+        "ok": True
     }
