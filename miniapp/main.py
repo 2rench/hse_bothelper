@@ -44,6 +44,7 @@ from app.services.schedule_service import (
     get_week_lessons_by_number,
     get_available_week_numbers,
     get_current_schedule_week,
+    get_lessons_by_date_and_building,
 )
 
 from app.database.session_repository import (
@@ -160,6 +161,43 @@ GREETINGS_ZH = {
 }
 
 
+BUILDING_ROOMS = {
+    "1": [
+        "201", "202", "301", "306", "307",
+        "315", "317",
+        "401", "402", "403", "405", "407",
+    ],
+    "2": [
+        "101", "115", "122", "124",
+        "209", "210", "211", "220",
+        "305", "306", "307", "308", "309",
+        "311", "312", "313", "314", "315", "316",
+        "318", "319", "320", "321", "322", "323",
+        "325",
+    ],
+    "3": [
+        "102", "110", "111", "206", "218",
+        "304", "305", "311", "316",
+        "501", "503", "504", "509", "510", "511",
+    ],
+    "4": [
+        "105", "109",
+        "117", "118", "119",
+        "122",
+        "206", "207", "210", "212", "215", "216",
+        "301", "304", "306", "310", "311", "316", "317",
+    ],
+    "5": [
+        "106", "203", "205",
+        "301", "302", "307", "316", "318", "323", "326",
+    ],
+}
+
+
+DAY_START_MINUTES = 8 * 60 + 10
+DAY_END_MINUTES = 21 * 60 + 30
+
+
 def _time_of_day() -> str:
 
     hour = datetime.now().hour
@@ -202,6 +240,66 @@ def build_greeting(
     ]
 
 
+def parse_hhmm_to_minutes(
+    value: str,
+) -> int | None:
+
+    try:
+
+        parts = value.strip().split(":")
+
+        if len(parts) != 2:
+            return None
+
+        hours = int(parts[0])
+        minutes = int(parts[1])
+
+        if hours < 0 or hours > 23:
+            return None
+        if minutes < 0 or minutes > 59:
+            return None
+
+        return hours * 60 + minutes
+
+    except (ValueError, AttributeError):
+
+        return None
+
+
+def parse_lesson_range(
+    value: str,
+) -> tuple[int, int] | None:
+
+    if not value:
+        return None
+
+    matches = []
+
+    for part in str(value).replace("–", "-").replace("—", "-").split("-"):
+
+        part = part.strip()
+
+        parsed = parse_hhmm_to_minutes(part)
+
+        if parsed is not None:
+            matches.append(parsed)
+
+    if len(matches) < 2:
+        return None
+
+    return matches[0], matches[-1]
+
+
+def format_minutes_to_hhmm(
+    minutes: int,
+) -> str:
+
+    hours = minutes // 60
+    mins = minutes % 60
+
+    return f"{hours:02d}:{mins:02d}"
+
+
 class ThemeRequest(BaseModel):
     theme: str
 
@@ -210,15 +308,15 @@ class ExcludedSubjectRequest(BaseModel):
     subject: str
 
 
-class FeedbackRequest(BaseModel):
-    score: int
-
-
 class NotificationToggleRequest(BaseModel):
     field: Literal[
         "schedule_updates",
         "tomorrow_notifications",
     ]
+
+
+class FeedbackRequest(BaseModel):
+    score: int
 
 
 def validate_init_data(
@@ -774,6 +872,116 @@ async def schedule(
     }
 
 
+@app.get("/api/rooms")
+async def rooms(
+    request: Request,
+    date: str | None = None,
+    building: str | None = None,
+    time_from: str | None = None,
+    time_to: str | None = None,
+):
+
+    get_telegram_id(
+        request
+    )
+
+    if date is None:
+
+        date = datetime.now().strftime(
+            "%d.%m.%Y"
+        )
+
+    if building not in BUILDING_ROOMS:
+
+        building = "2"
+
+    from_minutes = (
+        parse_hhmm_to_minutes(time_from)
+        if time_from
+        else DAY_START_MINUTES
+    )
+
+    to_minutes = (
+        parse_hhmm_to_minutes(time_to)
+        if time_to
+        else DAY_END_MINUTES
+    )
+
+    if from_minutes is None:
+        from_minutes = DAY_START_MINUTES
+
+    if to_minutes is None:
+        to_minutes = DAY_END_MINUTES
+
+    if from_minutes > to_minutes:
+        from_minutes, to_minutes = to_minutes, from_minutes
+
+    lessons = get_lessons_by_date_and_building(
+        date,
+        building,
+    )
+
+    known = bool(lessons)
+
+    rooms_in_building = BUILDING_ROOMS[building]
+
+    busy_map: dict[str, dict] = {}
+
+    for lesson in lessons:
+
+        room = (lesson.room or "").strip()
+
+        if room not in rooms_in_building:
+            continue
+
+        lesson_range = parse_lesson_range(
+            lesson.lesson_time
+        )
+
+        if lesson_range is None:
+            continue
+
+        lesson_start, lesson_end = lesson_range
+
+        if lesson_start >= to_minutes or lesson_end <= from_minutes:
+            continue
+
+        current = busy_map.get(room)
+
+        if current is None or lesson_end > current["until_minutes"]:
+
+            busy_map[room] = {
+                "room": room,
+                "subject": lesson.subject or "",
+                "until_minutes": lesson_end,
+                "until": format_minutes_to_hhmm(lesson_end),
+            }
+
+    busy_rooms = set(busy_map.keys())
+
+    free_rooms = [
+        room
+        for room in rooms_in_building
+        if room not in busy_rooms
+    ]
+
+    busy_list = [
+        busy_map[room]
+        for room in rooms_in_building
+        if room in busy_map
+    ]
+
+    return {
+        "date": date,
+        "building": building,
+        "from": format_minutes_to_hhmm(from_minutes),
+        "to": format_minutes_to_hhmm(to_minutes),
+        "known": known,
+        "free": free_rooms,
+        "busy": busy_list,
+    }
+
+
 @app.get("/api/sessions")
 async def sessions(
     request: Request,
@@ -1092,6 +1300,7 @@ async def calendar(
         "https_url": https_url,
         "webcal_url": webcal_url,
     }
+
 
 @app.post("/api/feedback")
 async def feedback(

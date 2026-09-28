@@ -8,11 +8,12 @@ const TRANSLATIONS = {
         week: "Неделя",
         sessions: "Сессия",
         profile: "Профиль",
+        rooms: "Свободные аудитории",
         loading: "Загружаем расписание…",
         loadingShort: "Загружаем…",
-        noToday: "На сегодня пар нет",
-        noTomorrow: "На завтра пар нет",
-        noWeek: "На этой неделе пар нет",
+        noToday: "На сегодня пар нет.",
+        noTomorrow: "На завтра пар нет.",
+        noWeek: "На этой неделе пар нет.",
         noLessons: "Пар нет.",
         chooseGroup: "Сначала выбери группу.",
         settings: "Настройки",
@@ -32,11 +33,11 @@ const TRANSLATIONS = {
         tomorrowNotifHint: "Напоминание о парах",
         on: "ВКЛ",
         off: "ВЫКЛ",
-        startAt: "начнёшь в",
+        startAt: "Начнёшь в",
         endAt: "закончишь в",
-        noSessions: "Сессий пока нет",
-        noSessionLessons: "Для этой сессии расписания нет",
-        noSubjectsWeek: "На этой неделе предметов нет",
+        noSessions: "Сессий пока нет.",
+        noSessionLessons: "Для этой сессии расписания нет.",
+        noSubjectsWeek: "На этой неделе предметов нет.",
         excludedDescription: "Нажми на предмет, чтобы скрыть его из сегодняшнего, завтрашнего и недельного расписания.",
         groupNotSelected: "Группа не выбрана",
         student: "Студент",
@@ -50,6 +51,14 @@ const TRANSLATIONS = {
         themeChanged: "Оформление:",
         now: "Идёт сейчас",
         error: "Ошибка",
+        roomsFree: "Свободно",
+        roomsBusy: "Занято",
+        roomsEmpty: "Свободных аудиторий нет",
+        roomsUnknown: "Расписание на эту дату пока не загружено",
+        roomsUntil: "до",
+        building: "Корпус",
+        roomsDate: "Дата",
+        roomsTime: "Время",
     },
     en: {
         today: "Today",
@@ -57,6 +66,7 @@ const TRANSLATIONS = {
         week: "Week",
         sessions: "Session",
         profile: "Profile",
+        rooms: "Free rooms",
         loading: "Loading schedule…",
         loadingShort: "Loading…",
         noToday: "No classes today.",
@@ -99,6 +109,14 @@ const TRANSLATIONS = {
         themeChanged: "Theme:",
         now: "Now",
         error: "Error",
+        roomsFree: "Free",
+        roomsBusy: "Busy",
+        roomsEmpty: "No free rooms",
+        roomsUnknown: "Schedule for this date is not loaded yet",
+        roomsUntil: "until",
+        building: "Building",
+        roomsDate: "Date",
+        roomsTime: "Time",
     },
     fr: {
         today: "Aujourd'hui",
@@ -106,6 +124,7 @@ const TRANSLATIONS = {
         week: "Semaine",
         sessions: "Session",
         profile: "Profil",
+        rooms: "Salles libres",
         loading: "Chargement…",
         loadingShort: "Chargement…",
         noToday: "Pas de cours aujourd'hui.",
@@ -148,6 +167,14 @@ const TRANSLATIONS = {
         themeChanged: "Thème :",
         now: "En cours",
         error: "Erreur",
+        roomsFree: "Libres",
+        roomsBusy: "Occupées",
+        roomsEmpty: "Aucune salle libre",
+        roomsUnknown: "L'emploi du temps pour cette date n'est pas encore chargé",
+        roomsUntil: "jusqu'à",
+        building: "Bâtiment",
+        roomsDate: "Date",
+        roomsTime: "Heure",
     },
     zh: {
         today: "今天",
@@ -155,6 +182,7 @@ const TRANSLATIONS = {
         week: "本周",
         sessions: "考试周",
         profile: "个人中心",
+        rooms: "空闲教室",
         loading: "加载中…",
         loadingShort: "加载中…",
         noToday: "今天没有课。",
@@ -197,6 +225,14 @@ const TRANSLATIONS = {
         themeChanged: "主题：",
         now: "正在进行",
         error: "错误",
+        roomsFree: "空闲",
+        roomsBusy: "占用",
+        roomsEmpty: "没有空闲教室",
+        roomsUnknown: "该日期的课程表尚未加载",
+        roomsUntil: "至",
+        building: "楼",
+        roomsDate: "日期",
+        roomsTime: "时间",
     },
 };
 
@@ -209,9 +245,12 @@ const LANGUAGE_THEMES = {
 
 
 const FEEDBACK_KEY = "hse-feedback";
-const FEEDBACK_SHOW_AFTER_MS = 1300;
-const FEEDBACK_MIN_VISITS = 1;
+const FEEDBACK_SHOW_AFTER_MS = 30 * 1000;
+const FEEDBACK_MIN_VISITS = 2;
 const FEEDBACK_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
+
+const BUILDINGS = ["1", "2", "3", "4", "5"];
 
 
 const state = {
@@ -228,6 +267,12 @@ const state = {
     defaultWeek: null,
     selectedWeek: null,
     lastSchedule: null,
+    rooms: {
+        building: "2",
+        from: 490,
+        to: 1290,
+        date: null,
+    },
 };
 
 
@@ -235,6 +280,7 @@ const screenIds = {
     today: "screenSchedule",
     tomorrow: "screenSchedule",
     week: "screenSchedule",
+    rooms: "screenRooms",
     sessions: "screenSessions",
     profile: "screenProfile",
     excluded: "screenExcluded",
@@ -448,7 +494,7 @@ function showScreen(screen) {
     });
 
     const bottomNav = document.querySelector(".bottom-nav");
-    const isNested = screen === "excluded";
+    const isNested = screen === "excluded" || screen === "rooms";
 
     if (bottomNav) {
         bottomNav.style.display = isNested ? "none" : "";
@@ -1287,6 +1333,186 @@ function dismissFeedback() {
 }
 
 
+function minutesToHHMM(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+
+function dateToISO(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+
+function isoToDDMMYYYY(iso) {
+    const [y, m, d] = iso.split("-");
+    return `${d}.${m}.${y}`;
+}
+
+
+function defaultRoomsBuilding() {
+    const lessons = state.lastSchedule?.lessons;
+
+    if (lessons && lessons.length) {
+        const firstBuilding = String(lessons[0].building || "").trim();
+        if (BUILDINGS.includes(firstBuilding)) {
+            return firstBuilding;
+        }
+    }
+
+    return "2";
+}
+
+
+function renderRoomsBuildings() {
+    const container = $("roomsBuildings");
+    if (!container) return;
+
+    container.innerHTML = BUILDINGS
+        .map(building => {
+            const active = building === state.rooms.building;
+            return `
+                <button
+                    type="button"
+                    class="building-chip ${active ? "active" : ""}"
+                    data-action="select-building"
+                    data-building="${building}"
+                >
+                    ${escapeHtml(building)}
+                </button>
+            `;
+        })
+        .join("");
+}
+
+
+function updateRoomsTimeLabels() {
+    const fromLabel = $("roomsFromLabel");
+    const toLabel = $("roomsToLabel");
+
+    if (fromLabel) {
+        fromLabel.textContent = minutesToHHMM(state.rooms.from);
+    }
+    if (toLabel) {
+        toLabel.textContent = minutesToHHMM(state.rooms.to);
+    }
+}
+
+
+function renderRoomsResult(data) {
+    const container = $("roomsResult");
+    if (!container) return;
+
+    if (!data || data.known === false) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">?</div>
+                <p>${escapeHtml(t("roomsUnknown"))}</p>
+            </div>
+        `;
+        return;
+    }
+
+    const freeChips = data.free.length
+        ? data.free
+            .map(room => `
+                <span class="room-chip free">
+                    ${escapeHtml(room)}
+                </span>
+            `)
+            .join("")
+        : `<div class="rooms-empty">${escapeHtml(t("roomsEmpty"))}</div>`;
+
+    const busyRows = data.busy.length
+        ? data.busy
+            .map(item => `
+                <div class="room-busy-row">
+                    <span class="room-busy-number">${escapeHtml(item.room)}</span>
+                    <span class="room-busy-subject">${escapeHtml(item.subject || "")}</span>
+                    <span class="room-busy-until">${escapeHtml(t("roomsUntil"))} ${escapeHtml(item.until)}</span>
+                </div>
+            `)
+            .join("")
+        : "";
+
+    container.innerHTML = `
+        <div class="rooms-section">
+            <div class="rooms-section-title">${escapeHtml(t("roomsFree"))} · ${data.free.length}</div>
+            <div class="rooms-chips">${freeChips}</div>
+        </div>
+
+        ${busyRows ? `
+            <div class="rooms-section">
+                <div class="rooms-section-title">${escapeHtml(t("roomsBusy"))}</div>
+                <div class="rooms-busy">${busyRows}</div>
+            </div>
+        ` : ""}
+    `;
+}
+
+
+async function loadRooms() {
+    const container = $("roomsResult");
+    if (!container) return;
+
+    container.innerHTML = `<div class="loading">${escapeHtml(t("loadingShort"))}</div>`;
+
+    const params = new URLSearchParams();
+    params.set("building", state.rooms.building);
+    params.set("time_from", minutesToHHMM(state.rooms.from));
+    params.set("time_to", minutesToHHMM(state.rooms.to));
+
+    if (state.rooms.date) {
+        params.set("date", isoToDDMMYYYY(state.rooms.date));
+    }
+
+    try {
+        const data = await api(`/api/rooms?${params.toString()}`);
+        renderRoomsResult(data);
+    } catch (error) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-symbol">!</div>
+                <p>${escapeHtml(error.message)}</p>
+            </div>
+        `;
+    }
+}
+
+
+async function openRooms() {
+    const today = new Date();
+    const iso = dateToISO(today);
+
+    state.rooms.date = iso;
+    state.rooms.building = defaultRoomsBuilding();
+    state.rooms.from = 490;
+    state.rooms.to = 1290;
+
+    const dateInput = $("roomsDateInput");
+    if (dateInput) {
+        dateInput.value = iso;
+    }
+
+    const fromSlider = $("roomsFromSlider");
+    const toSlider = $("roomsToSlider");
+    if (fromSlider) fromSlider.value = String(state.rooms.from);
+    if (toSlider) toSlider.value = String(state.rooms.to);
+
+    renderRoomsBuildings();
+    updateRoomsTimeLabels();
+
+    showScreen("rooms");
+    setActiveNav("");
+
+    await loadRooms();
+}
+
+
 document.addEventListener("click", async event => {
     const feedbackBtn = event.target.closest("[data-action='feedback']");
     if (feedbackBtn) {
@@ -1302,6 +1528,17 @@ document.addEventListener("click", async event => {
     if (feedbackClose) {
         haptic();
         dismissFeedback();
+        return;
+    }
+
+    const buildingChip = event.target.closest("[data-action='select-building']");
+    if (buildingChip) {
+        const building = buildingChip.dataset.building;
+        if (building === state.rooms.building) return;
+        haptic();
+        state.rooms.building = building;
+        renderRoomsBuildings();
+        await loadRooms();
         return;
     }
 
@@ -1380,9 +1617,69 @@ document.addEventListener("click", async event => {
 });
 
 
+document.addEventListener("input", event => {
+    const target = event.target;
+
+    if (!target) return;
+
+    if (target.id === "roomsFromSlider") {
+        let value = Number(target.value);
+        if (value > state.rooms.to - 5) {
+            value = state.rooms.to - 5;
+            target.value = String(value);
+        }
+        state.rooms.from = value;
+        updateRoomsTimeLabels();
+        return;
+    }
+
+    if (target.id === "roomsToSlider") {
+        let value = Number(target.value);
+        if (value < state.rooms.from + 5) {
+            value = state.rooms.from + 5;
+            target.value = String(value);
+        }
+        state.rooms.to = value;
+        updateRoomsTimeLabels();
+        return;
+    }
+
+    if (target.id === "roomsDateInput") {
+        if (target.value) {
+            state.rooms.date = target.value;
+        }
+    }
+});
+
+
+document.addEventListener("change", event => {
+    const target = event.target;
+
+    if (!target) return;
+
+    if (target.id === "roomsFromSlider" || target.id === "roomsToSlider") {
+        loadRooms();
+        return;
+    }
+
+    if (target.id === "roomsDateInput") {
+        if (target.value) {
+            state.rooms.date = target.value;
+            loadRooms();
+        }
+    }
+});
+
+
 $("refreshButton").addEventListener("click", async () => {
     haptic();
     await loadSchedule(state.view);
+});
+
+
+$("roomsButton").addEventListener("click", async () => {
+    haptic();
+    await openRooms();
 });
 
 
@@ -1394,6 +1691,11 @@ $("avatarButton").addEventListener("click", () => {
 
 try {
     tg.BackButton?.onClick(() => {
+        if ($("screenRooms")?.classList.contains("active")) {
+            showScreen(state.view || "today");
+            setActiveNav(state.view || "today");
+            return;
+        }
         showScreen("profile");
         setActiveNav("profile");
     });
