@@ -1110,8 +1110,18 @@ async def feedback(
             detail="Score must be 1-5",
         )
 
+    identity = get_identity(
+        request
+    )
+
+    username = identity.get("username")
+    first_name = identity.get("first_name", "")
+
     print(
-        f"[feedback] user={telegram_id} "
+        f"[feedback] "
+        f"user={telegram_id} "
+        f"username=@{username if username else '—'} "
+        f"name={first_name} "
         f"score={payload.score} "
         f"time={datetime.now().isoformat()}",
         flush=True,
