@@ -249,6 +249,7 @@ const FEEDBACK_SHOW_AFTER_MS = 30 * 1000;
 const FEEDBACK_MIN_VISITS = 2;
 const FEEDBACK_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 
+const ONBOARDING_KEY = "hse-onboarding-rooms-v1";
 
 const BUILDINGS = ["1", "2", "3", "4", "5"];
 
@@ -1333,6 +1334,64 @@ function dismissFeedback() {
 }
 
 
+function shouldShowRoomsOnboarding() {
+    try {
+        return !localStorage.getItem(ONBOARDING_KEY);
+    } catch (error) {
+        return false;
+    }
+}
+
+
+function markRoomsOnboardingShown() {
+    try {
+        localStorage.setItem(ONBOARDING_KEY, "1");
+    } catch (error) {
+        // ignore
+    }
+}
+
+
+function positionOnboarding() {
+    const overlay = $("onboardingOverlay");
+    const hole = $("onboardingHole");
+    const tip = $("onboardingTip");
+    const target = $("roomsButton");
+
+    if (!overlay || !hole || !tip || !target) return;
+
+    const rect = target.getBoundingClientRect();
+    const pad = 8;
+
+    hole.style.left = `${rect.left - pad}px`;
+    hole.style.top = `${rect.top - pad}px`;
+    hole.style.width = `${rect.width + pad * 2}px`;
+    hole.style.height = `${rect.height + pad * 2}px`;
+
+    const tipTop = rect.bottom + pad + 16;
+    tip.style.top = `${tipTop}px`;
+    tip.style.left = "50%";
+    tip.style.transform = "translateX(-50%)";
+}
+
+
+function showRoomsOnboarding() {
+    const overlay = $("onboardingOverlay");
+
+    if (!overlay) return;
+
+    overlay.hidden = false;
+    positionOnboarding();
+    markRoomsOnboardingShown();
+}
+
+
+function hideRoomsOnboarding() {
+    const overlay = $("onboardingOverlay");
+    if (overlay) overlay.hidden = true;
+}
+
+
 function minutesToHHMM(minutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -1514,6 +1573,12 @@ async function openRooms() {
 
 
 document.addEventListener("click", async event => {
+    if (event.target.closest("#onboardingClose")) {
+        haptic();
+        hideRoomsOnboarding();
+        return;
+    }
+
     const feedbackBtn = event.target.closest("[data-action='feedback']");
     if (feedbackBtn) {
         const score = Number(feedbackBtn.dataset.score);
@@ -1783,8 +1848,28 @@ async function init() {
     registerVisit();
     scheduleFeedback();
 
+    if (shouldShowRoomsOnboarding()) {
+        setTimeout(() => {
+            showRoomsOnboarding();
+        }, 600);
+    }
+
     loadWeeks().catch(() => {});
 }
+
+
+window.addEventListener("resize", () => {
+    const overlay = $("onboardingOverlay");
+    if (!overlay || overlay.hidden) return;
+    positionOnboarding();
+});
+
+
+window.addEventListener("scroll", () => {
+    const overlay = $("onboardingOverlay");
+    if (!overlay || overlay.hidden) return;
+    positionOnboarding();
+}, { passive: true });
 
 
 setInterval(() => {
