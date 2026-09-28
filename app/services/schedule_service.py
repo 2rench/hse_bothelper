@@ -504,3 +504,28 @@ def get_week_subjects(
         subjects,
         key=lambda subject: subject.lower(),
     )
+
+def get_lessons_by_date_and_building(
+    date: str,
+    building: str,
+) -> list[Lesson]:
+
+    db: Session = SessionLocal()
+
+    lessons = (
+        db.query(Lesson)
+        .filter(
+            Lesson.date == date,
+            Lesson.building == building,
+            not_(
+                Lesson.schedule_name.like(
+                    "СЕССИЯ%"
+                )
+            ),
+        )
+        .all()
+    )
+
+    db.close()
+
+    return lessons
