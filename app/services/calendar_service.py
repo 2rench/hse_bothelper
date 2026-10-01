@@ -351,6 +351,15 @@ def build_calendar(
             or "Пара"
         )
 
+        lesson_type = (
+            lesson.lesson_type or ""
+        ).strip().lower()
+
+        if lesson_type == "семинар":
+            summary = f"(с) {summary}"
+        elif lesson_type == "лекция":
+            summary = f"(л) {summary}"
+
         description_parts = []
 
         if lesson.teacher:

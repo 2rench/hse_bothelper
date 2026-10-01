@@ -90,7 +90,7 @@ async def tomorrow_handler(
     )
 
     await message.answer(
-        "👀 В MiniAPP можно смотреть свободные аудитории"
+        "<tg-spoiler>🥊 Вы уже сделали >23к запросов к MiniApp — продолжайте!</tg-spoiler>"
     )
 
 @router.message(
