@@ -6,7 +6,6 @@ __pycache__/
 users.csv
 
 schedule.db
-app/database/
 migrate.py
 
 files/downloaded/
