@@ -132,7 +132,7 @@ async def teacher_schedule_handler(
         )
 
         if lesson.room:
-            text += f"<i><b>{lesson.room}</b</i>"
+            text += f"{lesson.room}"
 
             if lesson.building:
                 text += f" [{lesson.building}]"
