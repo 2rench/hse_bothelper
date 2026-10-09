@@ -128,11 +128,11 @@ async def teacher_schedule_handler(
         text += (
             f"🕒 <b>{lesson.lesson_time}</b>\n"
             f"📚 {lesson.subject or 'Предмет не указан'}\n"
-            f"👥 Группа: {lesson.group_name}\n"
+            f"{lesson.group_name}, "
         )
 
         if lesson.room:
-            text += f"🚪 Аудитория: {lesson.room}"
+            text += f"<i><b>{lesson.room}</b</i>"
 
             if lesson.building:
                 text += f" [{lesson.building}]"
