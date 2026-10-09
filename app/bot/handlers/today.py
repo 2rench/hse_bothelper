@@ -75,9 +75,9 @@ async def today_handler(
         text
     )
 
-    # await message.answer(
-    #     "<tg-spoiler>🥊 Вы уже сделали >23к запросов к MiniApp — продолжайте!</tg-spoiler>"
-    # )
+    await message.answer(
+        "🙈 В «Главная» можно посмотреть расписание преподавателя"
+    )
 
 
 @router.message(

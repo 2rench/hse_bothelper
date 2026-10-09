@@ -41,9 +41,54 @@ async def teachers_today_handler(
     await callback.message.answer(
         "👨‍🏫 <b>Преподаватели сегодня</b>\n\n"
         "Выбери преподавателя:",
-        reply_markup=get_teachers_keyboard(teachers),
+        reply_markup=get_teachers_keyboard(teachers, page=0),
     )
 
+    await callback.answer()
+
+
+@router.callback_query(
+    lambda c: c.data.startswith("teachers_page:")
+)
+async def teachers_page_handler(
+    callback: CallbackQuery,
+):
+    try:
+        page = int(callback.data.split(":", 1)[1])
+    except ValueError:
+        await callback.answer()
+        return
+
+    teachers = teacher_cache.get(callback.from_user.id)
+
+    if not teachers:
+        await callback.answer(
+            "Список устарел. Открой его заново.",
+            show_alert=True,
+        )
+        return
+
+    try:
+        await callback.message.edit_reply_markup(
+            reply_markup=get_teachers_keyboard(teachers, page=page),
+        )
+    except Exception:
+        # на случай, если сообщение слишком старое / не изменилось
+        await callback.message.answer(
+            "👨‍🏫 <b>Преподаватели сегодня</b>\n\n"
+            "Выбери преподавателя:",
+            reply_markup=get_teachers_keyboard(teachers, page=page),
+        )
+
+    await callback.answer()
+
+
+@router.callback_query(
+    lambda c: c.data == "teachers_noop"
+)
+async def teachers_noop_handler(
+    callback: CallbackQuery,
+):
     await callback.answer()
 
 
@@ -101,3 +146,4 @@ async def teacher_schedule_handler(
 
     await callback.message.answer(text.strip())
     await callback.answer()
+    
