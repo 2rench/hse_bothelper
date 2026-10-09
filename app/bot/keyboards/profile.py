@@ -38,5 +38,11 @@ def get_profile_keyboard():
                     callback_data="calendar",
                 )
             ],
+            [
+                InlineKeyboardButton(
+                    text="👨‍🏫 Преподаватели сегодня",
+                    callback_data="teachers_today",
+                )
+            ],
         ]
     )

@@ -89,7 +89,27 @@ def filter_excluded_lessons(
 
 def emoji(
     lesson_count,
+    lesson_type=None,
+    theme_name=None,
 ):
+
+    # ------------------------------------------------
+    # Для темы default: эмодзи зависит от типа пары
+    # ------------------------------------------------
+
+    if theme_name == "default" and lesson_type:
+
+        normalized_type = lesson_type.strip().lower()
+
+        if normalized_type == "семинар":
+            return "😵"
+
+        if normalized_type == "лекция":
+            return "😴"
+
+    # ------------------------------------------------
+    # Прежняя логика по количеству пар
+    # ------------------------------------------------
 
     if lesson_count == 1:
         return "😋"
@@ -147,6 +167,15 @@ def format_lessons(
     theme = _get_theme_from_user(
         user
     )
+
+    theme_name = "default"
+
+    if user:
+
+        theme_name = user.get(
+            "theme",
+            "default",
+        )
 
     excluded_subjects = []
 
@@ -210,7 +239,7 @@ def format_lessons(
             )
 
             text += (
-                f"{emoji(len(day_lessons))} "
+                f"{_emoji_for_lessons(day_lessons, theme_name)} "
                 f"{theme['pairs']}: "
                 f"{len(day_lessons)}\n\n"
             )
@@ -223,7 +252,7 @@ def format_lessons(
         return text.rstrip()
 
     text += (
-        f"{emoji(len(lessons))} "
+        f"{_emoji_for_lessons(lessons, theme_name)} "
         f"{theme['pairs']}: "
         f"{len(lessons)}\n\n"
     )
@@ -234,6 +263,26 @@ def format_lessons(
     )
 
     return text.rstrip()
+
+
+def _emoji_for_lessons(
+    lessons,
+    theme_name,
+):
+
+    # Для темы default тип пары берём
+    # из первой пары в списке.
+    lesson_type = None
+
+    if theme_name == "default" and lessons:
+
+        lesson_type = lessons[0].lesson_type
+
+    return emoji(
+        len(lessons),
+        lesson_type=lesson_type,
+        theme_name=theme_name,
+    )
 
 
 def _format_day_lessons(

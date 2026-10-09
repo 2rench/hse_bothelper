@@ -21,6 +21,7 @@ from app.bot.handlers.sport_schedule import router as sport_router
 from app.admin.admin_router import (
     router as admin_router
 )
+from app.bot.handlers.teachers import router as teachers_router
 from app.bot.handlers import start, today, week, tomorrow, sessions
 from app.bot.handlers.notifications import (
     router as notifications_router
@@ -87,6 +88,7 @@ async def main():
     dp.include_router(admin_router)
     dp.include_router(sport_router)
     dp.include_router(themes_router)
+    dp.include_router(teachers_router)
     dp.include_router(unknown_router)
 
     asyncio.create_task(
