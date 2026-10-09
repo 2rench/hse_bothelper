@@ -18,8 +18,6 @@ from app.bot.keyboards.teachers import (
 
 router = Router()
 
-# Соответствие коротких ID именам преподавателей.
-# Заполняется при показе списка.
 teacher_cache: dict[int, list[str]] = {}
 
 
