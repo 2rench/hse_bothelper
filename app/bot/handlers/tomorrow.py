@@ -90,7 +90,7 @@ async def tomorrow_handler(
     )
 
     await message.answer(
-        "🙈 В «Главная» можно посмотреть расписание преподавателя"
+        "🫶 Наши серверы работают как и прежде"
     )
 
 @router.message(
