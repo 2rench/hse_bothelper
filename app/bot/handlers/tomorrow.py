@@ -73,6 +73,9 @@ async def tomorrow_handler(
         await message.answer(
             f"{get_tomorrow_no_lessons(message.from_user.id)} "
         )
+        await message.answer(
+            "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
+        )
 
         return
 
@@ -89,9 +92,9 @@ async def tomorrow_handler(
         text
     )
 
-    await message.answer(
-        "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
-    )
+    # await message.answer(
+    #     "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
+    # )
 
 @router.message(
     lambda m: m.text == "📆 Завтра"

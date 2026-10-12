@@ -63,6 +63,9 @@ async def today_handler(
         await message.answer(
             f"{get_today_no_lessons(message.from_user.id)} "
         )
+        await message.answer(
+            "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
+        )
 
         return
 
@@ -75,9 +78,9 @@ async def today_handler(
         text
     )
 
-    await message.answer(
-        "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
-    )
+    # await message.answer(
+    #     "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
+    # )
 
 
 @router.message(
