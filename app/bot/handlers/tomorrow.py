@@ -73,9 +73,9 @@ async def tomorrow_handler(
         await message.answer(
             f"{get_tomorrow_no_lessons(message.from_user.id)} "
         )
-        await message.answer(
-            "🙏 Друзья, расписания сейчас нет даже на Яндекс Диске.\n\n🫶 Работа наших серверов стабильна как и всегда. <a href='https://t.me/hse_perm_helper_news'>Новости</a>"
-        )
+        # await message.answer(
+        #     "🙏 Друзья, расписания сейчас нет даже на Яндекс Диске.\n\n🫶 Работа наших серверов стабильна как и всегда. <a href='https://t.me/hse_perm_helper_news'>Новости</a>"
+        # )
 
         return
 
@@ -93,7 +93,7 @@ async def tomorrow_handler(
     )
 
     # await message.answer(
-    #     "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
+    #     "🫶 "
     # )
 
 @router.message(

@@ -63,9 +63,9 @@ async def today_handler(
         await message.answer(
             f"{get_today_no_lessons(message.from_user.id)} "
         )
-        await message.answer(
-            "🙏 Друзья, расписания сейчас нет даже на Яндекс Диске.\n\n🫶 Работа наших серверов стабильна как и всегда. <a href='https://t.me/hse_perm_helper_news'>Новости</a>"
-        )
+        # await message.answer(
+        #     "🙏 Друзья, расписания сейчас нет даже на Яндекс Диске.\n\n🫶 Работа наших серверов стабильна как и всегда. <a href='https://t.me/hse_perm_helper_news'>Новости</a>"
+        # )
 
         return
 
