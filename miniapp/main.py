@@ -1063,7 +1063,7 @@ async def session_schedule(
             lesson_type_norm == "семинар"
             and subject_norm != "майнор"
         ):
-            item["lesson_type"] = "экзамен"
+            item["lesson_type"] = "Экзамен"
 
         serialized.append(
             item

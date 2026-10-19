@@ -87,14 +87,10 @@ async def open_session(callback: CallbackQuery):
     messages = format_session_schedule(
         lessons,
         telegram_id=callback.from_user.id,
+        week=week,
     )
 
     for message in messages:
-        text = (
-            f"🎓 Сессия (неделя №{week})\n\n"
-            f"{message}"
-        )
-
-        await callback.message.answer(text)
+        await callback.message.answer(message)
 
     await callback.answer()

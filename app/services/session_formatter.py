@@ -56,42 +56,6 @@ def _get_theme_from_user(user):
     )
 
 
-def emoji(
-    lesson_count,
-    lesson_type=None,
-    theme_name=None,
-):
-    if theme_name == "default" and lesson_type:
-        normalized_type = lesson_type.strip().lower()
-
-        if normalized_type == "семинар":
-            return "😵"
-
-        if normalized_type == "лекция":
-            return "😴"
-
-    if lesson_count == 1:
-        return "😋"
-
-    if lesson_count in [2, 3]:
-        return "😐"
-
-    return "😵‍💫"
-
-
-def _emoji_for_lessons(lessons, theme_name):
-    lesson_type = None
-
-    if theme_name == "default" and lessons:
-        lesson_type = lessons[0].lesson_type
-
-    return emoji(
-        len(lessons),
-        lesson_type=lesson_type,
-        theme_name=theme_name,
-    )
-
-
 def _format_day_lessons(lessons, theme):
     blocks = []
 
@@ -136,7 +100,9 @@ def _filter_military_department(lessons):
 def format_session_schedule(
     lessons: list[Lesson],
     telegram_id=None,
+    week=None,
 ) -> list[str]:
+
     if not lessons:
         theme = get_theme(telegram_id)
         return [theme["no_lessons"]]
@@ -151,11 +117,6 @@ def format_session_schedule(
 
     theme = _get_theme_from_user(user)
 
-    theme_name = "default"
-
-    if user:
-        theme_name = user.get("theme", "default")
-
     grouped = defaultdict(list)
 
     for lesson in lessons:
@@ -168,18 +129,18 @@ def format_session_schedule(
     for (day, date), day_lessons in grouped.items():
         text = f"<b>{day} — {date}</b>\n\n"
 
-        text += (
-            f"{_emoji_for_lessons(day_lessons, theme_name)} "
-            f"{theme['pairs']}: "
-            f"{len(day_lessons)}\n\n"
-        )
-
         text += _format_day_lessons(
             day_lessons,
             theme,
         )
 
         messages.append(text.rstrip())
+
+    if messages and week is not None:
+        messages[0] = (
+            f"🎓 Сессия (неделя №{week})\n\n"
+            f"{messages[0]}"
+        )
 
     return messages
 
