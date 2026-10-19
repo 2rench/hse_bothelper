@@ -1034,6 +1034,15 @@ async def session_schedule(
         session_name,
     )
 
+    lessons = [
+        lesson
+        for lesson in lessons
+        if (lesson.subject or "")
+        .strip()
+        .casefold()
+        != "военная кафедра"
+    ]
+
     return {
         "session": session_name,
         "lessons": [

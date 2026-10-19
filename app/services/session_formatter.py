@@ -22,6 +22,12 @@ THEMES = {
 }
 
 
+MILITARY_SUBJECTS = (
+    "военная кафедра",
+    "военная кафедра (военный учебный центр)",
+)
+
+
 def get_theme(
     telegram_id=None,
 ):
@@ -185,14 +191,34 @@ def _format_day_lessons(
     )
 
 
+def _filter_military_department(
+    lessons,
+):
+
+    return [
+        lesson
+        for lesson in lessons
+        if lesson.subject.strip().lower()
+        not in MILITARY_SUBJECTS
+    ]
+
+
 def format_session_schedule(
     lessons: list[Lesson],
     telegram_id=None,
 ) -> list[str]:
-    """
-    Возвращает список сообщений — по одному на каждый день сессии.
-    Структура каждого сообщения повторяет основной форматер.
-    """
+
+    if not lessons:
+
+        theme = get_theme(
+            telegram_id
+        )
+
+        return [theme["no_lessons"]]
+
+    lessons = _filter_military_department(
+        lessons
+    )
 
     if not lessons:
 
@@ -263,3 +289,16 @@ def format_session_schedule(
         )
 
     return messages
+
+
+def format_session_schedule_joined(
+    lessons: list[Lesson],
+    telegram_id=None,
+) -> str:
+
+    return "\n\n".join(
+        format_session_schedule(
+            lessons,
+            telegram_id,
+        )
+    )
