@@ -1,24 +1,27 @@
 from collections import defaultdict
 
 from app.database.models import Lesson
-
-from app.database.user_repository import (
-    get_user,
-)
+from app.database.user_repository import get_user
 
 from app.themes.default import THEME as default
 from app.themes.luxury import THEME as luxury
 from app.themes.clean_girl import THEME as clean_girl
 from app.themes.brother import THEME as brother
 from app.themes.it_style import THEME as it_style
+from app.themes.english import THEME as english
+from app.themes.chinese import THEME as chinese
+from app.themes.french import THEME as french
 
 
 THEMES = {
     "default": default,
-    "lux": luxury,
-    "clean": clean_girl,
-    "brat": brother,
-    "it": it_style,
+    "luxury": luxury,
+    "clean_girl": clean_girl,
+    "brother": brother,
+    "it_style": it_style,
+    "english": english,
+    "french": french,
+    "chinese": chinese,
 }
 
 
@@ -28,16 +31,11 @@ MILITARY_SUBJECTS = (
 )
 
 
-def get_theme(
-    telegram_id=None,
-):
-
+def get_theme(telegram_id=None):
     if not telegram_id:
         return default
 
-    user = get_user(
-        telegram_id
-    )
+    user = get_user(telegram_id)
 
     if not user:
         return default
@@ -48,18 +46,12 @@ def get_theme(
     )
 
 
-def _get_theme_from_user(
-    user,
-):
-
+def _get_theme_from_user(user):
     if not user:
         return default
 
     return THEMES.get(
-        user.get(
-            "theme",
-            "default",
-        ),
+        user.get("theme", "default"),
         default,
     )
 
@@ -69,9 +61,7 @@ def emoji(
     lesson_type=None,
     theme_name=None,
 ):
-
     if theme_name == "default" and lesson_type:
-
         normalized_type = lesson_type.strip().lower()
 
         if normalized_type == "семинар":
@@ -89,15 +79,10 @@ def emoji(
     return "😵‍💫"
 
 
-def _emoji_for_lessons(
-    lessons,
-    theme_name,
-):
-
+def _emoji_for_lessons(lessons, theme_name):
     lesson_type = None
 
     if theme_name == "default" and lessons:
-
         lesson_type = lessons[0].lesson_type
 
     return emoji(
@@ -107,15 +92,10 @@ def _emoji_for_lessons(
     )
 
 
-def _format_day_lessons(
-    lessons,
-    theme,
-):
-
+def _format_day_lessons(lessons, theme):
     blocks = []
 
     for lesson in lessons:
-
         text = (
             f"{theme['lesson']} "
             f"<b>№{lesson.lesson_number}</b> "
@@ -123,78 +103,28 @@ def _format_day_lessons(
         )
 
         if lesson.room:
-
-            text += (
-                f", <b>{lesson.room}"
-            )
+            text += f", <b>{lesson.room}"
 
             if lesson.building:
-
-                text += (
-                    f" [{lesson.building}]"
-                )
+                text += f" [{lesson.building}]"
 
             text += "</b>"
 
         text += "\n"
-
-        text += (
-            f"{lesson.subject}\n"
-        )
-
-        lesson_lines = []
+        text += f"{lesson.subject}\n"
 
         if lesson.teacher:
-
-            lesson_lines.append(
-                f"<i>{lesson.teacher}</i>"
-            )
-
-        check_subject = (
-            lesson.subject.lower()
-        )
-
-        if (
-            lesson.lesson_type
-            and check_subject not in (
-                "майнор",
-                "военная кафедра",
-            )
-        ):
-
-            lesson_lines.append(
-                f"<b>{lesson.lesson_type.lower()}</b> "
-                f"{theme['type']}"
-            )
-
-        if lesson_lines:
-
-            text += (
-                " ".join(
-                    lesson_lines
-                )
-                + "\n"
-            )
+            text += f"<i>{lesson.teacher}</i>\n"
 
         if lesson.is_online:
+            text += f"{theme['online']}\n"
 
-            text += (
-                f"{theme['online']}\n"
-            )
+        blocks.append(text.rstrip())
 
-        blocks.append(
-            text.rstrip()
-        )
-
-    return "\n\n".join(
-        blocks
-    )
+    return "\n\n".join(blocks)
 
 
-def _filter_military_department(
-    lessons,
-):
-
+def _filter_military_department(lessons):
     return [
         lesson
         for lesson in lessons
@@ -207,71 +137,36 @@ def format_session_schedule(
     lessons: list[Lesson],
     telegram_id=None,
 ) -> list[str]:
-
     if not lessons:
-
-        theme = get_theme(
-            telegram_id
-        )
-
+        theme = get_theme(telegram_id)
         return [theme["no_lessons"]]
 
-    lessons = _filter_military_department(
-        lessons
-    )
+    lessons = _filter_military_department(lessons)
 
     if not lessons:
-
-        theme = get_theme(
-            telegram_id
-        )
-
+        theme = get_theme(telegram_id)
         return [theme["no_lessons"]]
 
-    user = None
+    user = get_user(telegram_id) if telegram_id else None
 
-    if telegram_id:
-
-        user = get_user(
-            telegram_id
-        )
-
-    theme = _get_theme_from_user(
-        user
-    )
+    theme = _get_theme_from_user(user)
 
     theme_name = "default"
 
     if user:
-
-        theme_name = user.get(
-            "theme",
-            "default",
-        )
+        theme_name = user.get("theme", "default")
 
     grouped = defaultdict(list)
 
     for lesson in lessons:
-
         grouped[
-            (
-                lesson.day,
-                lesson.date,
-            )
-        ].append(
-            lesson
-        )
+            (lesson.day, lesson.date)
+        ].append(lesson)
 
     messages = []
 
-    for (
-        day,
-        date,
-    ), day_lessons in grouped.items():
-
-        text = (
-            f"<b>{day} — {date}</b>\n\n"
-        )
+    for (day, date), day_lessons in grouped.items():
+        text = f"<b>{day} — {date}</b>\n\n"
 
         text += (
             f"{_emoji_for_lessons(day_lessons, theme_name)} "
@@ -284,9 +179,7 @@ def format_session_schedule(
             theme,
         )
 
-        messages.append(
-            text.rstrip()
-        )
+        messages.append(text.rstrip())
 
     return messages
 
@@ -295,7 +188,6 @@ def format_session_schedule_joined(
     lessons: list[Lesson],
     telegram_id=None,
 ) -> str:
-
     return "\n\n".join(
         format_session_schedule(
             lessons,

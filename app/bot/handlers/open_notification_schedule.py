@@ -7,6 +7,8 @@ from app.database.user_repository import get_user_group
 from app.database.session_repository import get_session_by_week
 from app.services.schedule_service import get_week_lessons_by_number
 from app.bot.services.formatter import format_lessons
+from app.services.session_formatter import format_session_schedule
+
 
 router = Router()
 
@@ -82,14 +84,17 @@ async def open_session(callback: CallbackQuery):
         )
         return
 
-    text = f"🎓 Сессия (неделя №{week})\n\n"
-
-    formatted = format_lessons(
+    messages = format_session_schedule(
         lessons,
-        group_by_day=True,
+        telegram_id=callback.from_user.id,
     )
 
-    text += _format_result(formatted)
+    for message in messages:
+        text = (
+            f"🎓 Сессия (неделя №{week})\n\n"
+            f"{message}"
+        )
 
-    await callback.message.answer(text)
+        await callback.message.answer(text)
+
     await callback.answer()
