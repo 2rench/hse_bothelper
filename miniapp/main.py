@@ -1043,14 +1043,35 @@ async def session_schedule(
         != "военная кафедра"
     ]
 
+    serialized = []
+
+    for lesson in lessons:
+
+        item = serialize_lesson(
+            lesson
+        )
+
+        subject_norm = (
+            lesson.subject or ""
+        ).strip().casefold()
+
+        lesson_type_norm = (
+            lesson.lesson_type or ""
+        ).strip().casefold()
+
+        if (
+            lesson_type_norm == "семинар"
+            and subject_norm != "майнор"
+        ):
+            item["lesson_type"] = "экзамен"
+
+        serialized.append(
+            item
+        )
+
     return {
         "session": session_name,
-        "lessons": [
-            serialize_lesson(
-                lesson
-            )
-            for lesson in lessons
-        ],
+        "lessons": serialized,
     }
 
 
