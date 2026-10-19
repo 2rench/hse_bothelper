@@ -946,6 +946,32 @@ function renderWeek(lessons) {
         .join("");
 }
 
+function renderSessionDays(lessons) {
+    const grouped = {};
+
+    lessons.forEach(lesson => {
+        const key = `${lesson.day}|${lesson.date}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(lesson);
+    });
+
+    return Object.entries(grouped)
+        .map(([key, dayLessons]) => {
+            const [day, date] = key.split("|");
+
+            return `
+                <section class="day-section">
+                    <div class="day-title">
+                        ${escapeHtml(day)} · ${escapeHtml(date)}
+                    </div>
+                    <div class="schedule-container">
+                        ${dayLessons.map(lesson => lessonCard(lesson)).join("")}
+                    </div>
+                </section>
+            `;
+        })
+        .join("");
+}
 
 function lessonCard(lesson, options = {}) {
     const tokens = state.theme?.tokens || {};
@@ -1091,9 +1117,7 @@ async function openSession(session) {
             return;
         }
 
-        container.innerHTML = data.lessons
-            .map(lesson => lessonCard(lesson))
-            .join("");
+        container.innerHTML = renderSessionDays(data.lessons);
     } catch (error) {
         container.innerHTML = `
             <div class="empty-state">
