@@ -136,16 +136,12 @@ def _get_effective_lessons(
     db: Session = SessionLocal()
 
     try:
-
         lessons = (
             db.query(Lesson)
             .filter(
                 Lesson.group_name == group,
                 Lesson.schedule_type.in_(
-                    [
-                        "base",
-                        "changes",
-                    ]
+                    ["base", "changes", "session"]
                 ),
             )
             .all()
@@ -154,89 +150,69 @@ def _get_effective_lessons(
         if not lessons:
             return []
 
-        today = datetime.now(
-            PERM_TZ
-        ).replace(
+        today = datetime.now(PERM_TZ).replace(
             hour=0,
             minute=0,
             second=0,
             microsecond=0,
         )
 
-        start_date = (
-            today
-            - timedelta(days=30)
-        )
-
-        end_date = (
-            today
-            + timedelta(days=180)
-        )
+        start_date = today - timedelta(days=30)
+        end_date = today + timedelta(days=180)
 
         grouped = {}
+        session_lessons = []
 
         for lesson in lessons:
-
             if not lesson.date:
                 continue
 
             try:
-
                 lesson_date = datetime.strptime(
                     lesson.date,
                     "%d.%m.%Y",
                 )
-
             except ValueError:
-
                 continue
 
             if (
-                lesson_date < start_date.replace(
-                    tzinfo=None
-                )
-                or
-                lesson_date > end_date.replace(
-                    tzinfo=None
-                )
+                lesson_date < start_date.replace(tzinfo=None)
+                or lesson_date > end_date.replace(tzinfo=None)
             ):
-
                 continue
 
-            grouped.setdefault(
-                lesson.date,
-                []
-            ).append(
-                lesson
-            )
+            # Сессионные пары добавляем отдельно:
+            # обычные изменения расписания их не заменяют.
+            if lesson.schedule_type == "session":
+                session_lessons.append(lesson)
+            else:
+                grouped.setdefault(
+                    lesson.date,
+                    [],
+                ).append(lesson)
 
         result = []
 
+        # Обычное расписание: изменения имеют приоритет
+        # над базовым расписанием на ту же дату.
         for date, day_lessons in grouped.items():
-
             changes = [
                 lesson
                 for lesson in day_lessons
-                if lesson.schedule_type
-                == "changes"
+                if lesson.schedule_type == "changes"
             ]
 
             if changes:
-
-                result.extend(
-                    changes
-                )
-
+                result.extend(changes)
             else:
-
                 result.extend(
-                    [
-                        lesson
-                        for lesson in day_lessons
-                        if lesson.schedule_type
-                        == "base"
-                    ]
+                    lesson
+                    for lesson in day_lessons
+                    if lesson.schedule_type == "base"
                 )
+
+        # Сессии включаем независимо от обычного расписания.
+        result.extend(session_lessons)
 
         result.sort(
             key=lambda lesson: (
@@ -244,19 +220,14 @@ def _get_effective_lessons(
                     lesson.date,
                     "%d.%m.%Y",
                 ),
-                str(
-                    lesson.lesson_number
-                ),
-                str(
-                    lesson.lesson_time
-                ),
+                str(lesson.lesson_number),
+                str(lesson.lesson_time),
             )
         )
 
         return result
 
     finally:
-
         db.close()
 
 

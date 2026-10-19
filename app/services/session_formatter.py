@@ -188,7 +188,11 @@ def _format_day_lessons(
 def format_session_schedule(
     lessons: list[Lesson],
     telegram_id=None,
-) -> str:
+) -> list[str]:
+    """
+    Возвращает список сообщений — по одному на каждый день сессии.
+    Структура каждого сообщения повторяет основной форматер.
+    """
 
     if not lessons:
 
@@ -196,7 +200,7 @@ def format_session_schedule(
             telegram_id
         )
 
-        return theme["no_lessons"]
+        return [theme["no_lessons"]]
 
     user = None
 
@@ -232,14 +236,14 @@ def format_session_schedule(
             lesson
         )
 
-    text = ""
+    messages = []
 
     for (
         day,
         date,
     ), day_lessons in grouped.items():
 
-        text += (
+        text = (
             f"<b>{day} — {date}</b>\n\n"
         )
 
@@ -253,6 +257,9 @@ def format_session_schedule(
             day_lessons,
             theme,
         )
-        text += "\n\n"
 
-    return text.rstrip()
+        messages.append(
+            text.rstrip()
+        )
+
+    return messages
