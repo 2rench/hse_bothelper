@@ -1771,13 +1771,6 @@ $("roomsButton").addEventListener("click", async () => {
     await openRooms();
 });
 
-
-$("avatarButton").addEventListener("click", () => {
-    showScreen("profile");
-    setActiveNav("profile");
-});
-
-
 try {
     tg.BackButton?.onClick(() => {
         if ($("screenRooms")?.classList.contains("active")) {
