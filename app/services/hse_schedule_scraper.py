@@ -53,6 +53,9 @@ def get_schedule_files():
 
         name_lower = name.lower()
 
+        if "модуль" in name_lower and "базовое" in name_lower:
+            continue
+
         if not (
             name_lower.endswith(".xls")
             or

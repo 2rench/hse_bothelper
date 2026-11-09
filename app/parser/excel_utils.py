@@ -1,5 +1,3 @@
-import xlrd
-
 def get_merged_cell_value(sheet, row, col):
 
     for merged in sheet.merged_cells:
