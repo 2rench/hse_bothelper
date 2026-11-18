@@ -92,9 +92,9 @@ async def tomorrow_handler(
         text
     )
 
-    # await message.answer(
-    #     "🫶 "
-    # )
+    await message.answer(
+        "😎 GTA VI уже вышла — оплачивайте зарубежные сервисы с <a href='https://platipomiru.com/?code=UDADY2XA'>Плати по миру</a>. 5$ за открытие карты"
+    )
 
 @router.message(
     lambda m: m.text == "📆 Завтра"

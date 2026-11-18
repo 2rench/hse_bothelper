@@ -78,9 +78,9 @@ async def today_handler(
         text
     )
 
-    # await message.answer(
-    #     "🫶 Расписания нет даже на Яндекс Диске. Работа нашего сервиса стабильна и исправна. Вместе с вами ждем решения проблемы"
-    # )
+    await message.answer(
+        "😎 GTA VI уже вышла — оплачивайте зарубежные сервисы с <a href='https://platipomiru.com/?code=UDADY2XA'>Плати по миру</a>. 5$ за открытие карты"
+    )
 
 
 @router.message(

@@ -10,24 +10,24 @@ html {
 :root {
     color-scheme: light;
 
-    --bg: #F5F6F7;
+    --bg: #FFF4EF;
     --surface: rgba(255, 255, 255, 0.72);
     --surface-solid: #FFFFFF;
-    --surface-2: rgba(240, 241, 243, 0.85);
-    --text: #14161A;
-    --text-2: #4E535A;
-    --muted: #8A9096;
-    --line: rgba(20, 22, 26, 0.08);
+    --surface-2: rgba(255, 236, 228, 0.85);
+    --text: #1A1423;
+    --text-2: #5A4A63;
+    --muted: #9A8AA3;
+    --line: rgba(26, 20, 35, 0.08);
 
-    --accent: #14161A;
+    --accent: #FF3D81;
     --accent-fg: #FFFFFF;
-    --accent-soft: rgba(20, 22, 26, 0.06);
+    --accent-soft: rgba(255, 61, 129, 0.12);
 
     --glass-bg: rgba(255, 255, 255, 0.72);
-    --glass-bg-strong: rgba(255, 255, 255, 0.85);
+    --glass-bg-strong: rgba(255, 255, 255, 0.88);
     --glass-border: rgba(255, 255, 255, 0.9);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-    --glass-shadow: 0 8px 28px rgba(20, 22, 26, 0.05);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    --glass-shadow: 0 8px 28px rgba(255, 61, 129, 0.08);
 
     --radius-sm: 10px;
     --radius-md: 14px;
@@ -44,41 +44,41 @@ html {
 :root[data-mode="dark"] {
     color-scheme: dark;
 
-    --bg: #0B0D10;
-    --surface: rgba(24, 26, 29, 0.72);
-    --surface-solid: #181A1D;
-    --surface-2: rgba(32, 34, 38, 0.85);
-    --text: #F2F3F5;
-    --text-2: #B0B5BC;
-    --muted: #71777E;
-    --line: rgba(255, 255, 255, 0.07);
+    --bg: #12061F;
+    --surface: rgba(30, 16, 48, 0.72);
+    --surface-solid: #1E1030;
+    --surface-2: rgba(44, 24, 68, 0.85);
+    --text: #F5E9FF;
+    --text-2: #C4B0D9;
+    --muted: #8A76A3;
+    --line: rgba(255, 255, 255, 0.08);
 
-    --accent: #F2F3F5;
-    --accent-fg: #14161A;
-    --accent-soft: rgba(242, 243, 245, 0.08);
+    --accent: #FF4D9D;
+    --accent-fg: #1A0A2E;
+    --accent-soft: rgba(255, 77, 157, 0.18);
 
-    --glass-bg: rgba(24, 26, 29, 0.68);
-    --glass-bg-strong: rgba(24, 26, 29, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.06);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-    --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    --glass-bg: rgba(30, 16, 48, 0.68);
+    --glass-bg-strong: rgba(30, 16, 48, 0.88);
+    --glass-border: rgba(255, 77, 157, 0.16);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    --glass-shadow: 0 12px 40px rgba(255, 77, 157, 0.18);
 }
 
-:root[data-display-theme="luxury"] { --accent: #A5516F; --accent-fg: #FFFFFF; --accent-soft: rgba(165, 81, 111, 0.12); }
-:root[data-display-theme="clean_girl"] { --accent: #4F7A64; --accent-fg: #FFFFFF; --accent-soft: rgba(79, 122, 100, 0.12); }
-:root[data-display-theme="brother"] { --accent: #C95832; --accent-fg: #FFFFFF; --accent-soft: rgba(201, 88, 50, 0.12); }
-:root[data-display-theme="it_style"] { --accent: #3D6FDB; --accent-fg: #FFFFFF; --accent-soft: rgba(61, 111, 219, 0.12); }
-:root[data-display-theme="english"] { --accent: #4E62A0; --accent-fg: #FFFFFF; --accent-soft: rgba(78, 98, 160, 0.12); }
-:root[data-display-theme="french"] { --accent: #6E5DA8; --accent-fg: #FFFFFF; --accent-soft: rgba(110, 93, 168, 0.12); }
-:root[data-display-theme="chinese"] { --accent: #B14A3E; --accent-fg: #FFFFFF; --accent-soft: rgba(177, 74, 62, 0.12); }
+:root[data-display-theme="luxury"] { --accent: #B8456E; --accent-fg: #FFF5F8; --accent-soft: rgba(184, 69, 110, 0.12); }
+:root[data-display-theme="clean_girl"] { --accent: #4FD1C5; --accent-fg: #062A26; --accent-soft: rgba(79, 209, 197, 0.14); }
+:root[data-display-theme="brother"] { --accent: #FF8A3D; --accent-fg: #2A1000; --accent-soft: rgba(255, 138, 61, 0.14); }
+:root[data-display-theme="it_style"] { --accent: #5B8CFF; --accent-fg: #0A1230; --accent-soft: rgba(91, 140, 255, 0.14); }
+:root[data-display-theme="english"] { --accent: #6E7BFF; --accent-fg: #0C0E30; --accent-soft: rgba(110, 123, 255, 0.14); }
+:root[data-display-theme="french"] { --accent: #C77DFF; --accent-fg: #1C0033; --accent-soft: rgba(199, 125, 255, 0.16); }
+:root[data-display-theme="chinese"] { --accent: #FF6B5B; --accent-fg: #2A0704; --accent-soft: rgba(255, 107, 91, 0.14); }
 
-:root[data-mode="dark"][data-display-theme="luxury"] { --accent: #D890AD; --accent-fg: #17191C; --accent-soft: rgba(216, 144, 173, 0.16); }
-:root[data-mode="dark"][data-display-theme="clean_girl"] { --accent: #8FBCA3; --accent-fg: #17191C; --accent-soft: rgba(143, 188, 163, 0.16); }
-:root[data-mode="dark"][data-display-theme="brother"] { --accent: #EB8B62; --accent-fg: #17191C; --accent-soft: rgba(235, 139, 98, 0.16); }
-:root[data-mode="dark"][data-display-theme="it_style"] { --accent: #6E97EE; --accent-fg: #17191C; --accent-soft: rgba(110, 151, 238, 0.16); }
-:root[data-mode="dark"][data-display-theme="english"] { --accent: #8094CB; --accent-fg: #17191C; --accent-soft: rgba(128, 148, 203, 0.16); }
-:root[data-mode="dark"][data-display-theme="french"] { --accent: #A392D6; --accent-fg: #17191C; --accent-soft: rgba(163, 146, 214, 0.16); }
-:root[data-mode="dark"][data-display-theme="chinese"] { --accent: #DD7C70; --accent-fg: #17191C; --accent-soft: rgba(221, 124, 112, 0.16); }
+:root[data-mode="dark"][data-display-theme="luxury"] { --accent: #FF7EB0; --accent-fg: #1A0A14; --accent-soft: rgba(255, 126, 176, 0.18); }
+:root[data-mode="dark"][data-display-theme="clean_girl"] { --accent: #6FE7DC; --accent-fg: #062A26; --accent-soft: rgba(111, 231, 220, 0.18); }
+:root[data-mode="dark"][data-display-theme="brother"] { --accent: #FFA463; --accent-fg: #2A1000; --accent-soft: rgba(255, 164, 99, 0.18); }
+:root[data-mode="dark"][data-display-theme="it_style"] { --accent: #7FA6FF; --accent-fg: #0A1230; --accent-soft: rgba(127, 166, 255, 0.18); }
+:root[data-mode="dark"][data-display-theme="english"] { --accent: #8F9BFF; --accent-fg: #0C0E30; --accent-soft: rgba(143, 155, 255, 0.18); }
+:root[data-mode="dark"][data-display-theme="french"] { --accent: #D99EFF; --accent-fg: #1C0033; --accent-soft: rgba(217, 158, 255, 0.18); }
+:root[data-mode="dark"][data-display-theme="chinese"] { --accent: #FF8B7E; --accent-fg: #2A0704; --accent-soft: rgba(255, 139, 126, 0.18); }
 
 body {
     margin: 0;
@@ -93,6 +93,26 @@ body {
     transition:
         background-color 240ms ease,
         color 240ms ease;
+}
+
+/* Vice City sunset backdrop */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(120% 80% at 15% 0%, rgba(255, 61, 129, 0.10), transparent 60%),
+        radial-gradient(100% 70% at 90% 10%, rgba(255, 138, 61, 0.08), transparent 55%),
+        radial-gradient(90% 60% at 50% 100%, rgba(79, 209, 197, 0.06), transparent 60%);
+}
+
+:root[data-mode="dark"] body::before {
+    background:
+        radial-gradient(120% 80% at 15% 0%, rgba(255, 77, 157, 0.22), transparent 60%),
+        radial-gradient(100% 70% at 90% 10%, rgba(91, 140, 255, 0.14), transparent 55%),
+        radial-gradient(90% 60% at 50% 100%, rgba(199, 125, 255, 0.12), transparent 60%);
 }
 
 button {
@@ -125,15 +145,13 @@ button {
     top: 0;
     z-index: 20;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
     padding:
-        calc(var(--inset-top) + 2px)
+        calc(var(--inset-top) + 8px)
         20px
-        8px;
-    background:
-        color-mix(in srgb, var(--bg) 82%, transparent);
+        10px;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
 }
@@ -966,8 +984,7 @@ h1 {
     padding:
         6px 8px
         calc(var(--inset-bottom) + max(6px, env(safe-area-inset-bottom, 0px)));
-    background:
-        color-mix(in srgb, var(--bg) 78%, transparent);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
     border-top: 1px solid var(--glass-border);
@@ -1112,6 +1129,7 @@ h1 {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
 .onboarding-overlay {
     position: fixed;
     inset: 0;
@@ -1198,20 +1216,4 @@ h1 {
     font-weight: 500;
     line-height: 1.4;
     text-align: center;
-}
-
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding:
-        calc(var(--inset-top) + 8px)
-        20px
-        10px;
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    backdrop-filter: saturate(180%) blur(24px);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
 }
