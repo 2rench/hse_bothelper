@@ -140,21 +140,100 @@ button {
     padding-bottom: calc(88px + var(--inset-bottom));
 }
 
+/* ===== TOPBAR + AD CARD ===== */
+
 .topbar {
     position: sticky;
     top: 0;
     z-index: 20;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: block;
     padding:
         calc(var(--inset-top) + 8px)
-        20px
-        10px;
+        16px
+        8px;
     background: color-mix(in srgb, var(--bg) 82%, transparent);
     backdrop-filter: saturate(180%) blur(24px);
     -webkit-backdrop-filter: saturate(180%) blur(24px);
 }
+
+.ad-card {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow), var(--glass-highlight);
+    text-decoration: none;
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform 150ms ease,
+        background-color 150ms ease;
+}
+
+.ad-card:active {
+    transform: scale(0.98);
+    background: var(--glass-bg-strong);
+}
+
+.ad-card,
+.ad-card * {
+    text-decoration: none;
+}
+
+.ad-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.ad-card-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--text);
+}
+
+.ad-card-badge {
+    flex: 0 0 auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.ad-card-text {
+    margin: 0;
+    color: var(--text-2);
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* legacy notice (можно удалить, если не используется) */
+.ad-notice {
+    width: 100%;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+}
+
+/* ===== CONTENT ===== */
 
 .topbar-info {
     min-width: 0;
@@ -1128,6 +1207,11 @@ h1 {
     .themes-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+
+    .topbar {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
 }
 
 .onboarding-overlay {
@@ -1207,13 +1291,4 @@ h1 {
 
 .onboarding-close:active {
     transform: scale(0.97);
-}
-
-.ad-notice {
-    width: 100%;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.4;
-    text-align: center;
 }
