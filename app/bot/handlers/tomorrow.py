@@ -93,7 +93,8 @@ async def tomorrow_handler(
     )
 
     await message.answer(
-        "😎 GTA VI уже вышла — оплачивайте зарубежные сервисы с <a href='https://platipomiru.com/?code=UDADY2XA'>Плати по миру</a>. 5$ за открытие карты"
+        "😎 GTA VI уже вышла — оплачивайте зарубежные сервисы с <a href='https://platipomiru.com/?code=UDADY2XA'>Плати по миру</a>. 5$ за открытие карты",
+        link_preview_options={"is_disabled": True}
     )
 
 @router.message(
